@@ -1,5 +1,6 @@
 #pragma once
 #include "bst_node.h"
+#include <stddef.h>
 
 typedef struct {
     bst_node_t *root;
@@ -46,7 +47,7 @@ void bst_delete(bst_t *tree, bst_node_t *node)
         return;
     }
     if (!node->left && !node->right) {
-        return bst_transplant(node, NULL);
+        return bst_transplant(tree, node, NULL);
     }
     if (!node->left || !node->right) {
         return bst_transplant(tree, node, 

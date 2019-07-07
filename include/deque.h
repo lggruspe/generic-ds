@@ -1,5 +1,6 @@
 #pragma once
 #include "list/list.h"
+#include <stddef.h>
 
 typedef struct {
     list_t *list;

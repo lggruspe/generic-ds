@@ -8,21 +8,21 @@ typedef struct node_t {
 
 void node_insert_before(node_t *left, node_t *right)
 {
-    left->right = right;
-    left->left = right->left;
-    left->left->right = left;
-    right->left = left;
+    left->next= right;
+    left->prev = right->prev;
+    left->prev->next = left;
+    right->prev = left;
 }
 
 void node_insert_after(node_t *left, node_t *right)
 {
-    right->left = left;
-    right->right = left->right;
-    right->right->left = right;
-    left->right = right;
+    right->prev = left;
+    right->next = left->next;
+    right->next->prev = right;
+    left->next = right;
 }
 
-node* node_delete(node_t *node)
+node_t* node_delete(node_t *node)
 {
     node->prev->next = node->next;
     node->next->prev = node->prev;

@@ -45,7 +45,7 @@ void list_insert_after_tail(list_t *list, node_t *node)
 
 int list_delete_head(list_t *list)
 {
-    node *head = node_delete(list->null->next);
+    node_t *head = node_delete(list->null->next);
     int item = head->value;
     free(head);
     return item;
@@ -53,7 +53,7 @@ int list_delete_head(list_t *list)
 
 int list_delete_tail(list_t *list)
 {
-    node *tail = node_delete(list->null->prev);
+    node_t *tail = node_delete(list->null->prev);
     int item = tail->value;
     free(tail);
     return item;

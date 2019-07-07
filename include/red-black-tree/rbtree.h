@@ -29,7 +29,7 @@ rb_node_t *rb_node_create(
 
 rb_node_t *rb_node_search(rb_node_t *root, int key)
 {
-    rbnode_t *node = root;
+    rb_node_t *node = root;
     while (node && node->key != key) {
         node = (key < node->key ? node->left : node->right);
     }
