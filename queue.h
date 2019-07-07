@@ -50,7 +50,7 @@ int queue_dequeue(queue_t *queue)
     return item;
 }
 
-void stack_destroy(queue_t *queue)
+void queue_destroy(queue_t *queue)
 {
     while (queue->size > 0) {
         queue_dequeue(queue);

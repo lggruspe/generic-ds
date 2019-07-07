@@ -2,7 +2,7 @@
 
 typedef struct bst_node_t {
     int key;
-    struct bst_node_t *left, *right;
+    struct bst_node_t *left, *right, *parent;
 } bst_node_t;
 
 bst_node_t *bst_node_search(bst_node_t *root, int key)
