@@ -1,7 +1,7 @@
 #pragma once
 
-const RB_BLACK = 'b';
-const RB_RED = 'r';
+const char RB_BLACK = 'b';
+const char RB_RED = 'r';
 
 typedef struct rb_node_t {
     int key;

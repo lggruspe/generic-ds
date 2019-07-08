@@ -1,5 +1,6 @@
 #pragma once
 #include "list/list.h"
+#include "list/node.h"
 #include <stddef.h>
 
 typedef struct {
@@ -21,12 +22,14 @@ deque_t* deque_init()
 
 void deque_insert_before(deque_t *deque, int item)
 {
-    list_insert_before_head(deque->list, item);
+    node_t *node = node_create(item);
+    list_insert_before_head(deque->list, node);
 }
 
 void deque_insert_after(deque_t *deque, int item)
 {
-    list_insert_after_tail(deque->list, item);
+    node_t *node = node_create(item);
+    list_insert_after_tail(deque->list, node);
 }
 
 int deque_delete_before(deque_t *deque)
@@ -37,4 +40,9 @@ int deque_delete_before(deque_t *deque)
 int deque_delete_after(deque_t *deque)
 {
     return list_delete_tail(deque->list);
+}
+
+void deque_destroy(deque_t *deque)
+{
+
 }

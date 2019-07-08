@@ -39,7 +39,7 @@ int queue_dequeue(queue_t *queue)
     int item;
     if (queue->size > 0) {
         queue->size--;
-        int item = queue->array[queue->front++];
+        item = queue->array[queue->front++];
         if (queue->front == queue->capacity) {
             queue->front = 0;
         }
