@@ -6,7 +6,6 @@ typedef struct {
     bst_node_t *root;
 } bst_t;
 
-// returns true on success
 void bst_insert(bst_t *tree, bst_node_t *node)
 {
     bst_node_t *parent = NULL;
