@@ -1,24 +1,27 @@
 #pragma once
+#ifndef stack_item_type
+#define stack_item_type int
+#endif
 #include <stdlib.h>
 
 typedef struct {
-    int *array;
+    stack_item_type *array;
     size_t size;
     size_t capacity;
 } stack_t;
 
 stack_t* stack_init(size_t capacity)
 {
-    stack_t *stack = (stack_t*)malloc(sizeof(stack_t));
+    stack_t *stack = malloc(sizeof(stack_t));
     if (stack != NULL) {
-        stack->array = (int*)malloc(sizeof(int) * capacity);
+        stack->array = malloc(sizeof(stack_item_type) * capacity);
         stack->size = 0;
         stack->capacity = (stack->array != NULL) ? capacity : 0;
     }
     return stack;
 }
 
-int stack_push(stack_t *stack, int item)
+int stack_push(stack_t *stack, stack_item_type item)
 {
     if (stack->size < stack->capacity) {
         stack->array[stack->size] = item;
@@ -28,9 +31,9 @@ int stack_push(stack_t *stack, int item)
     return 0;
 }
 
-int stack_pop(stack_t *stack)
+stack_item_type stack_pop(stack_t *stack)
 {
-    int top;
+    stack_item_type top;
     if (stack->size > 0) {
         stack->size--;
         top = stack->array[stack->size];
