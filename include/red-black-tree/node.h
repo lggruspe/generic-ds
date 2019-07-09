@@ -51,6 +51,21 @@ rb_node_t *rb_node_search(
     return node;
 }
 
+rb_node_t *rb_node_find_match_or_parent(
+        rb_node_t *root,
+        void *key,
+        int compare(const void*, const void*))
+{
+    rb_node_t *parent = NULL;
+    rb_node_t *child = root;
+    int comparison;
+    while (child && ((comparison = compare(key, child->key)) != 0)) {
+        parent = child;
+        child = (comparison < 0 ? child->left : child->right);
+    }
+    return child ? child : parent;
+}
+
 rb_node_t *rb_node_minimum(rb_node_t *root)
 {
     if (!root) {

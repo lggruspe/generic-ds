@@ -101,31 +101,40 @@ void rb_tree_repair(rb_tree_t *tree, rb_node_t *node)
     tree->root->color = RB_BLACK;
 }
 
+// does not check if inserting child affects tree shape
+// or if parent has room for child
+void rb_tree_insert_child(rb_tree_t *tree, rb_node_t *parent, rb_node_t *child)
+{
+    child->color = RB_RED;
+    child->left = NULL;
+    child->right = NULL;
+    child->parent = parent;
+    if (!parent) {
+        tree->root = child;
+    } else {
+        int comparison = tree->comparator(child->key, parent->key);
+        // what if comparison == 0?
+        if (comparison < 0) {
+            parent->left = child;
+        } else {
+            parent->right = child;
+        }
+    }
+    rb_tree_repair(tree, child);
+}
+
 void rb_tree_insert(rb_tree_t *tree, rb_node_t *node)
 {
     if (!node) {
         return;
     }
-    node->left = NULL;
-    node->right = NULL;
-    node->color = RB_RED;
-
     rb_node_t *parent = NULL;
     rb_node_t *child = tree->root;
     while (child) {
         parent = child;
         child = (node->key < child->key ? child->left : child->right);
     }
-    node->parent = parent;
-    if (!parent) {
-        tree->root = node;
-    } else if (node->key < parent->key) {
-        // TODO what if node->key = parent->key = parent->right->key ?
-        parent->left = node;
-    } else {
-        parent->right = node;
-    }
-    rb_tree_repair(tree, node);
+    rb_tree_insert_child(tree, parent, node);
 }
 
 void rb_tree_transplant(rb_tree_t *tree, rb_node_t *u, rb_node_t *v)
