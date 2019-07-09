@@ -1,4 +1,5 @@
 #pragma once
+#include <stdlib.h>
 #include <string.h>
 
 const char RB_BLACK = 'b';
