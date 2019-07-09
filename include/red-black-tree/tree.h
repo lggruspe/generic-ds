@@ -163,3 +163,16 @@ void rb_tree_delete(rb_tree_t *tree, rb_node_t *node)
     successor->left->parent = successor;
     rb_tree_transplant(tree, node, successor);
 }
+
+// NOTE doesnt check if new key preserves tree shape
+void rb_tree_change_node_key(rb_tree_t *tree, rb_node_t *node, const void *key)
+{
+    if (node) {
+        if (!node->key) {
+            node->key = malloc(tree->nbytes);
+        }
+        if (node->key) {
+            memcpy(node->key, key, tree->nbytes);
+        }
+    }
+}
