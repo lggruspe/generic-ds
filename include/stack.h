@@ -1,51 +1,55 @@
 #pragma once
-#ifndef stack_item_type
-#define stack_item_type int
-#endif
 #include <stdlib.h>
 
-typedef struct {
-    stack_item_type *array;
-    size_t size;
-    size_t capacity;
-} stack_t;
-
-stack_t* stack_init(size_t capacity)
-{
-    stack_t *stack = malloc(sizeof(stack_t));
-    if (stack != NULL) {
-        stack->array = malloc(sizeof(stack_item_type) * capacity);
-        stack->size = 0;
-        stack->capacity = (stack->array != NULL) ? capacity : 0;
-    }
-    return stack;
+// dummy is used to get size of an item
+#define stack(type) struct {\
+    type *array;\
+    size_t size;\
+    size_t capacity;\
+    type dummy;\
 }
 
-int stack_push(stack_t *stack, stack_item_type item)
-{
-    if (stack->size < stack->capacity) {
-        stack->array[stack->size] = item;
-        stack->size++;
-        return 1;
-    }
-    return 0;
+#define stack_init(stack) {\
+    (stack).array = NULL;\
+    (stack).size = 0;\
+    (stack).capacity = 0;\
 }
 
-stack_item_type stack_pop(stack_t *stack)
-{
-    stack_item_type top;
-    if (stack->size > 0) {
-        stack->size--;
-        top = stack->array[stack->size];
-    }
-    return top;
+#define stack_increase_capacity(stack) {\
+    {\
+        size_t new_capacity = 2*(stack).capacity;\
+        new_capacity = new_capacity ? new_capacity : 1;\
+        void *tmp = realloc((stack).array, new_capacity * sizeof((stack).dummy));\
+        if (tmp) {\
+            (stack).array = tmp;\
+            (stack).capacity = new_capacity;\
+        }\
+    }\
 }
 
-void stack_destroy(stack_t *stack)
-{
-    while (stack->size > 0) {
-        stack_pop(stack);
-    }
-    free(stack->array);
-    free(stack);
+#define stack_is_empty(stack) ((stack).size == 0)
+#define stack_is_full(stack) ((stack).size >= (stack).capacity)
+
+#define stack_push(stack, item) {\
+    if (stack_is_full(stack)) {\
+        stack_increase_capacity(stack);\
+    }\
+    if (!stack_is_full(stack)) {\
+        (stack).array[(stack).size++] = (item);\
+    }\
+}
+
+#define stack_peek(stack) (stack_is_empty(stack) ? NULL : &((stack).array[(stack).size - 1]))
+
+#define stack_pop(stack) {\
+    if (!stack_is_empty(stack)) {\
+        (stack).size--;\
+    }\
+}
+
+#define stack_destroy(stack) {\
+    if ((stack).array) {\
+        free((stack).array);\
+        (stack).array = NULL;\
+    }\
 }
