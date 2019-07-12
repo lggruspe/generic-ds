@@ -3,10 +3,10 @@
 
 // dummy is used to get size of an item
 #define stack(type) struct {\
+    type dummy;\
     type *array;\
     size_t size;\
     size_t capacity;\
-    type dummy;\
 }
 
 #define stack_init(stack) {\
@@ -16,14 +16,12 @@
 }
 
 #define stack_increase_capacity(stack) {\
-    {\
-        size_t new_capacity = 2*(stack).capacity;\
-        new_capacity = new_capacity ? new_capacity : 1;\
-        void *tmp = realloc((stack).array, new_capacity * sizeof((stack).dummy));\
-        if (tmp) {\
-            (stack).array = tmp;\
-            (stack).capacity = new_capacity;\
-        }\
+    size_t new_capacity = 2*(stack).capacity;\
+    new_capacity = new_capacity ? new_capacity : 1;\
+    void *tmp = realloc((stack).array, new_capacity * sizeof((stack).dummy));\
+    if (tmp) {\
+        (stack).array = tmp;\
+        (stack).capacity = new_capacity;\
     }\
 }
 
@@ -51,5 +49,7 @@
     if ((stack).array) {\
         free((stack).array);\
         (stack).array = NULL;\
+        (stack).size = 0;\
+        (stack).capacity = 0;\
     }\
 }
