@@ -21,6 +21,6 @@ void run_test(bool (*test)(void), const char *name)
 
 int exit_test()
 {
-    printf("passed: %d\n\n", global_passed);
+    printf("passed: %s\n\n", global_passed ? "yes" : "no");
     return global_passed ? EXIT_SUCCESS : EXIT_FAILURE;
 }

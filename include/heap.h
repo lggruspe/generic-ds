@@ -1,35 +1,66 @@
 #pragma once
-#define HEAP_PARENT(i)  (((i) - 1)/2)
-#define HEAP_LEFT(i)    (2*(i) + 1)
-#define HEAP_RIGHT(i)   (HEAP_LEFT(i) + 1)
+#include <stdlib.h>
+#include <string.h>
+#define heap_parent(i) (((i) - 1)/2)
 
-void heap_swap(int A[], size_t i, size_t j)
-{
-    int a = A[i];
-    A[i] = A[j];
-    A[j] = a;
-}
+// implements a max heap
 
-void heap_max_sift_up(int A[], size_t i)
+struct heap {
+    void *array;
+    size_t size;
+    size_t nbytes;  // # of bytes per element
+    int (*comparator)(const void*, const void*);
+};
+
+void *heap_get(struct heap *heap, size_t i)
 {
-    int a = A[i];
-    while (i > 0 && a > A[HEAP_PARENT(i)]) {
-        A[i] = A[HEAP_PARENT(i)];
-        i = HEAP_PARENT(i);
+    if (i >= heap->size) {
+        return NULL;
     }
-    A[i] = a;
+    return (char*)(heap->array) + i*(heap->nbytes);
 }
 
-void heap_max_sift_down(int A[], size_t n, size_t i)
+void heap_set(struct heap *heap, size_t i, void *value)
+{
+    void *ptr = heap_get(heap, i);
+    memcpy(ptr, value, heap->nbytes);
+}
+
+void heap_swap(struct heap *heap, size_t i, size_t j)
+{
+    void *ptr = malloc(heap->nbytes);
+    memcpy(ptr, heap_get(heap, i), heap->nbytes);
+    memcpy((char*)(heap->array) + i, (char*)(heap->array) + j, heap->nbytes);
+    memcpy((char*)(heap->array) + j, ptr, heap->nbytes);
+    free(ptr);
+}
+
+void heap_sift_up(struct heap *heap, size_t i)
+{
+    void *ptr = heap_get(heap, i);
+    while (i > 0 && heap->comparator(ptr, heap_get(heap, heap_parent(i))) > 0) {
+        heap_set(heap, i, heap_get(heap, heap_parent(i)));
+        i = heap_parent(i);
+    }
+    heap_set(heap, i, ptr);
+}
+
+void heap_sift_down(struct heap *heap, size_t i)
 {
     for (;;) {
-        int l = HEAP_LEFT(i);
-        int r = HEAP_RIGHT(i);
-        int p = i;
-        p = (l < n && A[p] < A[l] ? l : p);
-        p = (r < n && A[p] < A[r] ? r : p);
+        size_t l = 2*i + 1;
+        size_t r = l + 1;
+        size_t p = i;
+        void *left = heap_get(heap, l);
+        void *right = heap_get(heap, r);
+        if (l < heap->size && heap->comparator(heap_get(heap, p), left) < 0) {
+            p = l;
+        }
+        if (r < heap->size && heap->comparator(heap_get(heap, p), right) < 0) {
+            p = r;
+        }
         if (i != p) {
-            heap_swap(A, i, p);
+            heap_swap(heap, i, p);
             i = p;
         } else {
             break;
@@ -37,43 +68,21 @@ void heap_max_sift_down(int A[], size_t n, size_t i)
     }
 }
 
-void heap_max_heapify(int A[], size_t n)
+void heap_heapify(struct heap *heap)
 {
-    for (size_t i = (n - 1)/2; i >= 0; --i) {
-        heap_max_sift_down(A, n, i);
+    for (size_t i = (heap->size - 1)/2; i > 0; --i) {
+        heap_sift_down(heap, i);
     }
 }
 
-void heap_min_sift_up(int A[], size_t i)
+// does not run heap_heapify
+struct heap heap_create(void *array, size_t size, size_t nbytes, 
+        int (*comparator)(const void*, const void*))
 {
-    int a = A[i];
-    while (i > 0 && a < A[HEAP_PARENT(i)]) {
-        A[i] = A[HEAP_PARENT(i)];
-        i = HEAP_PARENT(i);
-    }
-    A[i] = a;
-}
-
-void heap_min_sift_down(int A[], size_t n, size_t i)
-{
-    for (;;) {
-        int l = HEAP_LEFT(i);
-        int r = HEAP_RIGHT(i);
-        int p = i;
-        p = (l < n && A[p] > A[l] ? l : p);
-        p = (r < n && A[p] > A[r] ? r : p);
-        if (i != p) {
-            heap_swap(A, i, p);
-            i = p;
-        } else {
-            break;
-        }
-    }
-}
-
-void heap_min_heapify(int A[], size_t n)
-{
-    for (size_t i = (n - 1)/2; i >= 0; --i) {
-        heap_min_sift_down(A, n, i);
-    }
+    struct heap heap;
+    heap.array = array;
+    heap.size = size;
+    heap.nbytes = nbytes;
+    heap.comparator = comparator;
+    return heap;
 }

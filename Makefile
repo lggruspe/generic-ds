@@ -10,7 +10,7 @@ bin/main:	main.c bst/bst.h bst/bst_node.h heap.h red-black-tree/tree.h red-black
 
 .PHONY:	clean
 clean:
-	-rm -f bin/main
+	-rm -f bin/main vgcore.*
 
 $(TESTS):	bin/test_%: test/%.c %.h test/test_lib.h
 	$(CC) $(CFLAGS) -o $@ $<
