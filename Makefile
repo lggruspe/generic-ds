@@ -12,7 +12,7 @@ bin/main:	main.c bst/bst.h bst/bst_node.h list/list.h deque.h heap.h queue.h red
 clean:
 	-rm -f bin/main
 
-$(TESTS):	bin/test_%: test/%.c %.h
+$(TESTS):	bin/test_%: test/%.c %.h test/test_lib.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 .PHONY:	test

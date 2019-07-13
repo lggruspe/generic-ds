@@ -1,18 +1,10 @@
 #include "queue.h"
+#include "test_lib.h"
 #include <stdbool.h>
-#include <stdio.h>
-
-#define check_assertion(condition) do {\
-    if (condition) {\
-        passed = true;\
-    }\
-} while (0)
 
 #define test_queue_setup(type) bool passed = false; queue(type) queue; queue_init(queue)
 
 #define test_queue_teardown() queue_destroy(queue); return passed
-
-bool global_passed = true;
 
 bool test_queue_init()
 {
@@ -119,20 +111,8 @@ bool test_queue_destroy()
     test_queue_teardown();
 }
 
-void run_test(bool (*test)(void), const char *name)
-{
-    bool passed = test();
-    printf("%s %s\n", name, passed ? "passed" : "failed");
-    if (!passed) {
-        global_passed = false;
-    }
-}
-
 int main()
 {
-    bool passed = test_queue_init();
-    printf("passed: %d\n", passed);
-
     run_test(test_queue_init, "test_queue_init");
     run_test(test_queue_is_empty, "test_queue_is_empty");
     run_test(test_queue_is_full, "test_queue_is_full");
@@ -140,8 +120,5 @@ int main()
     run_test(test_queue_peek, "test_queue_peek");
     run_test(test_queue_enqueue, "test_queue_enqueue");
     run_test(test_queue_dequeue, "test_queue_dequeue");
-    printf("passed: %d\n\n", global_passed);
-    if (!global_passed) {
-        return EXIT_FAILURE;
-    }
+    return exit_test();
 }

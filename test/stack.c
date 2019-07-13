@@ -1,19 +1,10 @@
 #include "stack.h"
+#include "test_lib.h"
 #include <stdbool.h>
-#include <stdio.h>
-
-#define check_assertion(condition) {\
-    if (condition) {\
-        passed = true;\
-    }\
-}
 
 #define test_stack_setup(type) bool passed = false; stack(type) stack; stack_init(stack)
 
 #define test_stack_teardown() stack_destroy(stack); return passed
-
-
-bool global_passed = true;
 
 bool test_stack_init()
 {
@@ -80,16 +71,6 @@ bool test_stack_push_peek_pop()
     test_stack_teardown();
 }
 
-
-void run_test(bool (*test)(void), const char *name)
-{
-    bool passed = test();
-    printf("%s %s\n", name, passed ? "passed" : "failed");
-    if (!passed) {
-        global_passed = false;
-    }
-}
-
 int main()
 {
     run_test(test_stack_init, "test_stack_init");
@@ -97,8 +78,5 @@ int main()
     run_test(test_stack_is_empty, "test_stack_is_empty");
     run_test(test_stack_is_full, "test_stack_is_full");
     run_test(test_stack_push_peek_pop, "test_stack_push_peek_pop");
-    printf("passed: %d\n\n", global_passed);
-    if (!global_passed) {
-        return EXIT_FAILURE;
-    }
+    return exit_test();
 }
