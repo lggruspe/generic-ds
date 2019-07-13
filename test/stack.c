@@ -28,11 +28,11 @@ bool test_stack_increase_capacity()
     stack(char) stack;
     stack_init(stack);
     stack_increase_capacity(stack);
-    check_assertion(stack.size == 1);
+    check_assertion(stack.capacity == 1);
     for (size_t i = 0; i < 3; ++i) {
         stack_increase_capacity(stack);
     }
-    check_assertion(stack.size == 8);
+    check_assertion(stack.capacity == 8);
     stack_destroy(stack);
     return passed;
 }
@@ -104,7 +104,7 @@ int main()
     run_test(test_stack_is_empty, "test_stack_is_empty");
     run_test(test_stack_is_full, "test_stack_is_full");
     run_test(test_stack_push_peek_pop, "test_stack_push_peek_pop");
-    printf("passed: %d\n", global_passed);
+    printf("passed: %d\n\n", global_passed);
     if (!global_passed) {
         return EXIT_FAILURE;
     }
