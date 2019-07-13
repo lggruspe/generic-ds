@@ -1,13 +1,8 @@
 #include "bst/bst.h"
 #include "bst/bst_node.h"
-#include "list/list.h"
-#include "list/node.h"
-#include "deque.h"
+//#include "deque.h"
 #include "heap.h"
-//#include "queue.h"
 #include "red-black-tree/tree.h"
-#define stack_item_type int
-#include "stack.h"
 #include <stdio.h>
 #include <stdlib.h>
 
