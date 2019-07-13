@@ -1,61 +1,55 @@
 #include "stack.h"
 #include <stdbool.h>
+#include <stdio.h>
+
 #define check_assertion(condition) {\
-    if (!(condition)) {\
-        passed = false;\
+    if (condition) {\
+        passed = true;\
     }\
 }
 
-#include <stdio.h>
+#define test_stack_setup(type) bool passed = false; stack(type) stack; stack_init(stack)
+
+#define test_stack_teardown() stack_destroy(stack); return passed
+
 
 bool global_passed = true;
 
 bool test_stack_init()
 {
-    bool passed = true;
-    stack(char) stack;
-    stack_init(stack);
+    test_stack_setup(char);
     check_assertion(!stack.array);
     check_assertion(stack.size == 0);
     check_assertion(stack.capacity == 0);
-    stack_destroy(stack);
-    return passed;
+    test_stack_teardown();
 }
 
 bool test_stack_increase_capacity()
 {
-    bool passed = true;
-    stack(char) stack;
-    stack_init(stack);
+    test_stack_setup(char);
     stack_increase_capacity(stack);
     check_assertion(stack.capacity == 1);
     for (size_t i = 0; i < 3; ++i) {
         stack_increase_capacity(stack);
     }
     check_assertion(stack.capacity == 8);
-    stack_destroy(stack);
-    return passed;
+    test_stack_teardown();
 }
 
 bool test_stack_is_empty()
 {
-    bool passed = true;
-    stack(char) stack;
-    stack_init(stack);
+    test_stack_setup(char);
     check_assertion(stack_is_empty(stack));
     stack_push(stack, 0);
     check_assertion(!stack_is_empty(stack));
     stack_pop(stack);
     check_assertion(stack_is_empty(stack));
-    stack_destroy(stack);
-    return passed;
+    test_stack_teardown();
 }
 
 bool test_stack_is_full()
 {
-    bool passed = true;
-    stack(char) stack;
-    stack_init(stack);
+    test_stack_setup(char);
     check_assertion(stack_is_full(stack));
     stack_push(stack, 1);
     check_assertion(stack_is_full(stack));
@@ -65,15 +59,12 @@ bool test_stack_is_full()
     check_assertion(!stack_is_full(stack));
     stack_push(stack, 4);
     check_assertion(stack_is_full(stack));
-    stack_destroy(stack);
-    return passed;
+    test_stack_teardown();
 }
 
 bool test_stack_push_peek_pop()
 {
-    bool passed = true;
-    stack(char) stack;
-    stack_init(stack);
+    test_stack_setup(char);
     char array[] = "0123456789";
     for (size_t i = 0; i < 10; ++i) {
         stack_push(stack, array[i]);
@@ -84,9 +75,11 @@ bool test_stack_push_peek_pop()
         stack_pop(stack);
     }
     check_assertion(stack_is_empty(stack));
-    stack_destroy(stack);
-    return passed;
+    void *ptr = stack_peek(stack);
+    check_assertion(!ptr);
+    test_stack_teardown();
 }
+
 
 void run_test(bool (*test)(void), const char *name)
 {

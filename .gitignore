@@ -1,3 +1,3 @@
 bin/main
 vgcore.*
-bin/test_stack
+bin/test_*
