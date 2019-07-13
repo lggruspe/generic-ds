@@ -1,6 +1,5 @@
 #include "bst/bst.h"
 #include "bst/bst_node.h"
-//#include "deque.h"
 #include "heap.h"
 #include "red-black-tree/tree.h"
 #include <stdio.h>
