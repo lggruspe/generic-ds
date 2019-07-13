@@ -101,6 +101,52 @@ bool test_list_search()
     test_list_teardown();
 }
 
+int test_list_search_custom_comparator(char a, char b)
+{
+    if (a < b) {
+        return -1;
+    } else if (a == b) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+bool test_list_search_custom()
+{
+    test_list_setup(char);
+    list_node(char) node;
+    list_node_init(node, 'b', list.null, list.null);
+    list_insert_before_head(list, &node);
+    list_search_custom(list, 'b', test_list_search_custom_comparator);
+    check_assertion(list.result == list_head(list));
+    check_assertion(list.result != list.null);
+    test_list_teardown();
+}
+
+bool test_list_search_if_predicate(char a)
+{
+    return '0' <= a && a <= '9';
+}
+
+bool test_list_search_if()
+{
+    test_list_setup(char);
+
+    list_node(char) node;
+    list_node_init(node, 'b', list.null, list.null);
+    list_insert_before_head(list, &node);
+    list_search_if(list, test_list_search_if_predicate, '0');
+    check_assertion(list.result == list.null);
+
+    list_node_init(node, '4', list.null, list.null);
+    list_insert_after_tail(list, &node);
+    list_search_if(list, test_list_search_if_predicate, '0');
+    check_assertion(list.result != list.null);
+    check_assertion(list.result == list_tail(list));
+    test_list_teardown();
+}
+
 int main()
 {
     run_test(test_list_init, "test_list_init");
@@ -111,5 +157,7 @@ int main()
     run_test(test_list_delete_tail, "test_list_delete_tail");
     run_test(test_list_destroy, "test_list_destroy");
     run_test(test_list_search, "test_list_search");
+    run_test(test_list_search_custom, "test_list_search_custom");
+    run_test(test_list_search_if, "test_list_search_if");
     return exit_test();
 }

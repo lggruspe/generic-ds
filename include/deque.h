@@ -1,6 +1,5 @@
 #pragma once
-#include "list/list.h"
-#include "list/node.h"
+#include "list.h"
 #include <stddef.h>
 
 typedef struct {

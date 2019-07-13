@@ -115,3 +115,22 @@
         (list).result = (list).result->next;\
     }\
 } while (0)
+
+// compare(a, b) = -1 if a < b, 0 if a = b and 1 if a > b
+// where a and b have the same type as the type parameter to list
+#define list_search_custom(list, _value, comparator) do {\
+    (list).null->value = (_value);\
+    (list).result = list_head(list);\
+    while (comparator((list).result-> value, (_value))) {\
+        (list).result = (list).result->next;\
+    }\
+} while (0)
+
+// assume: predicate(sample) is true
+#define list_search_if(list, predicate, sample) do {\
+    (list).null->value = (sample);\
+    (list).result = list_head(list);\
+    while (!(predicate)((list).result->value)) {\
+        (list).result = (list).result->next;\
+    }\
+} while (0)
