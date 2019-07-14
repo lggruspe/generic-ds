@@ -35,6 +35,7 @@
             memcpy((char*)temp + ((queue).capacity - (queue).front) * sizeof((queue).dummy),\
                     (queue).array, (queue).back * sizeof((queue).dummy));\
         }\
+        free((queue).array);\
         (queue).array = temp;\
         (queue).capacity = new_capacity;\
         (queue).front = 0;\
