@@ -20,3 +20,9 @@ test:	$(TESTS)
 	for TEST in $^; do\
 		./$$TEST;\
 	done
+
+.PHONY:	leaktest
+leaktest:	$(TESTS)
+	for TEST in $^; do\
+		valgrind --leak-check=full --log-file="debug/$(patsubst bin/%,%,$$TEST)" $$TEST;\
+	done

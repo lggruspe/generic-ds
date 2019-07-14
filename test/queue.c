@@ -1,6 +1,7 @@
 #include "queue.h"
 #include "test_lib.h"
 #include <stdbool.h>
+#include <string.h>
 
 #define test_queue_setup(type) bool passed = false; queue(type) queue; queue_init(queue)
 
@@ -108,6 +109,26 @@ bool test_queue_destroy()
     check_assertion(queue.capacity == 0);
     check_assertion(queue.front == 0);
     check_assertion(queue.back == 0);
+    test_queue_teardown();
+}
+
+bool test_queue_pointer_type()
+{
+    test_queue_setup(const char*);
+    queue_enqueue(queue, "hello");
+    queue_enqueue(queue, ", ");
+    queue_enqueue(queue, "world");
+    queue_enqueue(queue, "!\n");
+
+    const char *array[] = {"hello", ", ", "world", "!\n"};
+    for (size_t i = 0; i < 4; ++i) {
+        const char **ptr = queue_peek(queue);
+        queue_dequeue(queue);
+        check_assertion(ptr);
+        if (ptr) {
+            check_assertion(strcmp(*ptr, array[i]) == 0);
+        }
+    }
     test_queue_teardown();
 }
 

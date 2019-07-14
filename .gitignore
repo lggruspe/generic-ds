@@ -1,3 +1,4 @@
 bin/main
 vgcore.*
 bin/test_*
+debug/bin
