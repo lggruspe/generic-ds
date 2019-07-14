@@ -30,8 +30,8 @@ void heap_swap(struct heap *heap, size_t i, size_t j)
 {
     void *ptr = malloc(heap->nbytes);
     memcpy(ptr, heap_get(heap, i), heap->nbytes);
-    memcpy((char*)(heap->array) + i, (char*)(heap->array) + j, heap->nbytes);
-    memcpy((char*)(heap->array) + j, ptr, heap->nbytes);
+    memcpy((char*)(heap->array) + heap->nbytes*i, (char*)(heap->array) + heap->nbytes*j, heap->nbytes);
+    memcpy((char*)(heap->array) + heap->nbytes*j, ptr, heap->nbytes);
     free(ptr);
 }
 
