@@ -1,6 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define check_assertion(condition) do {\
     if (condition) {\

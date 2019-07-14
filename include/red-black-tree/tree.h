@@ -151,6 +151,7 @@ void rb_tree_transplant(rb_tree_t *tree, rb_node_t *u, rb_node_t *v)
     }
 }
 
+// doesn't preserve black-red properties
 void rb_tree_delete(rb_tree_t *tree, rb_node_t *node)
 {
     if (!node) {
@@ -173,7 +174,7 @@ void rb_tree_delete(rb_tree_t *tree, rb_node_t *node)
     rb_tree_transplant(tree, node, successor);
 }
 
-// NOTE doesnt check if new key preserves tree shape
+// NOTE doesnt check if new key preserves bst property
 void rb_tree_change_node_key(rb_tree_t *tree, rb_node_t *node, const void *key)
 {
     if (node) {
