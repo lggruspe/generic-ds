@@ -1,5 +1,6 @@
 #include "heap.h"
 #include "test_lib.h"
+#include <string.h>
 
 #define test_heap_setup() bool passed = false;\
 int array[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};\
@@ -43,8 +44,8 @@ bool test_heap_swap()
     for (size_t i = 0; i < heap.size/2; ++i) {
         heap_swap(&heap, i, 9 - i);
     }
-    for (size_t i = 1; i < heap.size; ++i) {
-        check_assertion(array[i] >= array[i-1]);
+    for (size_t i = 0; i < heap.size; ++i) {
+        check_assertion(array[i] == i);
     }
     test_heap_teardown();
 }
@@ -84,11 +85,36 @@ bool test_heap()
     test_heap_teardown();
 }
 
+int test_heap_string_comparator(const void *p, const void *q)
+{
+    return strcmp((const char*)p, (const char*)q);
+}
+
+bool test_heap_sort_strings()
+{
+    bool passed = false;
+    const char *array[] = {"bc", "cde", "aa", "aaa", "aa"};
+    struct heap heap = heap_create(array, 5, sizeof(const char*), test_heap_string_comparator);
+    //test_heap_sort(&heap);
+
+    heap_swap(&heap, 0, 1);
+    heap_swap(&heap, 2, 3);
+    heap_swap(&heap, 0, 4);
+    heap_swap(&heap, 1, 3);
+
+    for (size_t i = 1; i < 5; ++i) {
+        int comparison = test_heap_string_comparator(array[i-1], array[i]);
+        check_assertion(comparison <= 0);
+    }
+    return passed;
+}
+
 int main()
 {
     run_test(test_heap_get_set, "test_heap_get_set");
     run_test(test_heap_swap, "test_heap_swap");
     run_test(test_heap_heapify, "test_heap_heapify");
     run_test(test_heap, "test_heap");
+    run_test(test_heap_sort_strings, "test_heap_sort_strings");
     return exit_test();
 }
