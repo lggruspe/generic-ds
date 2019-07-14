@@ -95,13 +95,7 @@ bool test_heap_sort_strings()
     bool passed = false;
     const char *array[] = {"bc", "cde", "aa", "aaa", "aa"};
     struct heap heap = heap_create(array, 5, sizeof(const char*), test_heap_string_comparator);
-    //test_heap_sort(&heap);
-
-    heap_swap(&heap, 0, 1);
-    heap_swap(&heap, 2, 3);
-    heap_swap(&heap, 0, 4);
-    heap_swap(&heap, 1, 3);
-
+    test_heap_sort(&heap);
     for (size_t i = 1; i < 5; ++i) {
         int comparison = test_heap_string_comparator(array[i-1], array[i]);
         check_assertion(comparison <= 0);

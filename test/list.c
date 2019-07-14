@@ -1,15 +1,25 @@
 #include "list.h"
 #include "test_lib.h"
 #include <stdbool.h>
+#include <string.h>
 
-#define test_list_setup(type) bool passed = false; list(type) list; list_init(list)
+#define test_list_setup(node_type) bool passed = false;\
+list(node_type) list;\
+list_init(list)
+
 #define test_list_teardown() list_destroy(list); return passed
 
-list_node_register_type(char);
+typedef 
+list_node_register_type(list_node_char, char)
+list_node_char;
+
+typedef 
+list_node_register_type(list_node_string, const char *)
+list_node_string;
 
 bool test_list_init()
 {
-    test_list_setup(char);
+    test_list_setup(list_node_char);
     check_assertion(!list.result);
     check_assertion(list.size == 0);
     check_assertion(list.null->next == list.null);
@@ -19,9 +29,9 @@ bool test_list_init()
 
 bool test_list_is_empty()
 {
-    test_list_setup(char);
+    test_list_setup(list_node_char);
     check_assertion(list_is_empty(list));
-    list_node(char) node;
+    list_node_char node;
     list_node_init(node, 0, list.null, list.null);
     list_insert_before_head(list, &node);
     check_assertion(!list_is_empty(list));
@@ -32,9 +42,9 @@ bool test_list_is_empty()
 
 bool test_list_head()
 {
-    test_list_setup(char);
+    test_list_setup(list_node_char);
     check_assertion(list_head(list) == list.null);
-    list_node(char) node;
+    list_node_char node;
     list_node_init(node, 'a', list.null, list.null);
     list_insert_before_head(list, &node);
     check_assertion(list_head(list) != list.null);
@@ -46,9 +56,9 @@ bool test_list_head()
 
 bool test_list_tail()
 {
-    test_list_setup(char);
+    test_list_setup(list_node_char);
     check_assertion(list_tail(list) == list.null);
-    list_node(char) node;
+    list_node_char node;
     list_node_init(node, 'a', list.null, list.null);
     list_insert_after_tail(list, &node);
     check_assertion(list_tail(list) != list.null);
@@ -60,7 +70,7 @@ bool test_list_tail()
 
 bool test_list_delete_head()
 {
-    test_list_setup(char);
+    test_list_setup(list_node_char);
     list_delete_head(list);
     check_assertion(list_is_empty(list));
     test_list_teardown();
@@ -68,7 +78,7 @@ bool test_list_delete_head()
 
 bool test_list_delete_tail()
 {
-    test_list_setup(char);
+    test_list_setup(list_node_char);
     list_delete_tail(list);
     check_assertion(list_is_empty(list));
     test_list_teardown();
@@ -76,7 +86,7 @@ bool test_list_delete_tail()
 
 bool test_list_destroy()
 {
-    test_list_setup(char);
+    test_list_setup(list_node_char);
     list_destroy(list);
     check_assertion(!list.null);
     check_assertion(!list.result);
@@ -86,11 +96,11 @@ bool test_list_destroy()
 
 bool test_list_search()
 {
-    test_list_setup(char);
+    test_list_setup(list_node_char);
     list_search(list, 'a');
     check_assertion(list.result == list.null);
 
-    list_node(char) node;
+    list_node_char node;
     list_node_init(node, 'b', list.null, list.null);
     list_insert_before_head(list, &node);
     list_search(list, 'b');
@@ -114,8 +124,8 @@ int test_list_search_custom_comparator(char a, char b)
 
 bool test_list_search_custom()
 {
-    test_list_setup(char);
-    list_node(char) node;
+    test_list_setup(list_node_char);
+    list_node_char node;
     list_node_init(node, 'b', list.null, list.null);
     list_insert_before_head(list, &node);
     list_search_custom(list, 'b', test_list_search_custom_comparator);
@@ -131,9 +141,8 @@ bool test_list_search_if_predicate(char a)
 
 bool test_list_search_if()
 {
-    test_list_setup(char);
-
-    list_node(char) node;
+    test_list_setup(list_node_char);
+    list_node_char node;
     list_node_init(node, 'b', list.null, list.null);
     list_insert_before_head(list, &node);
     list_search_if(list, test_list_search_if_predicate, '0');
@@ -144,6 +153,37 @@ bool test_list_search_if()
     list_search_if(list, test_list_search_if_predicate, '0');
     check_assertion(list.result != list.null);
     check_assertion(list.result == list_tail(list));
+    test_list_teardown();
+}
+
+bool test_list_string()
+{
+    test_list_setup(list_node_string);
+    list_node_string hello;
+    list_node_init(hello, "hello", NULL, NULL);
+
+    list_node_string space;
+    list_node_init(space, " ", NULL, NULL);
+
+    list_node_string world;
+    list_node_init(world, "world", NULL, NULL);
+
+    list_node_string bang;
+    list_node_init(bang, "!\n", NULL, NULL);
+
+    list_insert_after_tail(list, &hello);
+    list_insert_after_tail(list, &space);
+    list_insert_after_tail(list, &world);
+    list_insert_after_tail(list, &bang);
+
+    list_search_custom(list, "hello", strcmp);
+    check_assertion(list.result == &hello);
+    list_search_custom(list, " ", strcmp);
+    check_assertion(list.result == &space);
+    list_search_custom(list, "world", strcmp);
+    check_assertion(list.result == &world);
+    list_search_custom(list, "!\n", strcmp);
+    check_assertion(list.result == &bang);
     test_list_teardown();
 }
 

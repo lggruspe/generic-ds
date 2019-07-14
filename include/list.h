@@ -2,14 +2,11 @@
 #include <stdlib.h>
 
 // must be called before declaring any list_node
-#define list_node_register_type(type) struct list_node_##type {\
+#define list_node_register_type(name, type) struct name {\
     type value;\
-    struct list_node_##type *prev;\
-    struct list_node_##type *next;\
+    struct name *prev;\
+    struct name *next;\
 }
-
-// shouldn't be called before type has been registered
-#define list_node(type) struct list_node_##type
 
 #define list_node_init(node, _value, _prev, _next) do {\
     (node).value = (_value);\
@@ -40,14 +37,15 @@
     (node)->next->prev = (node)->prev;\
 } while (0)
 
+// node_type is the typename registered with list_node_register_type
 // dummy is used to get size of a node
 // size is the number of elements (excluding sentinel null)
 // result is for storing query results
-#define list(type) struct {\
-    list_node(type) *null;\
+#define list(node_type) struct {\
+    node_type *null;\
     size_t size;\
-    list_node(type) dummy;\
-    list_node(type) *result;\
+    node_type dummy;\
+    node_type *result;\
 }
 
 #define list_init(list) do {\
