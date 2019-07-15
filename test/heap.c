@@ -2,7 +2,7 @@
 #include "test_lib.h"
 #include <string.h>
 
-#define test_heap_setup() bool passed = false;\
+#define test_heap_setup() bool passed = true;\
 int array[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};\
 struct heap heap = heap_create(array, 10, sizeof(int), test_heap_comparator)
 
@@ -27,10 +27,9 @@ bool test_heap_get_set()
     for (size_t i = 0; i < 10; ++i) {
         void *ptr = heap_get(&heap, i);
         check_assertion(ptr);
-        if (!ptr) {
-            continue;
+        if (ptr) {
+            check_assertion(test_heap_comparator(ptr, array + i) == 0);
         }
-        check_assertion(test_heap_comparator(ptr, array + i));
     }
     int new_value = 11;
     heap_set(&heap, 0, &new_value);
@@ -52,13 +51,15 @@ bool test_heap_swap()
 
 bool test_heap_heapify()
 {
-    test_heap_setup();
-    array[0] = 0;
+    bool passed = true;
+    int array[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    struct heap heap = heap_create(array, 11, sizeof(int), test_heap_comparator);
     heap_heapify(&heap);
     for (size_t i = 0; i < (heap.size-2)/2; ++i) {
         void *parent = heap_get(&heap, i);
         void *left = heap_get(&heap, 2*i + 1);
         void *right = heap_get(&heap, 2*i + 2);
+        check_assertion(parent && left && right);
         check_assertion(test_heap_comparator(parent, left) >= 0);
         check_assertion(test_heap_comparator(parent, right) >= 0);
     }
@@ -80,6 +81,7 @@ bool test_heap()
     test_heap_setup();
     test_heap_sort(&heap);
     for (size_t i = 0; i < 9; ++i) {
+        check_assertion(array[i] == i);
         check_assertion(array[i] <= array[i+1]);
     }
     test_heap_teardown();

@@ -66,15 +66,14 @@ bool heap_sift_down(struct heap *heap, size_t i)
         size_t l = 2*i + 1;
         size_t r = l + 1;
         size_t p = i;
-        void *parent = heap_get(heap, p);
         if (l < heap->size) {
             void *left = heap_get(heap, l);
-            if (heap->comparator(parent, left) < 0) {
+            if (heap->comparator(heap_get(heap, p), left) < 0) {
                 p = l;
             }
             if (r < heap->size) {
                 void *right = heap_get(heap, r);
-                if (heap->comparator(parent, right) < 0) {
+                if (heap->comparator(heap_get(heap, p), right) < 0) {
                     p = r;
                 }
             }
@@ -99,7 +98,7 @@ bool heap_heapify(struct heap *heap)
             return false;
         }
     }
-    return true;
+    return heap_sift_down(heap, 0);
 }
 
 // does not run heap_heapify
