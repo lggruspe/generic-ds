@@ -3,7 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define test_stack_setup(type) bool passed = false; stack(type) stack; stack_init(stack)
+#define test_stack_setup(type) bool passed = true;\
+stack(type) stack;\
+stack_init(stack)
 
 #define test_stack_teardown() stack_destroy(stack); return passed
 

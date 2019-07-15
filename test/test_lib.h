@@ -4,8 +4,8 @@
 #include <stdlib.h>
 
 #define check_assertion(condition) do {\
-    if (condition) {\
-        passed = true;\
+    if (!(condition)) {\
+        passed = false;\
     }\
 } while (0)
 

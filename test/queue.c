@@ -3,7 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define test_queue_setup(type) bool passed = false; queue(type) queue; queue_init(queue)
+#define test_queue_setup(type) bool passed = true;\
+queue(type) queue;\
+queue_init(queue)
 
 #define test_queue_teardown() queue_destroy(queue); return passed
 

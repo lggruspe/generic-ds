@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define test_bst_setup(type) bool passed = false;\
+#define test_bst_setup(type) bool passed = true;\
 bst(type) tree;\
 bst_init(tree)
 
