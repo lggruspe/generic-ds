@@ -16,17 +16,19 @@ struct heap {
 
 void *heap_get(struct heap *heap, size_t i)
 {
-    assert(heap && heap->array && i < heap->size);
-    void *result = (char*)(heap->array) + i*(heap->nbytes);
-    assert(result);
-    return result;
+    assert(heap && heap->array);
+    return i < heap->size
+        ? (char*)(heap->array) + i*(heap->nbytes)
+        : NULL;
 }
 
 void heap_set(struct heap *heap, size_t i, void *value)
 {
     assert(heap && value);
     void *ptr = heap_get(heap, i);
-    memcpy(ptr, value, heap->nbytes);
+    if (ptr) {
+        memcpy(ptr, value, heap->nbytes);
+    }
 }
 
 // returns true if successful
@@ -37,7 +39,7 @@ bool heap_swap(struct heap *heap, size_t i, size_t j)
     void *jt = heap_get(heap, j);
 
     void *temp = malloc(heap->nbytes);
-    if (!temp) {
+    if (!temp || !it || !jt) {
         return false;
     }
     memcpy(temp, it, heap->nbytes);
@@ -66,18 +68,16 @@ bool heap_sift_down(struct heap *heap, size_t i)
         size_t l = 2*i + 1;
         size_t r = l + 1;
         size_t p = i;
-        if (l < heap->size) {
-            void *left = heap_get(heap, l);
-            if (heap->comparator(heap_get(heap, p), left) < 0) {
-                p = l;
-            }
-            if (r < heap->size) {
-                void *right = heap_get(heap, r);
-                if (heap->comparator(heap_get(heap, p), right) < 0) {
-                    p = r;
-                }
-            }
+
+        void *left = heap_get(heap, l);
+        if (left && heap->comparator(heap_get(heap, p), left) < 0) {
+            p = l;
         }
+        void *right = heap_get(heap, r);
+        if (right && heap->comparator(heap_get(heap, p), right) < 0) {
+            p = r;
+        }
+
         if (i != p) {
             if (!heap_swap(heap, i, p)) {
                 return false;

@@ -69,8 +69,8 @@ bool test_heap_heapify()
 void test_heap_sort(struct heap *heap)
 {
     heap_heapify(heap);
-    for (size_t i = heap->size - 1; i > 0; --i) {
-        heap_swap(heap, 0, i);
+    while (heap->size > 0) {
+        heap_swap(heap, 0, heap->size - 1);
         heap->size--;
         heap_sift_down(heap, 0);
     }
@@ -94,8 +94,13 @@ int test_heap_string_comparator(const void *p, const void *q)
 
 bool test_heap_sort_strings()
 {
-    bool passed = false;
-    const char *array[] = {"bc", "cde", "aa", "aaa", "aa"};
+    bool passed = true;
+    check_assertion(test_heap_string_comparator("aa", "aa") == 0);
+    check_assertion(test_heap_string_comparator("aa", "bc") < 0);
+    check_assertion(test_heap_string_comparator("bc", "cde") < 0);
+    check_assertion(test_heap_string_comparator("aa", "aaa") < 0);
+    check_assertion(test_heap_string_comparator("aaa", "bc") < 0);
+    const char *array[] = {"bc", "cde", "ab", "aaa", "aa"};
     struct heap heap = heap_create(array, 5, sizeof(const char*), test_heap_string_comparator);
     test_heap_sort(&heap);
     for (size_t i = 1; i < 5; ++i) {
