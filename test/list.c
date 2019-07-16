@@ -21,6 +21,7 @@ bool test_list_init()
 {
     test_list_setup(list_node_char);
     check_assertion(!list.result);
+    check_assertion(list_is_empty(list));
     check_assertion(list.size == 0);
     check_assertion(list.null->next == list.null);
     check_assertion(list.null->prev == list.null);
@@ -212,6 +213,13 @@ bool test_list_traverse()
     check_assertion(node->prev == &b);
     check_assertion(node->prev->prev == &a);
     check_assertion(node->prev->prev->prev == list.null);
+
+    // check if delete works
+    list_node_delete(&b);
+    check_assertion(list_head(list) == &a);
+    check_assertion(list_tail(list) == &c);
+    check_assertion(a.next == &c);
+    check_assertion(c.prev == &a);
     test_list_teardown();
 }
 
@@ -230,51 +238,62 @@ bool test_list_dynamic()
 {
     test_list_setup(list_node_char);
 
-    for (char c = 'a'; c <= 'z'; ++c) {
-        list_node_char *node1 = test_list_dynamic_new(c, NULL, NULL);
-        list_node_char *node2 = test_list_dynamic_new(c, NULL, NULL);
-        list_insert_before_head(list, node1);
-        list_insert_after_tail(list, node2);
+    for (char value = 'a'; value <= 'c'; ++value) {
+        list_node_char *node = test_list_dynamic_new(value, NULL, NULL);
+        list_insert_after_tail(list, node);
     }
-    check_assertion(list.size == 52);
+    check_assertion(list.size == 3);
 
     list_node_char *node = list_head(list);
-    for (size_t c = 'z'; c >= 'a'; --c) {
-        check_assertion(node && c == node->value);
+    check_assertion(node && node->value == 'a');
+    if (node) {
         node = node->next;
-    }
-    for (size_t c = 'a'; c <= 'z'; ++c) {
-        check_assertion(node && c == node->value);
-        node = node->next;
+        check_assertion(node && node->value == 'b');
+        if (node) {
+            node = node->next;
+            check_assertion(node && node->value == 'c');
+            if (node) {
+                node = node->next;
+                check_assertion(node == list.null);
+            }
+        }
     }
 
-    list_search(list, 'z');
-    check_assertion(list.result && list.result->value == 'z');
-    check_assertion(list.result == list_head(list));
-    check_assertion(list.result != list_tail(list));
-
-    list_delete_and_free(list, list_head(list));
-    check_assertion(list.size == 51);
+    node = list_tail(list);
+    check_assertion(node && node->value == 'c');
+    if (node) {
+        node = node->prev;
+        check_assertion(node && node->value == 'b');
+        if (node) {
+            node = node->prev;
+            check_assertion(node && node->value == 'a');
+            if (node) {
+                node = node->prev;
+                check_assertion(node == list.null);
+            }
+        }
+    }
 
     node = list_head(list);
-    check_assertion(node && node->value == 'y');
-    node = list_tail(list);
-    check_assertion(node && node->value == 'z');
+    list_delete_and_free(list, node);
+    check_assertion(list.size == 2);
+    node = list_head(list);
+    check_assertion(node && node->value == 'b');
 
-    /*
-    list_search(list, 'z');
-    check_assertion(list.result && list.result->value == 'z');
-    check_assertion(list.result == list_tail(list));
-    check_assertion(list.result != list_head(list));
+    list_search(list, 'a');
+    check_assertion(list.result == list.null);
 
     list_delete_and_free(list, list_tail(list));
-    check_assertion(list.size == 50);
-    list_search(list, 'z');
-    check_assertion(!list.result);
-    */
+    check_assertion(list.size == 1);
+    list_search(list, 'c');
+    check_assertion(list.result == list.null);
+    
+    list_search(list, 'b');
+    check_assertion(list.result == list_head(list));
+    check_assertion(list.result == list_tail(list));
 
-    //list_destroy_and_free(list);
-    //check_assertion(list_is_empty(list));
+    list_destroy_and_free(list);
+    check_assertion(list_is_empty(list));
     return passed;
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <assert.h>
 #include <stdlib.h>
 
 // must be called before declaring any list_node
@@ -15,6 +16,10 @@
 } while (0)
 
 // insert left before right (both are pointers)
+// NOTE if called as list_node_insert_before(&x, &y)
+// make sure that the address of the new node is not already in the list
+// otherwise, the list breaks
+// using malloced nodes might be more error-prone
 #define list_node_insert_before(left, right) do {\
     (left)->next = (right);\
     (left)->prev = (right)->prev;\
@@ -33,8 +38,15 @@
 // deletes a node, given pointer
 // doesn't free the node if dynamicall allocated
 #define list_node_delete(node) do {\
+    assert(node);\
     (node)->prev->next = (node)->next;\
     (node)->next->prev = (node)->prev;\
+} while (0)
+
+#define list_node_delete_and_free(node) do {\
+    void *temp = node;\
+    list_node_delete(node);\
+    free(temp);\
 } while (0)
 
 // node_type is the typename registered with list_node_register_type
@@ -68,18 +80,21 @@
 // returns pointer to tail
 #define list_tail(list) ((list).null->prev)
 
-// user should save a pointer to the head before deleting,
-// so they can free the pointer if needed
-#define list_delete_head(list) do {\
+// doesn't free node
+#define list_delete(list, node) do {\
     if (!list_is_empty(list)) {\
-        list_node_delete(list_head(list));\
+        list_node_delete(node);\
         (list).size--;\
     }\
 } while (0)
 
-#define list_delete_tail(list) do {\
+// NOTE for some reason, doesn't work for
+// list_delete_and_free(list, list_head(list))
+// but works if list_head(list) is assigned to a variable first:
+// list_delete_and_free(list, node)
+#define list_delete_and_free(list, node) do {\
     if (!list_is_empty(list)) {\
-        list_node_delete(list_tail(list));\
+        list_node_delete_and_free(node);\
         (list).size--;\
     }\
 } while (0)
@@ -98,17 +113,32 @@
 // doesn't free dynamically allocated nodes
 #define list_destroy(list) do {\
     while (!list_is_empty(list)) {\
-        list_delete_head(list);\
+        list_delete((list), list_head(list));\
     }\
-    free((list).null);\
-    (list).null = NULL;\
+    if ((list).null) {\
+        free((list).null);\
+        (list).null = NULL;\
+    }\
+    (list).result = NULL;\
+} while (0)
+
+#define list_destroy_and_free(list) do {\
+    while (!list_is_empty(list)) {\
+        list_delete_and_free((list), list_head(list));\
+    }\
+    if ((list).null) {\
+        free((list).null);\
+        (list).null = NULL;\
+    }\
     (list).result = NULL;\
 } while (0)
 
 // stores result in list.result
 #define list_search(list, _value) do {\
+    assert((list).null);\
     (list).null->value = (_value);\
     (list).result = list_head(list);\
+    assert((list).result);\
     while ((list).result->value != (_value)) {\
         (list).result = (list).result->next;\
     }\
@@ -131,4 +161,13 @@
     while (!(predicate)((list).result->value)) {\
         (list).result = (list).result->next;\
     }\
+} while (0)
+
+// temp
+#define list_delete_head(list) do {\
+    list_delete((list), list_head(list));\
+} while (0)
+
+#define list_delete_tail(list) do {\
+    list_delete((list), list_tail(list));\
 } while (0)
