@@ -2,6 +2,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
+// NOTE passing the address of a stack-allocated node causes warnings
+// using malloced-nodes prevents these warnings
+
 // must be called before declaring any list_node
 #define list_node_register_type(name, type) struct name {\
     type value;\
@@ -10,9 +13,10 @@
 }
 
 #define list_node_init(node, _value, _prev, _next) do {\
-    (node).value = (_value);\
-    (node).prev = (_prev);\
-    (node).next = (_next);\
+    assert(node);\
+    (node)->value = (_value);\
+    (node)->prev = (_prev);\
+    (node)->next = (_next);\
 } while (0)
 
 // insert left before right (both are pointers)
@@ -44,6 +48,7 @@
 } while (0)
 
 #define list_node_delete_and_free(node) do {\
+    assert(node);\
     void *temp = node;\
     list_node_delete(node);\
     free(temp);\
@@ -61,30 +66,28 @@
 }
 
 #define list_init(list) do {\
-    (list).size = 0;\
-    (list).dummy.prev = NULL;\
-    (list).dummy.next = NULL;\
-    (list).result = NULL;\
-    (list).null = malloc(sizeof((list).dummy));\
-    if ((list).null) {\
-        (list).null->prev = (list).null;\
-        (list).null->next = (list).null;\
+    (list)->size = 0;\
+    (list)->result = NULL;\
+    (list)->null = malloc(sizeof((list)->dummy));\
+    if ((list)->null) {\
+        (list)->null->prev = (list)->null;\
+        (list)->null->next = (list)->null;\
     }\
 } while (0)
 
-#define list_is_empty(list) ((list).size == 0)
+#define list_is_empty(list) ((list)->size == 0)
 
 // returns pointer to head
-#define list_head(list) ((list).null->next)
+#define list_head(list) ((list)->null->next)
 
 // returns pointer to tail
-#define list_tail(list) ((list).null->prev)
+#define list_tail(list) ((list)->null->prev)
 
 // doesn't free node
 #define list_delete(list, node) do {\
     if (!list_is_empty(list)) {\
         list_node_delete(node);\
-        (list).size--;\
+        (list)->size--;\
     }\
 } while (0)
 
@@ -95,19 +98,19 @@
 #define list_delete_and_free(list, node) do {\
     if (!list_is_empty(list)) {\
         list_node_delete_and_free(node);\
-        (list).size--;\
+        (list)->size--;\
     }\
 } while (0)
 
 // insert node before the head, node is a pointer
 #define list_insert_before_head(list, node) do {\
-    list_node_insert_after((list).null, (node));\
-    (list).size++;\
+    list_node_insert_after((list)->null, (node));\
+    (list)->size++;\
 } while (0)
 
 #define list_insert_after_tail(list, node) do {\
-    list_node_insert_before((node), (list).null);\
-    (list).size++;\
+    list_node_insert_before((node), (list)->null);\
+    (list)->size++;\
 } while (0)
 
 // doesn't free dynamically allocated nodes
@@ -115,51 +118,51 @@
     while (!list_is_empty(list)) {\
         list_delete((list), list_head(list));\
     }\
-    if ((list).null) {\
-        free((list).null);\
-        (list).null = NULL;\
+    if ((list)->null) {\
+        free((list)->null);\
+        (list)->null = NULL;\
     }\
-    (list).result = NULL;\
+    (list)->result = NULL;\
 } while (0)
 
 #define list_destroy_and_free(list) do {\
     while (!list_is_empty(list)) {\
         list_delete_and_free((list), list_head(list));\
     }\
-    if ((list).null) {\
-        free((list).null);\
-        (list).null = NULL;\
+    if ((list)->null) {\
+        free((list)->null);\
+        (list)->null = NULL;\
     }\
-    (list).result = NULL;\
+    (list)->result = NULL;\
 } while (0)
 
 // stores result in list.result
 #define list_search(list, _value) do {\
-    assert((list).null);\
-    (list).null->value = (_value);\
-    (list).result = list_head(list);\
-    assert((list).result);\
-    while ((list).result->value != (_value)) {\
-        (list).result = (list).result->next;\
+    assert((list)->null);\
+    (list)->null->value = (_value);\
+    (list)->result = list_head(list);\
+    assert((list)->result);\
+    while ((list)->result->value != (_value)) {\
+        (list)->result = (list)->result->next;\
     }\
 } while (0)
 
 // compare(a, b) = -1 if a < b, 0 if a = b and 1 if a > b
 // where a and b have the same type as the type parameter to list
 #define list_search_custom(list, _value, comparator) do {\
-    (list).null->value = (_value);\
-    (list).result = list_head(list);\
-    while (comparator((list).result-> value, (_value))) {\
-        (list).result = (list).result->next;\
+    (list)->null->value = (_value);\
+    (list)->result = list_head(list);\
+    while ((comparator)((list)->result->value, (_value))) {\
+        (list)->result = (list)->result->next;\
     }\
 } while (0)
 
 // assume: predicate(sample) is true
 #define list_search_if(list, predicate, sample) do {\
-    (list).null->value = (sample);\
-    (list).result = list_head(list);\
-    while (!(predicate)((list).result->value)) {\
-        (list).result = (list).result->next;\
+    (list)->null->value = (sample);\
+    (list)->result = list_head(list);\
+    while (!(predicate)((list)->result->value)) {\
+        (list)->result = (list)->result->next;\
     }\
 } while (0)
 
