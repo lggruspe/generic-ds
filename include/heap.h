@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #define heap_parent(i) (((i) - 1)/2)
+#define heap_left(i) (2*(i) + 1)
+#define heap_right(i) (heap_left(i) + 1)
 
 // implements a max heap
 
