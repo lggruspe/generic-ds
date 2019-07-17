@@ -22,6 +22,7 @@ test:	$(TESTS)
 
 .PHONY:	leaktest
 leaktest:	$(TESTS)
-	for TEST in $^; do\
-		valgrind --leak-check=full --log-file="debug/$(patsubst bin/%,%,$$TEST)" $$TEST;\
+	@for TEST in $^; do\
+		valgrind --leak-check=full --log-file="debug/$$TEST" $$TEST > /dev/null;\
+		python3 tools/quiet.py "debug/$$TEST";\
 	done
