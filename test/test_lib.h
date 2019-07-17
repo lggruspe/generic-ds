@@ -11,14 +11,18 @@
 
 bool global_passed = true;
 
-void run_test(bool (*test)(void), const char *name)
+void fail_tests()
 {
-    bool passed = test();
-    printf("%s %s\n", name, passed ? "passed" : "failed");
-    if (!passed) {
-        global_passed = false;
-    }
+    global_passed = false;\
 }
+
+#define run_test(test) do {\
+    bool passed = test();\
+    printf(#test " %s\n", passed ? "passed" : "failed");\
+    if (!passed) {\
+        fail_tests();\
+    }\
+} while (0)
 
 int exit_test()
 {

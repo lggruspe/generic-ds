@@ -299,17 +299,17 @@ bool test_list_dynamic()
 
 int main()
 {
-    run_test(test_list_init, "test_list_init");
-    run_test(test_list_is_empty, "test_list_is_empty");
-    run_test(test_list_head, "test_list_head");
-    run_test(test_list_tail, "test_list_tail");
-    run_test(test_list_delete_head, "test_list_delete_head");
-    run_test(test_list_delete_tail, "test_list_delete_tail");
-    run_test(test_list_destroy, "test_list_destroy");
-    run_test(test_list_search, "test_list_search");
-    run_test(test_list_search_custom, "test_list_search_custom");
-    run_test(test_list_search_if, "test_list_search_if");
-    run_test(test_list_traverse, "test_list_traverse");
-    run_test(test_list_dynamic, "test_list_dynamic");
+    run_test(test_list_init);
+    run_test(test_list_is_empty);
+    run_test(test_list_head);
+    run_test(test_list_tail);
+    run_test(test_list_delete_head);
+    run_test(test_list_delete_tail);
+    run_test(test_list_destroy);
+    run_test(test_list_search);
+    run_test(test_list_search_custom);
+    run_test(test_list_search_if);
+    run_test(test_list_traverse);
+    run_test(test_list_dynamic);
     return exit_test();
 }

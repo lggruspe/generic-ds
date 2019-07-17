@@ -96,11 +96,11 @@ bool test_stack_pointer_type()
 
 int main()
 {
-    run_test(test_stack_init, "test_stack_init");
-    run_test(test_stack_increase_capacity, "test_stack_increase_capacity");
-    run_test(test_stack_is_empty, "test_stack_is_empty");
-    run_test(test_stack_is_full, "test_stack_is_full");
-    run_test(test_stack_push_peek_pop, "test_stack_push_peek_pop");
-    run_test(test_stack_pointer_type, "test_stack_pointer_type");
+    run_test(test_stack_init);
+    run_test(test_stack_increase_capacity);
+    run_test(test_stack_is_empty);
+    run_test(test_stack_is_full);
+    run_test(test_stack_push_peek_pop);
+    run_test(test_stack_pointer_type);
     return exit_test();
 }

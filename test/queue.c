@@ -136,12 +136,12 @@ bool test_queue_pointer_type()
 
 int main()
 {
-    run_test(test_queue_init, "test_queue_init");
-    run_test(test_queue_is_empty, "test_queue_is_empty");
-    run_test(test_queue_is_full, "test_queue_is_full");
-    run_test(test_queue_increase_capacity, "test_queue_increase_capacity");
-    run_test(test_queue_peek, "test_queue_peek");
-    run_test(test_queue_enqueue, "test_queue_enqueue");
-    run_test(test_queue_dequeue, "test_queue_dequeue");
+    run_test(test_queue_init);
+    run_test(test_queue_is_empty);
+    run_test(test_queue_is_full);
+    run_test(test_queue_increase_capacity);
+    run_test(test_queue_peek);
+    run_test(test_queue_enqueue);
+    run_test(test_queue_dequeue);
     return exit_test();
 }

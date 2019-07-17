@@ -103,8 +103,8 @@ bool test_bst_map()
 
 int main()
 {
-    run_test(test_bst_init, "test_bst_init");
-    run_test(test_bst_set, "test_bst_set");
-    run_test(test_bst_map, "test_bst_map");
+    run_test(test_bst_init);
+    run_test(test_bst_set);
+    run_test(test_bst_map);
     return exit_test();
 }

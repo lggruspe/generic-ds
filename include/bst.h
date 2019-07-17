@@ -229,7 +229,6 @@
     bst_node_search_custom((tree).result, (tree).root, _key, comparator);\
 } while (0)
 
-// node shouldn't be null
 // TODO what if node isn't in the tree?
 #define bst_delete(tree, node) do {\
     assert(node);\

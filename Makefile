@@ -5,15 +5,14 @@ TESTS = $(patsubst test/%.c,bin/test_%,$(wildcard test/*.c))
 vpath %.c src
 vpath %.h include
 
-bin/main:	main.c heap.h red-black-tree/tree.h red-black-tree/node.h 
-	${CC} ${CFLAGS} -o $@ $<
-
-.PHONY:	clean
-clean:
-	-rm -f bin/main vgcore.*
+all:	$(TESTS)
 
 $(TESTS):	bin/test_%: test/%.c %.h test/test_lib.h
 	$(CC) $(CFLAGS) -o $@ $<
+
+.PHONY:	clean
+clean:
+	-rm -f bin/main bin/test_* vgcore.*
 
 .PHONY:	test
 test:	$(TESTS)

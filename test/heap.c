@@ -112,10 +112,10 @@ bool test_heap_sort_strings()
 
 int main()
 {
-    run_test(test_heap_get_set, "test_heap_get_set");
-    run_test(test_heap_swap, "test_heap_swap");
-    run_test(test_heap_heapify, "test_heap_heapify");
-    run_test(test_heap, "test_heap");
-    run_test(test_heap_sort_strings, "test_heap_sort_strings");
+    run_test(test_heap_get_set);
+    run_test(test_heap_swap);
+    run_test(test_heap_heapify);
+    run_test(test_heap);
+    run_test(test_heap_sort_strings);
     return exit_test();
 }
