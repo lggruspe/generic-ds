@@ -4,7 +4,7 @@
 
 // bst (duplicates not allowed)
 
-#define bst_register_node_type(name, key_type, value_type) struct name {\
+#define bst_node_register_type(name, key_type, value_type) struct name {\
     key_type key;\
     value_type value;\
     struct name *left;\

@@ -9,9 +9,9 @@ bst_init(tree)
 
 #define test_bst_teardown() return passed
 
-typedef bst_register_node_type(bst_node_char, char, void*) bst_node_char;
+typedef bst_node_register_type(bst_node_char, char, void*) bst_node_char;
 
-typedef bst_register_node_type(bst_node_string_int, const char*, int) bst_node_string_int;
+typedef bst_node_register_type(bst_node_string_int, const char*, int) bst_node_string_int;
 
 bool test_bst_init()
 {
