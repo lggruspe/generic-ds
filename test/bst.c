@@ -3,108 +3,102 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define test_bst_setup(type) bool passed = true;\
-bst(type) tree;\
-bst_init(tree)
+#define test_bst_setup() bool passed = true;\
+Map *map = map_create()
 
-#define test_bst_teardown() return passed
+#define test_bst_teardown() map_destroy(map);\
+return passed 
 
-typedef bst_node_register_type(bst_node_char, char, void*) bst_node_char;
+typedef bst_node_register_type(map_node, const char *, int) map_node;
 
-typedef bst_node_register_type(bst_node_string_int, const char*, int) bst_node_string_int;
+typedef bst(map_node) Map;
+
+map_node *map_node_create(const char *key, int value)
+{
+    map_node *node = malloc(sizeof(map_node));
+    if (node) {
+        bst_node_init(node, key, value, NULL, NULL, NULL);
+    }
+    return node;
+}
+
+Map *map_create()
+{
+    Map *map= malloc(sizeof(Map));
+    bst_init(map);
+    return map;
+}
+
+int map_get(Map *map, const char *key, int def)
+{
+    bst_search_custom(map, key, strcmp); 
+    map_node *node = map->result;
+    return node ? node->value : def;
+}
+
+void map_set(Map *map, const char *key, int val)
+{
+    map_node *node = map_node_create(key, val);
+    bst_insert_custom(map, node, strcmp);
+    if (map->result) {
+        free(map->result);
+    }
+}
+
+void map_delete(Map *map, const char *key)
+{
+    bst_search_custom(map, key, strcmp);
+    if (map->result) {
+        bst_delete(map, map->result);;
+    }
+}
+
+void map_destroy(Map *map)
+{
+    while (map->size > 1) {
+        map_node *node = map->root;
+        bst_delete(map, node);
+        free(node);
+    }
+    if (map->size == 1) {
+        map_node *node = map->root;
+        bst_delete(map, node);
+        free(node);
+        map->root = NULL;
+    }
+    free(map);
+}
 
 bool test_bst_init()
 {
-    test_bst_setup(bst_node_char);
-    check_assertion(!(tree.root));
-    check_assertion(!(tree.result));
-    check_assertion(tree.size == 0);
+    test_bst_setup();
+    check_assertion(!map->root);
+    check_assertion(!map->result);
+    check_assertion(map->size == 0);
     test_bst_teardown();
 }
 
-bool test_bst_set()
+bool test_bst_get_set_delete()
 {
-    test_bst_setup(bst_node_char);
-    bst_node_char a;
-    bst_node_init(a, 'a', NULL, NULL, NULL, NULL);
-    bst_node_char aa;
-    bst_node_init(aa, 'a', NULL, NULL, NULL, NULL);
-    bst_node_char b;
-    bst_node_init(b, 'b', NULL, NULL, NULL, NULL);
-    bst_node_char bb;
-    bst_node_init(bb, 'b', NULL, NULL, NULL, NULL);
+    test_bst_setup();
+    check_assertion(map_get(map, "a", -1) == -1);
+    map_set(map, "a", 1);
+    map_set(map, "b", 2);
+    map_set(map, "c", 2);
+    map_set(map, "c", 3);
+    check_assertion(map_get(map, "a", -1) == 1);
+    check_assertion(map_get(map, "b", -1) == 2);
+    check_assertion(map_get(map, "c", -1) == 3);
 
-    check_assertion(tree.size == 0);
-    bst_insert(tree, &a);
-    check_assertion(tree.size == 1);
-    bst_insert(tree, &aa);
-    check_assertion(tree.size == 1);
-    bst_insert(tree, &b);
-    check_assertion(tree.size == 2);
-    bst_insert(tree, &bb);
-    check_assertion(tree.size == 2);
-
-    bst_search(tree, 'c');
-    check_assertion(!tree.result);
-
-    bst_search(tree, 'a');
-    check_assertion(tree.result == &aa);
-    check_assertion(tree.result != &a);
-
-    bst_delete(tree, &aa);
-    check_assertion(tree.size == 1);
-    bst_search(tree, 'a');
-    check_assertion(!tree.result);
-    test_bst_teardown();
-}
-
-bool test_bst_map()
-{
-    test_bst_setup(bst_node_string_int);
-    bst_node_string_int a;
-    bst_node_init(a, "a", 1, NULL, NULL, NULL);
-    bst_node_string_int b;
-    bst_node_init(b, "b", 1, NULL, NULL, NULL);
-    bst_node_string_int aa;
-    bst_node_init(aa, "a", 2, NULL, NULL, NULL);
-    bst_node_string_int bb;
-    bst_node_init(bb, "b", 2, NULL, NULL, NULL);
-    check_assertion(tree.size == 0);
-
-    bst_insert_custom(tree, &a, strcmp);
-    check_assertion(tree.size == 1);
-    bst_search_custom(tree, "a", strcmp);
-    check_assertion(strcmp(tree.result->key, "a") == 0);
-    check_assertion(tree.result->value == 1);
-
-    bst_insert_custom(tree, &aa, strcmp);
-    check_assertion(tree.size == 1);
-    bst_search_custom(tree, "a", strcmp);
-    check_assertion(strcmp(tree.result->key, "a") == 0);
-    check_assertion(tree.result->value == 2);
-
-    bst_insert_custom(tree, &b, strcmp);
-    check_assertion(tree.size == 2);
-    bst_search_custom(tree, "b", strcmp);
-    check_assertion(strcmp(tree.result->key, "b") == 0);
-    check_assertion(tree.result->value == 1);
-
-    bst_insert_custom(tree, &bb, strcmp);
-    check_assertion(tree.size == 2);
-    bst_search_custom(tree, "b", strcmp);
-    check_assertion(tree.result->value == 2);
-
-    bst_delete(tree, &aa);
-    bst_search_custom(tree, "a", strcmp);
-    check_assertion(tree.size == 1);
-    check_assertion(!tree.result);
+    map_delete(map, "a");
+    check_assertion(map_get(map, "a", -1) == -1);
+    check_assertion(map_get(map, "d", -1) == -1);
     test_bst_teardown();
 }
 
 int main()
 {
     run_test(test_bst_init);
-    run_test(test_bst_set);
-    run_test(test_bst_map);
+    run_test(test_bst_get_set_delete);
     return exit_test();
 }
