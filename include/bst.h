@@ -37,25 +37,24 @@
     }\
 } while (0)
 
-
-#define bst_node_minimum(result, root) do {\
-    assert(root);\
-    result = (root);\
-    while (result->left) {\
-        result = result->left;\
+#define bst_minimum(tree, node) do {\
+    (tree)->result = (node);\
+    if (node) {\
+        while ((tree)->result->left) {\
+            (tree)->result = (tree)->result->left;\
+        }\
     }\
 } while (0)
 
-// node shouldn't be null
-#define bst_node_successor(result, node) do {\
-    assert(node);\
-    result = NULL;\
-    if ((node)->right) {\
-        bst_node_minimum(result, (node)->right);\
-    } else {\
-        result = (node);\
-        while (result->parent && result->parent->left != result) {\
-            result = result->parent;\
+#define bst_successor(tree, node) do {\
+    (tree)->result = (node);\
+    if (node) {\
+        if ((node)->right) {\
+            bst_minimum((tree), (node)->right);\
+        } else {\
+            while ((tree)->result->parent && (tree)->result->parent->left != (tree)->result) {\
+                (tree)->result = (tree)->result->parent;\
+            }\
         }\
     }\
 } while (0)
@@ -74,7 +73,6 @@
 } while (0)
 
 // sets tree.result to parent of null node that node will replace
-// assumes tree.root is not null
 #define bst_match_or_parent(tree, node) do {\
     if ((tree)->root) {\
         (tree)->result = (tree)->root;\
@@ -119,9 +117,7 @@
     }\
 } while (0)
 
-
 // u and v are pointers to nodes
-// neither should be null
 #define bst_transplant(tree, u, v) do {\
     assert(u && v);\
     if (!((u)->parent)) {\
@@ -230,7 +226,7 @@
         } else if (!((node)->left) || !((node)->right)) {\
             bst_transplant((tree), (node), (node)->left ? (node)->left : (node)->right);\
         } else {\
-            bst_node_successor((tree)->result, (node));\
+            bst_successor((tree), (node));\
             if ((node)->right != (tree)->result) {\
                 bst_transplant(tree, (tree)->result, (tree)->result->right);\
                 (tree)->result->right = (node)->right;\
