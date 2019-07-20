@@ -50,6 +50,7 @@ void map_delete(Map *map, const char *key)
     bst_search_custom(map, key, strcmp);
     if (map->result) {
         bst_delete(map, map->result);;
+        free(map->result);
     }
 }
 
