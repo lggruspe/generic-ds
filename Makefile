@@ -8,7 +8,7 @@ vpath %.h include
 all:	$(TESTS)
 
 $(TESTS):	bin/test_%: test/%.c %.h test/test_lib.h
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -o $@ $< -lm
 
 .PHONY:	clean
 clean:
