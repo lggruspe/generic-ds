@@ -5,109 +5,105 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct map_data {
+struct map_string_int_data {
     const char *key;
     int value;
-}; 
+};
 
-struct map_data map_data_create(const char *key, int value)
+struct map_string_int {
+    struct rb_tree *tree;
+};
+
+struct map_string_int_data map_string_int_data_create(
+        const char *key, 
+        int value)
 {
-    return (struct map_data) {
+    return (struct map_string_int_data) {
         .key = key,
         .value = value
     };
 }
 
+struct map_string_int map_string_int_create()
+{
+    return (struct map_string_int) {
+        .tree = NULL
+    };
+}
+
 int map_compare(const void *x, const void *y)
 {
-    return strcmp(((struct map_data*)x)->key, ((struct map_data*)y)->key);
+    return strcmp(
+            ((struct map_string_int_data*)x)->key, 
+            ((struct map_string_int_data*)y)->key);
 }
 
-struct rb_tree map_create()
+void map_string_int_set(
+        struct map_string_int *map,
+        const char *key, 
+        int value)
 {
-    return rb_tree_create(sizeof(struct map_data*), map_compare);
+    struct map_string_int_data data = map_string_int_data_create(key, value);
+    struct rb_tree *node = rb_tree_create(&data, NULL, NULL, NULL, rb_red, sizeof(struct map_string_int_data));
+    struct rb_insert_result result = rb_insert(map->tree, node, map_compare);
+    if (result.replaced) {
+        rb_destroy(result.replaced, false, true); 
+    }
+    map->tree = result.root;
 }
 
-void map_set(struct rb_tree *map, const char *key, int value)
+int map_string_int_get(struct map_string_int *map, const char *key, int def)
 {
-    struct map_data data = map_data_create(key, value);
-    struct rb_node *node = rb_node_create(&data, NULL, NULL, NULL,  rb_red, sizeof(struct map_data));
-    rb_node_destroy(rb_tree_insert(map, node), false);
+    struct map_string_int_data data = map_string_int_data_create(key, 0);
+    struct rb_tree *node = rb_search(map->tree, &data, map_compare);
+    return node ? ((struct map_string_int_data*)node->data)->value : def;
 }
 
-int map_get(struct rb_tree *map, const char *key, int def)
+void map_destroy(struct map_string_int *map)
 {
-    struct map_data data = map_data_create(key, 0);
-    struct rb_node *node = rb_tree_search(map, &data);
-    return node ? ((struct map_data*)node->data)->value : def;
-}
-
-void map_destroy(struct rb_tree *map)
-{
-    rb_tree_destroy(map, true); 
-}
-
-// untested change data, delete, inorder, preoder, successor
-
-bool test_rbtree_init()
-{
-    bool passed = true;
-    struct rb_tree map = map_create();
-    check_assertion(!map.root);
-    return passed;
-}
-
-size_t tree_weight_helper(struct rb_node *node)
-{
-    if (!node) return 0;
-    return tree_weight_helper(node->left) + tree_weight_helper(node->right) + 1;
+    rb_destroy(map->tree, true, true);
 }
 
 size_t tree_weight(struct rb_tree *tree)
 {
-    return tree_weight_helper(tree->root);
+    if (!tree) return 0;
+    return 1 + tree_weight(tree->left) + tree_weight(tree->right);
 }
 
 bool test_rbtree_get_set()
 {
     bool passed = true;
-    struct rb_tree map = map_create();
-    check_assertion(map_get(&map, "a", -1) == -1);
-    map_set(&map, "a", 1);
-    map_set(&map, "b", 2);
-    map_set(&map, "c", 2);
-    map_set(&map, "c", 3);
-    check_assertion(map_get(&map, "a", -1) == 1);
-    check_assertion(map_get(&map, "b", -1) == 2);
-    check_assertion(map_get(&map, "c", -1) == 3);
-    check_assertion(tree_weight(&map) == 3);
+    struct map_string_int map = map_string_int_create();
+    check_assertion(map_string_int_get(&map, "a", -1) == -1);
+    map_string_int_set(&map, "a", 1);
+    map_string_int_set(&map, "b", 2);
+    map_string_int_set(&map, "c", 2);
+    map_string_int_set(&map, "c", 3);
+    check_assertion(map_string_int_get(&map, "a", -1) == 1);
+    check_assertion(map_string_int_get(&map, "b", -1) == 2);
+    check_assertion(map_string_int_get(&map, "c", -1) == 3);
+    check_assertion(tree_weight(map.tree) == 3);
     map_destroy(&map);
     return passed;
 }
 
-size_t tree_height_helper(struct rb_node *node)
-{
-    if (!node) return 0;
-    size_t left = tree_height_helper(node->left);
-    size_t right = tree_height_helper(node->right);
-    return 1 + (left > right ? left : right);
-}
-
 size_t tree_height(struct rb_tree *tree)
 {
-    return tree_height_helper(tree->root);
+    if (!tree) return 0;
+    size_t left = tree_height(tree->left);
+    size_t right = tree_height(tree->right);
+    return 1 + (left > right ? left : right);
 }
 
 bool is_balanced(struct rb_tree *tree)
 {
     size_t weight = tree_weight(tree);
     size_t height = tree_height(tree);
-    // expected height < 2lg(n+1)
     return height <= 2*log2(weight + 1); 
 }
 
 // returns -1 if not well-defined
-int black_height(struct rb_node *node)
+int black_height(struct rb_tree *node)
 {
     if (!node) return 0;
     int left = black_height(node->left);
@@ -118,7 +114,7 @@ int black_height(struct rb_node *node)
 }
 
 // check if each path doesn't have consecutive red nodes
-bool is_majority_black(struct rb_node *node)
+bool is_majority_black(struct rb_tree *node)
 {
     if (!node) return true;
     bool left = is_majority_black(node->left);
@@ -132,12 +128,12 @@ bool is_majority_black(struct rb_node *node)
     return true;
 }
 
-bool is_red_black(struct rb_tree *tree)
+bool is_red_black(struct rb_tree *root)
 {
-    if (!tree->root) return true;
-    if (tree->root->color == rb_red) return false;
-    if (black_height(tree->root) == -1) return false;
-    return is_majority_black(tree->root);
+    return !root || (
+            root->color == rb_black 
+            && black_height(root) != -1
+            && is_majority_black(root));
 }
 
 int int_compare(const void *x, const void *y)
@@ -145,39 +141,50 @@ int int_compare(const void *x, const void *y)
     return *((int*)x) - *((int*)y);
 }
 
-void int_set(struct rb_tree *tree, int key)
+struct set_int {
+    struct rb_tree *tree;
+};
+
+struct set_int set_int_create()
 {
-    struct rb_node *node = rb_node_create(&key, NULL, NULL, NULL, rb_red, sizeof(int));
-    rb_node_destroy(rb_tree_insert(tree, node), false);
+    return (struct set_int) {
+        .tree = NULL
+    };
 }
 
-bool int_contains(struct rb_tree *tree, int key)
+void set_insert(struct set_int *set, int key)
 {
-    struct rb_node *node = rb_tree_search(tree, &key);
-    return node && tree->comparator(node->data, &key) == 0;
+    struct rb_tree *node = rb_tree_create(&key, NULL, NULL, NULL, rb_red, sizeof(int));
+    struct rb_insert_result result = rb_insert(set->tree, node, int_compare);
+    if (result.replaced) {
+        rb_destroy(result.replaced, false, true);
+    }
+    set->tree = result.root;
 }
 
-bool is_binary_tree_helper(
-        struct rb_node *node, 
-        int (*compare)(const void *, const void *))
+bool set_contains(struct set_int *set, int key)
 {
-    if (!node) return true;
-    if (node->left && compare(node->left->data, node->data) > 0) {
+    struct rb_tree *node = rb_search(set->tree, &key, int_compare);
+    return node && int_compare(node->data, &key) == 0;
+}
+
+bool is_binary_tree(
+        struct rb_tree *tree, 
+        int (*compare)(const void*, const void*))
+{
+    assert(compare);
+    if (!tree) return true;
+    if (tree->left && compare(tree->left->data, tree->data) > 0) {
         return false;
     }
-    bool left = is_binary_tree_helper(node->left, compare);
+    bool left = is_binary_tree(tree->left, compare);
     if (!left) return false;
-    if (node->right && compare(node->data, node->right->data) > 0) {
+    if (tree->right && compare(tree->data, tree->right->data) > 0) {
         return false;
     }
-    bool right = is_binary_tree_helper(node->right, compare);
+    bool right = is_binary_tree(tree->right, compare);
     if (!right) return false;
     return true;
-}
-
-bool is_binary_tree(struct rb_tree *tree)
-{
-    return is_binary_tree_helper(tree->root, tree->comparator);
 }
 
 // check if inserting keys in increasing order still produces a
@@ -185,7 +192,7 @@ bool is_binary_tree(struct rb_tree *tree)
 bool test_rbtree_redblack()
 {
     bool passed = true;
-    struct rb_tree map = rb_tree_create(sizeof(int), int_compare);
+    struct set_int set = set_int_create();
 
     size_t n = 100;
     int array[n];
@@ -193,22 +200,21 @@ bool test_rbtree_redblack()
         array[i] = (int)0;
     }
     for (size_t i = 0; i < n; ++i) {
-        int_set(&map, array[i]);
+        set_insert(&set, array[i]);
     }
     for (size_t i = 0; i < n; ++i) {
-        check_assertion(int_contains(&map, array[i]));
+        check_assertion(set_contains(&set, array[i]));
     }
 
-    check_assertion(is_binary_tree(&map));
-    check_assertion(is_balanced(&map));
-    check_assertion(is_red_black(&map));
-    rb_tree_destroy(&map, true);
+    check_assertion(is_binary_tree(set.tree, int_compare));
+    check_assertion(is_balanced(set.tree));
+    check_assertion(is_red_black(set.tree));
+    rb_destroy(set.tree, true, true);
     return passed;
 }
 
 int main()
 {
-    run_test(test_rbtree_init);
     run_test(test_rbtree_get_set);
     run_test(test_rbtree_redblack);
     return exit_test();

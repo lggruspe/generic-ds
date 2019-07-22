@@ -4,91 +4,44 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef enum rb_color { rb_black=0, rb_red=1 } rb_color;
+enum rb_color { rb_black=0, rb_red=1 } rb_color;
 
-struct rb_node {
+struct rb_tree {
     void *data;
-    struct rb_node *left, *right, *parent;
+    struct rb_tree *left, *right, *parent;
     enum rb_color color;
 };
 
-struct rb_node *rb_node_create(
-        void *data,
-        struct rb_node *left, 
-        struct rb_node *right, 
-        struct rb_node *parent, 
-        rb_color color,
-        size_t nbytes)  // number of bytes in data
+struct rb_tree *rb_tree_create(
+        const void *data,
+        struct rb_tree *left, 
+        struct rb_tree *right, 
+        struct rb_tree *parent, 
+        enum rb_color color,
+        size_t nbytes)  // sizeof(data)
 {
-    struct rb_node *node = (struct rb_node*)malloc(sizeof(struct rb_node));
-    if (node) {
-        node->data = malloc(nbytes);
-        if (!node->data) {
-            free(node->data);
-            free(node);
-            node = NULL;
+    struct rb_tree *tree = (struct rb_tree*)malloc(sizeof(struct rb_tree));
+    if (tree) {
+        tree->data = malloc(nbytes);
+        if (tree->data) {
+            tree->left = left;
+            tree->right = right;
+            tree->parent = parent;
+            tree->color = color;
+            memcpy(tree->data, data, nbytes);
         } else {
-            memcpy(node->data, data, nbytes);
-            node->left = left;
-            node->right = right;
-            node->parent = parent;
-            node->color = color;
+            free(tree);
+            tree = NULL;
         }
     }
-    return node;
+    return tree;
 }
 
-struct rb_node *rb_node_minimum(struct rb_node *root)
+// returns (possibly) new root of tree
+struct rb_tree *rb_rotate_left(struct rb_tree *root, struct rb_tree *x)
 {
-    if (!root) {
-        return NULL;
-    }
-    struct rb_node *node = root;
-    while (node->left) {
-        node = node->left;
-    }
-    return node;
-}
-
-struct rb_node *rb_node_successor(struct rb_node *node)
-{
-    if (!node) {
-        return NULL;
-    }
-    if (node->right) {
-        return rb_node_minimum(node->right);
-    }
-    struct rb_node *parent = node->parent;
-    struct rb_node *child = node;
-    while (parent && parent->left != child) {
-        child = parent;
-        parent = parent->parent;
-    }
-    return parent;
-}
-
-struct rb_tree {
-    struct rb_node *root;
-    size_t nbytes;      // number of bytes in an element
-    int (*comparator)(const void*, const void*);
-};
-
-struct rb_tree rb_tree_create(
-        size_t nbytes,
-        int (*compare)(const void*, const void*))
-{
-    return (struct rb_tree) {
-        .root = NULL,
-        .nbytes = nbytes,
-        .comparator = compare
-    };
-}
-
-void rb_rotate_left(struct rb_tree *tree, struct rb_node *x)
-{
-    assert(x);
-    assert(x->right);
-    struct rb_node *y = x->right;
+    assert(x && x->right);
+    struct rb_tree *y = x->right;
     y->parent = x->parent;
     if (y->parent) {
         if (y->parent->left == x) {
@@ -97,7 +50,7 @@ void rb_rotate_left(struct rb_tree *tree, struct rb_node *x)
             y->parent->right = y;
         }
     } else {
-        tree->root = y;
+        root = y;
     }
 
     x->right = y->left;
@@ -107,12 +60,13 @@ void rb_rotate_left(struct rb_tree *tree, struct rb_node *x)
 
     y->left = x;
     x->parent = y;
+    return root;
 }
 
-void rb_rotate_right(struct rb_tree *tree, struct rb_node *y)
+struct rb_tree *rb_rotate_right(struct rb_tree *root, struct rb_tree *y)
 {
     assert(y && y->left);
-    struct rb_node *x = y->left;
+    struct rb_tree *x = y->left;
     x->parent = y->parent;
     if (x->parent) {
         if (x->parent->left == y) {
@@ -121,7 +75,7 @@ void rb_rotate_right(struct rb_tree *tree, struct rb_node *y)
             x->parent->right = x;
         }
     } else {
-        tree->root = x;
+        root = x;
     }
 
     y->left = x->right;
@@ -131,43 +85,72 @@ void rb_rotate_right(struct rb_tree *tree, struct rb_node *y)
 
     x->right = y;
     y->parent = x;
+    return root;
 }
 
-void rb_node_destroy(struct rb_node *node, bool cascade)
+void rb_destroy(struct rb_tree *node, bool cascade_, bool free_)
 {
     if (!node) return;
-    if (cascade) {
-        rb_node_destroy(node->left, cascade);
-        rb_node_destroy(node->right, cascade);
+    if (cascade_) {
+        rb_destroy(node->left, cascade_, free_);
+        rb_destroy(node->right, cascade_, free_);
     }
     free(node->data);
-    free(node);
+    if (free_) free(node);
 }
 
-void rb_tree_destroy(struct rb_tree *tree, bool cascade)
+struct rb_tree *rb_closest_match(
+        struct rb_tree *root,
+        const void *data,
+        int (*compare)(const void *, const void *))
 {
-    rb_node_destroy(tree->root, cascade);
+    struct rb_tree *parent = NULL;
+    struct rb_tree *child = root;
+    int comparison;
+    while (child && (comparison = compare(data, child->data)) != 0) {
+        parent = child;
+        child = comparison < 0 ? child->left : child->right;
+    }
+    return child ? child : parent;
 }
 
-struct rb_node *rb_tree_search(struct rb_tree *tree, void *data)
+struct rb_tree *rb_search(
+        struct rb_tree *root, 
+        const void *data,
+        int (*compare)(const void *, const void *))
 {
-    struct rb_node *node = tree->root;
-    while (node) {
-        int comparison = (tree)->comparator(data, node->data);
-        if (comparison == 0) break;
+    struct rb_tree *node = root;
+    int comparison;
+    while (node && (comparison = compare(data, node->data)) != 0) {
         node = comparison < 0 ? node->left : node->right;
     }
     return node;
 }
 
-void rb_tree_repair(struct rb_tree *tree, struct rb_node *node)
+struct rb_tree *rb_transplant(
+        struct rb_tree *root, 
+        struct rb_tree *u, 
+        struct rb_tree *v)
 {
-    if (!node) {
-        return;
+    if (!u->parent) {
+        root = v;
+    } else if (u->parent->left == u) {
+        u->parent->left = v;
+    } else {
+        u->parent->right = v;
     }
-    struct rb_node *parent = node->parent;
-    struct rb_node *grandparent = (parent ? parent->parent : NULL);
-    struct rb_node *uncle = NULL;
+    if (v) {
+        v->parent = u->parent;
+    }
+    return root;
+}
+
+struct rb_tree *rb_repair(struct rb_tree *root, struct rb_tree *node)
+{
+    if (!root || !node) return root;
+    struct rb_tree *parent = node->parent;
+    struct rb_tree *grandparent = (parent ? parent->parent : NULL);
+    struct rb_tree *uncle = NULL;
     if (grandparent) {
         uncle = (grandparent->left == parent 
             ? grandparent->right 
@@ -180,160 +163,114 @@ void rb_tree_repair(struct rb_tree *tree, struct rb_node *node)
             grandparent->color = rb_red;
             uncle->color = rb_black;
             parent->color = rb_black;
-            return rb_tree_repair(tree, grandparent);
+            return rb_repair(root, grandparent);
         }
     }
     // case 2: black uncle, triangle
     if (grandparent && grandparent->left == parent && parent->right == node) {
-        rb_rotate_left(tree, parent);
+        root = rb_rotate_left(root, parent);
     } else if (grandparent && grandparent->right == parent && parent->left == node) {
-        rb_rotate_right(tree, parent);
+        root = rb_rotate_right(root, parent);
     }
 
     // case 3: black uncle, line
     if (grandparent && grandparent->left == parent && parent->left == node) {
         grandparent->color = rb_red;
         parent->color = rb_black;
-        rb_rotate_right(tree, grandparent);
+        root = rb_rotate_right(root, grandparent);
     } else if (grandparent && grandparent->right == parent && parent->right == node) {
         grandparent->color = rb_red;
         parent->color = rb_black;
-        rb_rotate_left(tree, grandparent);
+        root = rb_rotate_left(root, grandparent);
     }
-
-    tree->root->color = rb_black;
+    root->color = rb_black;
+    return root;
 }
 
-void rb_tree_transplant(struct rb_tree *tree, struct rb_node *u, struct rb_node *v)
-{
-    if (!u->parent) {
-        tree->root = v;
-    } else if (u->parent->left == u) {
-        u->parent->left = v;
-    } else {
-        u->parent->right = v;
-    }
-    if (v) {
-        v->parent = u->parent;
-    }
-}
+struct rb_insert_result {
+    struct rb_tree *root;
+    struct rb_tree *replaced;
+};
 
-// does not check if inserting child affects tree shape
-// or if parent has room for child
 // returns node that the child replaces, if any, 
-// so the caller can deallocate memory (using rb_node_destroy(node, false))
-struct rb_node *rb_tree_insert_child(
-        struct rb_tree *tree, 
-        struct rb_node *parent, 
-        struct rb_node *child)
+// so the caller can deallocate memory (using rb_destroy(node, false))
+struct rb_insert_result rb_insert(
+        struct rb_tree *root, 
+        struct rb_tree *node,
+        int (*compare)(const void *, const void *))
 {
-    struct rb_node *replaced = NULL;
-    child->color = rb_red;
-    child->left = NULL;
-    child->right = NULL;
-    child->parent = parent;
-    if (!parent) {
-        tree->root = child;
+    struct rb_insert_result result = {
+        .root = root,
+        .replaced = NULL
+    };
+    if (!node) return result;
+
+    node->color = rb_red;
+    node->left = NULL;
+    node->right = NULL;
+    node->parent = NULL;
+    if (!root) {
+        node->color = rb_black;
+        result.root = node;
+        return result;
+    }
+
+    struct rb_tree *closest = rb_closest_match(root, node->data, compare);
+    int comparison = compare(node->data, closest->data);
+    if (comparison == 0) {
+        result.replaced = closest;
+        node->color = closest->color;
+        node->left = closest->left;
+        node->right = closest->right;
+        root = rb_transplant(root, closest, node);
+    } else if (comparison < 0) {
+        closest->left = node;
+        node->parent = closest;
     } else {
-        int comparison = tree->comparator(child->data, parent->data);
-        if (comparison == 0) {
-            replaced = parent;
-            child->color = replaced->color;
-            child->left = replaced->left;
-            child->right = replaced->right;
-            rb_tree_transplant(tree, replaced, child);
-        } else if (comparison < 0) {
-            parent->left = child;
-        } else {
-            parent->right = child;
-        }
+        closest->right = node;
+        node->parent = closest;
     }
-    rb_tree_repair(tree, child);
-    return replaced;
+    root = rb_repair(root, node);
+    result.root = root;
+    return result;
 }
 
-struct rb_node *rb_find_match_or_parent(
-        struct rb_tree *tree,
-        struct rb_node *node)
-{
-    struct rb_node *parent = NULL;
-    struct rb_node *child = tree->root;
-    int comparison;
-    while (child && (comparison = tree->comparator(node->data, child->data)) != 0) {
-        parent = child;
-        child = comparison < 0 ? child->left : child->right;
-    }
-    return child ? child : parent;
-}
-
-// returns pointer to replaced node if any, so it can be propertly deallocated
-// (using rb_node_destroy(node, false)
-struct rb_node *rb_tree_insert(struct rb_tree *tree, struct rb_node *node)
-{
-    if (!node) return NULL;
-    struct rb_node *result = rb_find_match_or_parent(tree, node);
-    return rb_tree_insert_child(tree, result, node);
-}
-
-// doesn't preserve black-red properties
-void rb_tree_delete(struct rb_tree *tree, struct rb_node *node)
-{
-    if (!node) {
-        return;
-    }
-    if (!node->left && !node->right) {
-        return rb_tree_transplant(tree, node, NULL);
-    } else if (!node->left || !node->right) {
-        return rb_tree_transplant(tree, node, 
-                node->left ? node->left : node->right);
-    }
-    struct rb_node *successor = rb_node_successor(node);
-    if (successor->parent != node) {
-        rb_tree_transplant(tree, successor, successor->right);
-        successor->right = node->right;
-        successor->right->parent = successor;
-    }
-    successor->left = node->left;
-    successor->left->parent = successor;
-    rb_tree_transplant(tree, node, successor);
-}
-
-// NOTE doesnt check if new data preserves red-black properties
-void rb_tree_change_node_data(struct rb_tree *tree, struct rb_node *node, const void *data)
+// NOTE doesnt check if new tree preserves BST property
+void rb_node_change_data(struct rb_tree *node, const void *data, size_t nbytes)
 {
     if (node) {
         if (!node->data) {
-            node->data = malloc(tree->nbytes);
+            node->data = malloc(nbytes);
         }
         if (node->data) {
-            memcpy(node->data, data, tree->nbytes);
+            memcpy(node->data, data, nbytes);
         }
     }
 }
 
-void rb_node_inorder(struct rb_node *node, void (*handler)(void*))
+void rb_inorder(const struct rb_tree *node, void (*handler)(const void*))
 {
     if (node) {
-        rb_node_inorder(node->left, handler);
+        rb_inorder(node->left, handler);
         handler(node->data);
-        rb_node_inorder(node->right, handler);
+        rb_inorder(node->right, handler);
     }
 }
 
-void rb_node_preorder(struct rb_node *node, void (*handler)(void*))
+void rb_preorder(const struct rb_tree *node, void (*handler)(const void*))
 {
     if (node) {
         handler(node->data);
-        rb_node_preorder(node->left, handler);
-        rb_node_preorder(node->right, handler);
+        rb_preorder(node->left, handler);
+        rb_preorder(node->right, handler);
     }
 }
 
-void rb_node_postorder(struct rb_node *node, void (*handler)(void*))
+void rb_postorder(const struct rb_tree *node, void (*handler)(const void*))
 {
     if (node) {
-        rb_node_postorder(node->left, handler);
-        rb_node_postorder(node->right, handler);
+        rb_postorder(node->left, handler);
+        rb_postorder(node->right, handler);
         handler(node->data);
     }
 }
