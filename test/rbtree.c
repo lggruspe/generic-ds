@@ -32,7 +32,7 @@ void map_set(struct rb_tree *map, const char *key, int value)
 {
     struct map_data data = map_data_create(key, value);
     struct rb_node *node = rb_node_create(&data, NULL, NULL, NULL,  rb_red, sizeof(struct map_data));
-    rb_tree_insert(map, node);
+    rb_node_destroy(rb_tree_insert(map, node), false);
 }
 
 int map_get(struct rb_tree *map, const char *key, int def)
@@ -44,7 +44,7 @@ int map_get(struct rb_tree *map, const char *key, int def)
 
 void map_destroy(struct rb_tree *map)
 {
-    rb_tree_destroy(map, 1); 
+    rb_tree_destroy(map, true); 
 }
 
 // untested change data, delete, inorder, preoder, successor
@@ -148,7 +148,7 @@ int int_compare(const void *x, const void *y)
 void int_set(struct rb_tree *tree, int key)
 {
     struct rb_node *node = rb_node_create(&key, NULL, NULL, NULL, rb_red, sizeof(int));
-    rb_tree_insert(tree, node);
+    rb_node_destroy(rb_tree_insert(tree, node), false);
 }
 
 bool int_contains(struct rb_tree *tree, int key)
@@ -202,7 +202,7 @@ bool test_rbtree_redblack()
     check_assertion(is_binary_tree(&map));
     check_assertion(is_balanced(&map));
     check_assertion(is_red_black(&map));
-    rb_tree_destroy(&map, 1);
+    rb_tree_destroy(&map, true);
     return passed;
 }
 
