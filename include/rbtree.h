@@ -192,10 +192,11 @@ struct rb_insert_result {
     struct rb_tree *replaced;
 };
 
-// returns node that the child replaces, if any, 
-// so the caller can deallocate memory (using rb_destroy(node, false))
-struct rb_insert_result rb_insert(
+// insert at location
+// assume location is root, or a descendant of root
+struct rb_insert_result rb_insert_at(
         struct rb_tree *root, 
+        struct rb_tree *location,
         struct rb_tree *node,
         int (*compare)(const void *, const void *))
 {
@@ -215,7 +216,7 @@ struct rb_insert_result rb_insert(
         return result;
     }
 
-    struct rb_tree *closest = rb_closest_match(root, node->data, compare);
+    struct rb_tree *closest = rb_closest_match(location, node->data, compare);
     int comparison = compare(node->data, closest->data);
     if (comparison == 0) {
         result.replaced = closest;
@@ -233,6 +234,17 @@ struct rb_insert_result rb_insert(
     root = rb_repair(root, node);
     result.root = root;
     return result;
+}
+
+
+// returns node that the child replaces, if any, 
+// so the caller can deallocate memory (using rb_destroy(node, false))
+struct rb_insert_result rb_insert(
+        struct rb_tree *root, 
+        struct rb_tree *node,
+        int (*compare)(const void *, const void *))
+{
+    return rb_insert_at(root, root, node, compare);
 }
 
 // NOTE doesnt check if new tree preserves BST property
