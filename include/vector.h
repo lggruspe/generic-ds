@@ -25,18 +25,21 @@
 #include <stdlib.h>
 
 #define vector_is_empty(vector) ((vector)->size == 0)
-#define vector_is_full(vector) ((vector)->size == (vector)->capacity)
-#define vector_create() {\
-    .size = 0,\
-    .capacity = 0,\
-    .array = NULL\
-}
+#define vector_create() { .array = NULL }
 
 #define vector_destroy(vector) do {\
     free((vector)->array);\
     (vector)->array = NULL;\
     (vector)->size = 0;\
     (vector)->capacity = 0;\
+} while (0)
+
+#define vector_peek(vec) ((vec)->array[(vec)->size - 1])
+
+#define vector_pop(vec) do {\
+    if (!vector_is_empty(vec)) {\
+        (vec)->size--;\
+    }\
 } while (0)
 
 #define vector_register(_type) \
@@ -46,62 +49,30 @@ struct vector_##_type {\
     _type *array;\
 };\
 \
-int vector_##_type##_resize(struct vector_##_type *vec)\
-{\
-    size_t capacity = vec->capacity ? 2*vec->capacity : 1;\
-    _type *array = realloc(vec->array, capacity * sizeof(_type));\
-    if (array) {\
-        vec->array = array;\
-        vec->capacity = capacity;\
-        return 0;\
-    }\
-    return -1;\
-}\
-\
 int vector_##_type##_push(struct vector_##_type *vec, _type data)\
 {\
-    if (vector_is_full(vec)) {\
-        vector_##_type##_resize(vec);\
+    if (vec->size == vec->capacity) {\
+        size_t capacity = vec->capacity ? 2*vec->capacity : 1;\
+        _type *array = realloc(vec->array, capacity * sizeof(_type));\
+        if (array) {\
+            vec->array = array;\
+            vec->capacity = capacity;\
+        }\
     }\
-    if (!vector_is_full(vec)) {\
+    if (vec->size != vec->capacity) {\
         vec->array[vec->size++] = data;\
         return 0;\
     }\
     return -1;\
-}\
-\
-_type vector_##_type##_peek(struct vector_##_type *vec)\
-{\
-    return vec->array[vec->size - 1];\
-}\
-\
-_type vector_##_type##_pop(struct vector_##_type *vec)\
-{\
-    _type top = vector_##_type##_peek(vec);\
-    if (!vector_is_empty(vec)) {\
-        vec->size--;\
-    }\
-    return top;\
-}\
-\
-_type vector_##_type##_get(struct vector_##_type *vec, size_t i)\
-{\
-    return vec->array[i];\
-}\
-\
-int vector_##_type##_set(struct vector_##_type *vec, size_t i, _type data)\
-{\
-    if (i >= vec->capacity) {\
-        return -1;\
-    }\
-    vec->array[i] = data;\
-    return 0;\
-}\
-\
-_type *vector_##_type##_get_pointer(struct vector_##_type *vec, size_t i)\
-{\
-    if (i >= vec->capacity) {\
-        return NULL;\
-    }\
-    return vec->array + i;\
 }
+
+#define vector_get(vec, i) ((vec)->array[i])
+
+#define vector_set(vec, j, data) do {\
+    if ((size_t)(j) < (vec)->capacity) {\
+        (vec)->array[(size_t)(j)] = (data);\
+    }\
+} while (0)
+
+#define vector_get_pointer(vec, i) \
+    (((size_t)(i) >= (vec)->capacity) ? NULL : (vec)->array + (size_t)(i))

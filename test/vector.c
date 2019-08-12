@@ -15,21 +15,20 @@ bool test_vector()
 
     check_assertion(!vector_is_empty(&vector));
     for (int i = 0; i < 10; ++i) {
-        int j = vector_int_get(&vector, i);
+        int j = vector_get(&vector, i);
         check_assertion(i == j);
     }
 
     for (int i = 0; i < 10; ++i) {
-        vector_int_set(&vector, i, i*i);
-        int *ptr = vector_int_get_pointer(&vector, i);
+        vector_set(&vector, i, i*i);
+        int *ptr = vector_get_pointer(&vector, i);
         *ptr += 1;
     }
 
     for (int i = 9; i >= 0; --i) {
-        int top = vector_int_peek(&vector);
-        int x = vector_int_pop(&vector);
-        check_assertion(x == top);
-        check_assertion(x == i*i + 1);
+        int top = vector_peek(&vector);
+        vector_pop(&vector);
+        check_assertion(top == i*i + 1);
     }
 
     check_assertion(vector_is_empty(&vector));
