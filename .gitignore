@@ -9,3 +9,7 @@ depcomp
 missing
 test-driver
 install-sh
+Makefile
+config.*
+stamp-h1
+.deps
