@@ -10,7 +10,7 @@ test_test_rbtree_SOURCES = test/rbtree.c include/rbtree.h test/test_lib.h
 test_test_stack_SOURCES = test/stack.c include/stack.h test/test_lib.h
 test_test_vector_SOURCES = test/vector.c include/vector.h test/test_lib.h
 
-AM_CFLAGS = -g -Wall
+AM_CFLAGS = -g -Wall -Wextra -Wpedantic
 AM_CPPFLAGS = -I$(abs_top_srcdir)/include -I$(abs_top_srcdir)/test
 TESTS = $(check_PROGRAMS)
 

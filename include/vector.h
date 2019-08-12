@@ -76,10 +76,9 @@ _type _name##_peek(struct _name *vec)\
 \
 _type _name##_pop(struct _name *vec)\
 {\
-    _type top;\
+    _type top = _name##_peek(vec);\
     if (!vector_is_empty(vec)) {\
         vec->size--;\
-        top = vec->array[vec->size];\
     }\
     return top;\
 }\
