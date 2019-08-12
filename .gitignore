@@ -13,3 +13,8 @@ Makefile
 config.*
 stamp-h1
 .deps
+.dirstamp
+*.log
+*.o
+*.trs
+test_*
