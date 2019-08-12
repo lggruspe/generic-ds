@@ -1,4 +1,11 @@
-bin/main
 vgcore.*
-bin/test_*
 debug/bin
+*.in
+configure
+compile
+*.m4
+*.cache
+depcomp
+missing
+test-driver
+install-sh
