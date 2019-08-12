@@ -24,16 +24,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#define vector_register(type) \
+struct vector_##type {\
+    size_t size;\
+    size_t capacity;\
+    type *array;\
+    type dummy;\
+};
+
 #define vector_is_empty(vector) ((vector)->size == 0)
 #define vector_create() { .array = NULL }
-
-#define vector_destroy(vector) do {\
-    free((vector)->array);\
-    (vector)->array = NULL;\
-    (vector)->size = 0;\
-    (vector)->capacity = 0;\
-} while (0)
-
 #define vector_peek(vec) ((vec)->array[(vec)->size - 1])
 
 #define vector_pop(vec) do {\
@@ -42,29 +42,19 @@
     }\
 } while (0)
 
-#define vector_register(_type) \
-struct vector_##_type {\
-    size_t size;\
-    size_t capacity;\
-    _type *array;\
-};\
-\
-int vector_##_type##_push(struct vector_##_type *vec, _type data)\
-{\
-    if (vec->size == vec->capacity) {\
-        size_t capacity = vec->capacity ? 2*vec->capacity : 1;\
-        _type *array = realloc(vec->array, capacity * sizeof(_type));\
+#define vector_push(vec, data) do {\
+    if ((vec)->size == (vec)->capacity) {\
+        size_t capacity = (vec)->capacity ? 2*(vec)->capacity : 1;\
+        void *array = realloc((vec)->array, capacity * sizeof((vec)->dummy));\
         if (array) {\
-            vec->array = array;\
-            vec->capacity = capacity;\
+            (vec)->array = array;\
+            (vec)->capacity = capacity;\
         }\
     }\
-    if (vec->size != vec->capacity) {\
-        vec->array[vec->size++] = data;\
-        return 0;\
+    if ((vec)->size != (vec)->capacity) {\
+        (vec)->array[(vec)->size++] = (data);\
     }\
-    return -1;\
-}
+} while (0)
 
 #define vector_get(vec, i) ((vec)->array[i])
 
@@ -76,3 +66,12 @@ int vector_##_type##_push(struct vector_##_type *vec, _type data)\
 
 #define vector_get_pointer(vec, i) \
     (((size_t)(i) >= (vec)->capacity) ? NULL : (vec)->array + (size_t)(i))
+
+#define vector_destroy(vector) do {\
+    free((vector)->array);\
+    (vector)->array = NULL;\
+    (vector)->size = 0;\
+    (vector)->capacity = 0;\
+} while (0)
+
+

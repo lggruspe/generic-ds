@@ -10,7 +10,7 @@ bool test_vector()
     check_assertion(vector_is_empty(&vector));
 
     for (int i = 0; i < 10; ++i) {
-        vector_int_push(&vector, i);
+        vector_push(&vector, i);
     }
 
     check_assertion(!vector_is_empty(&vector));
