@@ -39,13 +39,14 @@
     (vector)->capacity = 0;\
 } while (0)
 
-#define define_vector_type(_name, _type) struct _name {\
+#define vector_register(_type) \
+struct vector_##_type {\
     size_t size;\
     size_t capacity;\
     _type *array;\
 };\
 \
-int _name##_resize(struct _name *vec)\
+int vector_##_type##_resize(struct vector_##_type *vec)\
 {\
     size_t capacity = vec->capacity ? 2*vec->capacity : 1;\
     _type *array = realloc(vec->array, capacity * sizeof(_type));\
@@ -57,10 +58,10 @@ int _name##_resize(struct _name *vec)\
     return -1;\
 }\
 \
-int _name##_push(struct _name *vec, _type data)\
+int vector_##_type##_push(struct vector_##_type *vec, _type data)\
 {\
     if (vector_is_full(vec)) {\
-        _name##_resize(vec);\
+        vector_##_type##_resize(vec);\
     }\
     if (!vector_is_full(vec)) {\
         vec->array[vec->size++] = data;\
@@ -69,26 +70,26 @@ int _name##_push(struct _name *vec, _type data)\
     return -1;\
 }\
 \
-_type _name##_peek(struct _name *vec)\
+_type vector_##_type##_peek(struct vector_##_type *vec)\
 {\
     return vec->array[vec->size - 1];\
 }\
 \
-_type _name##_pop(struct _name *vec)\
+_type vector_##_type##_pop(struct vector_##_type *vec)\
 {\
-    _type top = _name##_peek(vec);\
+    _type top = vector_##_type##_peek(vec);\
     if (!vector_is_empty(vec)) {\
         vec->size--;\
     }\
     return top;\
 }\
 \
-_type _name##_get(struct _name *vec, size_t i)\
+_type vector_##_type##_get(struct vector_##_type *vec, size_t i)\
 {\
     return vec->array[i];\
 }\
 \
-int _name##_set(struct _name *vec, size_t i, _type data)\
+int vector_##_type##_set(struct vector_##_type *vec, size_t i, _type data)\
 {\
     if (i >= vec->capacity) {\
         return -1;\
@@ -97,7 +98,7 @@ int _name##_set(struct _name *vec, size_t i, _type data)\
     return 0;\
 }\
 \
-_type *_name##_get_pointer(struct _name *vec, size_t i)\
+_type *vector_##_type##_get_pointer(struct vector_##_type *vec, size_t i)\
 {\
     if (i >= vec->capacity) {\
         return NULL;\
