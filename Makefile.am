@@ -1,4 +1,5 @@
-check_PROGRAMS = test/test_heap test/test_heap_m test/test_list test/test_queue test/test_rbtree test/test_stack test/test_vector
+check_PROGRAMS = test/test_heap test/test_list test/test_queue test/test_rbtree test/test_stack test/test_vector
+# test/heap_m
 # test/bst
 
 test_test_bst_SOURCES = test/bst.c include/bst.h test/test_lib.h

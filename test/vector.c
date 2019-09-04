@@ -3,9 +3,8 @@
 
 vector_register(int)
 
-bool test_vector()
+unit_test(test_vector)
 {
-    bool passed = true;
     struct vector_int vector = vector_create();
     check_assertion(vector_is_empty(&vector));
 
@@ -33,11 +32,11 @@ bool test_vector()
 
     check_assertion(vector_is_empty(&vector));
     vector_destroy(&vector);
-    return passed;
+    test_teardown();
 }
 
 int main()
 {
-    run_test(test_vector);
+    run_unit_test(test_vector);
     return exit_test();
 }

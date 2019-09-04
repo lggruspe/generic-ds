@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define unit_test(fn, ...) bool fn(bool passed, ##__VA_ARGS__)
+#define test_teardown() return passed
+
 #define check_assertion(condition) do {\
     if (!(condition)) {\
         passed = false;\
@@ -17,9 +20,15 @@ void fail_tests()
 }
 
 #define run_test(test) do {\
-    bool passed = test();\
-    printf(#test " %s\n", passed ? "passed" : "failed");\
-    if (!passed) {\
+    if (!(test)()) {\
+        printf(#test " failed\n");\
+        fail_tests();\
+    }\
+} while (0)
+
+#define run_unit_test(test, ...) do {\
+    if (!(test)(true, ##__VA_ARGS__)) {\
+        printf(#test " failed\n");\
         fail_tests();\
     }\
 } while (0)
