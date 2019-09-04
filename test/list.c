@@ -60,21 +60,19 @@ bool contains(int_list *list, int item)
     return result && result->value == item;
 }
 
-bool test_list_null()
+unit_test(test_list_null)
 {
-    bool passed = true;
     int_list *list = NULL;
     check_assertion(!list_head(list));
     check_assertion(!list_tail(list));
     check_assertion(list_is_empty(list));
     check_assertion(is_circular(list));
     check_assertion(!contains(list, 0));
-    return passed;
+    test_teardown();
 }
 
-bool test_list_append()
+unit_test(test_list_append)
 {
-    bool passed = true;
     int_list *list = NULL;
     for (int i = 0; i < 10; ++i) {
         check_assertion(!contains(list, i));
@@ -83,26 +81,21 @@ bool test_list_append()
         check_assertion(contains(list, i));
         check_assertion(is_circular(list));
     }
-
     int_list_delete(list->prev);
-
     int_list *temp = list->next;
     int_list_delete(list);
     list = temp;
-
     check_assertion(!contains(list, 0));
     check_assertion(!contains(list, 9));
     check_assertion(is_circular(list));
-
     temp = list;
     for (int i = 1; temp != list->prev; ++i) {
         check_assertion(temp->value == i);
         temp = temp->next;
     }
     check_assertion(temp->value == 8);
-
     destroy(list);
-    return passed;
+    test_teardown();
 }
 
 int int_compare(int a, int b)
@@ -110,9 +103,8 @@ int int_compare(int a, int b)
     return a - b;
 }
 
-bool test_list_search_custom()
+unit_test(test_list_search_custom)
 {
-    bool passed = true;
     int_list *list = NULL;
     for (int i = 0; i < 10; ++i) {
         int_list *node = int_list_new(i);
@@ -123,7 +115,7 @@ bool test_list_search_custom()
     list_search_custom(list, result, 5, int_compare);
     check_assertion(result && result->value == 5);
     destroy(list);
-    return passed;
+    test_teardown();
 }
 
 bool is_nine(int n)
@@ -131,9 +123,8 @@ bool is_nine(int n)
     return n == 9;
 }
 
-bool test_list_search_if()
+unit_test(test_list_search_if)
 {
-    bool passed = true;
     int_list *list = NULL;
     for (int i = 0; i < 10; ++i) {
         int_list *node = int_list_new(i);
@@ -144,12 +135,11 @@ bool test_list_search_if()
     list_search_if(list, result, is_nine);
     check_assertion(result && result->value == 9);
     destroy(list);
-    return passed;
+    test_teardown();
 }
 
-bool test_list_search_nonexistent()
+unit_test(test_list_search_nonexistent)
 {
-    bool passed = true;
     int_list *list = NULL;
     int_list *node = int_list_new(0);
     list_append(list, node);
@@ -166,15 +156,15 @@ bool test_list_search_nonexistent()
     list_search_if(list, result, is_nine);
     check_assertion(!result);
     destroy(list);
-    return passed;
+    test_teardown();
 }
 
 int main()
 {
-    run_test(test_list_null);
-    run_test(test_list_append);
-    run_test(test_list_search_custom);
-    run_test(test_list_search_if);
-    run_test(test_list_search_nonexistent);
+    run_unit_test(test_list_null);
+    run_unit_test(test_list_append);
+    run_unit_test(test_list_search_custom);
+    run_unit_test(test_list_search_if);
+    run_unit_test(test_list_search_nonexistent);
     return exit_test();
 }

@@ -70,9 +70,8 @@ size_t tree_weight(struct rb_tree *tree)
     return 1 + tree_weight(tree->left) + tree_weight(tree->right);
 }
 
-bool test_rbtree_get_set()
+unit_test(test_rbtree_get_set)
 {
-    bool passed = true;
     struct map_string_int map = map_string_int_create();
     check_assertion(map_string_int_get(&map, "a", -1) == -1);
     map_string_int_set(&map, "a", 1);
@@ -84,7 +83,7 @@ bool test_rbtree_get_set()
     check_assertion(map_string_int_get(&map, "c", -1) == 3);
     check_assertion(tree_weight(map.tree) == 3);
     map_destroy(&map);
-    return passed;
+    test_teardown();
 }
 
 size_t tree_height(struct rb_tree *tree)
@@ -189,9 +188,8 @@ bool is_binary_tree(
 
 // check if inserting keys in increasing order still produces a
 // red-black tree
-bool test_rbtree_redblack()
+unit_test(test_rbtree_redblack)
 {
-    bool passed = true;
     struct set_int set = set_int_create();
 
     size_t n = 100;
@@ -210,12 +208,12 @@ bool test_rbtree_redblack()
     check_assertion(is_balanced(set.tree));
     check_assertion(is_red_black(set.tree));
     rb_destroy(set.tree, true, true);
-    return passed;
+    test_teardown();
 }
 
 int main()
 {
-    run_test(test_rbtree_get_set);
-    run_test(test_rbtree_redblack);
+    run_unit_test(test_rbtree_get_set);
+    run_unit_test(test_rbtree_redblack);
     return exit_test();
 }
