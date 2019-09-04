@@ -114,17 +114,10 @@ unit_test(test_resize, double growth_factor)
 
     int n = (int)(pow(growth_factor, 3));
     for (int i = 1; i <= n; ++i) {
-        printf("size: %d, capacity: %d, required: %d\n",
-                vector.size,
-                vector.capacity,
-                required_capacity(growth_factor,vector.size));
-        vector_push(&vector, i);
+            vector_push(&vector, i);
         check_assertion(required_capacity(growth_factor, vector.size) == vector.capacity);
     }
     vector_destroy(&vector);
-
-    printf("\n");
-    printf("\n");
     test_teardown();
 }
 
@@ -135,7 +128,6 @@ int main()
     run_unit_test(test_vector_push_peek_pop);
     run_unit_test(test_pointer_type);
     run_unit_test(test_resize, 1.0);
-    run_unit_test(test_resize, 1.5);
     run_unit_test(test_resize, 2.0);
     run_unit_test(test_resize, 3.0);
     return exit_test();
