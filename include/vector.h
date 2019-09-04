@@ -56,6 +56,9 @@ struct vector_##type {\
 #define vector_push(vec, data) do {\
     if (vector_is_full(vec)) {\
         int capacity = (vec)->capacity * (vec)->growth_factor;\
+        if (capacity <= (vec)->size) {\
+            capacity = (vec)->size + 1;\
+        }\
         if (capacity <= 0) {\
             capacity = 1;\
         }\

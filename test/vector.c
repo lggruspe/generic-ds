@@ -1,5 +1,7 @@
 #include "vector.h"
 #include "test_lib.h"
+#include <math.h>
+#include <stdbool.h>
 #include <string.h>
 
 typedef const char* string;
@@ -100,15 +102,29 @@ unit_test(test_vector_create)
     test_teardown();
 }
 
-unit_test(test_resize)
+int required_capacity(double growth_factor, int size)
 {
-    vector(int) vector = vector_create();
+    return (int)(pow(growth_factor, ceil(log(size)/log(growth_factor))));
+}
+
+unit_test(test_resize, double growth_factor)
+{
+    vector(int) vector = vector_create(.growth_factor = growth_factor);
     check_assertion(vector.capacity == 0);
-    for (int i = 0; i < 5; ++i) {
+
+    int n = (int)(pow(growth_factor, 3));
+    for (int i = 1; i <= n; ++i) {
+        printf("size: %d, capacity: %d, required: %d\n",
+                vector.size,
+                vector.capacity,
+                required_capacity(growth_factor,vector.size));
         vector_push(&vector, i);
+        check_assertion(required_capacity(growth_factor, vector.size) == vector.capacity);
     }
-    check_assertion(vector.capacity == 8);
     vector_destroy(&vector);
+
+    printf("\n");
+    printf("\n");
     test_teardown();
 }
 
@@ -118,6 +134,9 @@ int main()
     run_unit_test(test_vector_create);
     run_unit_test(test_vector_push_peek_pop);
     run_unit_test(test_pointer_type);
-    run_unit_test(test_resize);
+    run_unit_test(test_resize, 1.0);
+    run_unit_test(test_resize, 1.5);
+    run_unit_test(test_resize, 2.0);
+    run_unit_test(test_resize, 3.0);
     return exit_test();
 }
