@@ -1,6 +1,6 @@
 #include "vector.h"
 #include "test_lib.h"
-//#include <string.h>
+#include <string.h>
 
 typedef const char* string;
 vector_register(int)
@@ -53,7 +53,7 @@ unit_test(test_vector_push_peek_pop)
         char *ptr = vector_get_pointer(&vector, i);
         char top = vector_peek(&vector);
         check_assertion(ptr && *ptr == top);
-        check_assertion(top == array[25 - i]);
+        check_assertion(top == array[i]);
         vector_pop(&vector);
     }
     check_assertion(!vector_get_pointer(&vector, 0));
@@ -61,7 +61,6 @@ unit_test(test_vector_push_peek_pop)
     test_teardown();
 }
 
-/*
 unit_test(test_pointer_type)
 {
     vector(string) vector = vector_create();
@@ -71,7 +70,7 @@ unit_test(test_pointer_type)
     vector_push(&vector, "hello");
 
     const char *array[] = {"hello", ", ", "world", "!\n"};
-    for (size_t i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; ++i) {
         const char *ptr = vector_peek(&vector);
         vector_pop(&vector);
         check_assertion(ptr);
@@ -95,7 +94,7 @@ unit_test(test_vector_create)
     vector_destroy(&vector);
     check_assertion(vector_is_full(&vector));
     check_assertion(vector_is_empty(&vector));
-    vector = vector_create(.growth_factor = 3.0);
+    vector = (vector(int))vector_create(.growth_factor = 3.0);
     check_assertion(vector.growth_factor == 3.0);
     vector_destroy(&vector);
     test_teardown();
@@ -112,14 +111,13 @@ unit_test(test_resize)
     vector_destroy(&vector);
     test_teardown();
 }
-*/
 
 int main()
 {
     run_unit_test(test_vector);
-    //run_unit_test(test_vector_create);
-    //run_unit_test(test_vector_push_peek_pop);
-    //run_unit_test(test_pointer_type);
-    //run_unit_test(test_resize);
+    run_unit_test(test_vector_create);
+    run_unit_test(test_vector_push_peek_pop);
+    run_unit_test(test_pointer_type);
+    run_unit_test(test_resize);
     return exit_test();
 }
