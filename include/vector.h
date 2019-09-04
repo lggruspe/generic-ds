@@ -59,16 +59,18 @@ struct vector_##type {\
 #define vector_get(vec, i) ((vec)->array[i])
 
 #define vector_set(vec, j, data) do {\
-    if ((j) < (vec)->capacity) {\
+    if ((j) < (vec)->size) {\
         (vec)->array[(j)] = (data);\
     }\
 } while (0)
 
 #define vector_get_pointer(vec, i) \
-    ((i) >= (vec)->capacity) ? NULL : (vec)->array + (i)
+    ((i) >= (vec)->size) ? NULL : (vec)->array + (i)
 
 #define vector_destroy(vector) do {\
-    free((vector)->array);\
+    if ((vector)->array) {\
+        free((vector)->array);\
+    }\
     (vector)->array = NULL;\
     (vector)->size = 0;\
     (vector)->capacity = 0;\
