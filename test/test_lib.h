@@ -8,6 +8,7 @@
 
 #define check_assertion(condition) do {\
     if (!(condition)) {\
+        printf(#condition "\n");\
         passed = false;\
     }\
 } while (0)
