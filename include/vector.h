@@ -24,12 +24,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#define vector_growth_factor 2.0
 #define vector_register(type) \
 struct vector_##type {\
     int size;\
     int capacity;\
     type *array;\
+    double growth_factor;\
 };
 
 #define vector_get(vec, i) ((vec)->array[i])
@@ -42,7 +42,7 @@ struct vector_##type {\
 
 #define vector_is_empty(vector) ((vector)->size == 0)
 #define vector_is_full(vector) ((vector)->size == (vector)->capacity)
-#define vector_create() { .array = NULL, .size = 0, .capacity = 0 }
+#define vector_create(...) {.growth_factor = 2.0, ##__VA_ARGS__}
 #define vector_peek(vec) vector_get((vec), (vec)->size - 1)
 
 #define vector_pop(vec) do {\
@@ -53,7 +53,7 @@ struct vector_##type {\
 
 #define vector_push(vec, data) do {\
     if (vector_is_full(vec)) {\
-        int capacity = (vec)->capacity * vector_growth_factor;\
+        int capacity = (vec)->capacity * (vec)->growth_factor;\
         if (capacity <= 0) {\
             capacity = 1;\
         }\
