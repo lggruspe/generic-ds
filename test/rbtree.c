@@ -73,17 +73,16 @@ size_t tree_weight(struct rb_tree *tree)
 unit_test(test_rbtree_get_set)
 {
     struct map_string_int map = map_string_int_create();
-    check_assertion(map_string_int_get(&map, "a", -1) == -1);
+    assert_true(map_string_int_get(&map, "a", -1) == -1);
     map_string_int_set(&map, "a", 1);
     map_string_int_set(&map, "b", 2);
     map_string_int_set(&map, "c", 2);
     map_string_int_set(&map, "c", 3);
-    check_assertion(map_string_int_get(&map, "a", -1) == 1);
-    check_assertion(map_string_int_get(&map, "b", -1) == 2);
-    check_assertion(map_string_int_get(&map, "c", -1) == 3);
-    check_assertion(tree_weight(map.tree) == 3);
+    assert_true(map_string_int_get(&map, "a", -1) == 1);
+    assert_true(map_string_int_get(&map, "b", -1) == 2);
+    assert_true(map_string_int_get(&map, "c", -1) == 3);
+    assert_true(tree_weight(map.tree) == 3);
     map_destroy(&map);
-    test_teardown();
 }
 
 size_t tree_height(struct rb_tree *tree)
@@ -201,14 +200,13 @@ unit_test(test_rbtree_redblack)
         set_insert(&set, array[i]);
     }
     for (size_t i = 0; i < n; ++i) {
-        check_assertion(set_contains(&set, array[i]));
+        assert_true(set_contains(&set, array[i]));
     }
 
-    check_assertion(is_binary_tree(set.tree, int_compare));
-    check_assertion(is_balanced(set.tree));
-    check_assertion(is_red_black(set.tree));
+    assert_true(is_binary_tree(set.tree, int_compare));
+    assert_true(is_balanced(set.tree));
+    assert_true(is_red_black(set.tree));
     rb_destroy(set.tree, true, true);
-    test_teardown();
 }
 
 int main()

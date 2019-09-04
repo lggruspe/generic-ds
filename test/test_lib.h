@@ -3,8 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define unit_test(fn, ...) bool fn(bool passed, ##__VA_ARGS__)
-#define test_teardown() return passed
+struct test_status {
+    bool passed;
+};
+
+#define unit_test(fn, ...) void fn(struct test_status *status, ##__VA_ARGS__)
+
+#define assert_true(condition) do {\
+    if (!(condition)) {\
+        printf(#condition " is false\n");\
+        status->passed = false;\
+    }\
+} while (0)
 
 #define check_assertion(condition) do {\
     if (!(condition)) {\
@@ -26,7 +36,9 @@ int total_failed = 0;
 
 #define run_unit_test(test, ...) do {\
     ++total_tests;\
-    if (!(test)(true, ##__VA_ARGS__)) {\
+    struct test_status status = { .passed = true };\
+    test(&status, ##__VA_ARGS__);\
+    if (!status.passed) {\
         printf(#test " failed\n");\
         ++total_failed;\
     }\
