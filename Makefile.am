@@ -17,3 +17,10 @@ TESTS = $(check_PROGRAMS)
 
 include_HEADERS = include/heap.h include/heap_m.h include/list.h include/queue.h include/rbtree.h include/vector.h
 # include/bst.h
+
+.PHONY:	leakcheck
+leakcheck:	$(TESTS)
+	@for TEST in $^; do\
+		valgrind --leak-check=full --log-file="$$TEST.log" $$TEST > /dev/null;\
+		python3 tools/quiet.py "$$TEST.log";\
+	done

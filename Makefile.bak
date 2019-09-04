@@ -14,14 +14,14 @@ $(TESTS):	bin/test_%: test/%.c %.h test/test_lib.h
 clean:
 	-rm -f bin/main bin/test_* vgcore.*
 
-.PHONY:	test
-test:	$(TESTS)
+.PHONY:	check
+check:	$(TESTS)
 	for TEST in $^; do\
 		./$$TEST;\
 	done
 
-.PHONY:	leaktest
-leaktest:	$(TESTS)
+.PHONY:	leakcheck
+leakcheck:	$(TESTS)
 	@for TEST in $^; do\
 		valgrind --leak-check=full --log-file="debug/$$TEST" $$TEST > /dev/null;\
 		python3 tools/quiet.py "debug/$$TEST";\
