@@ -1,13 +1,7 @@
 #include "vector.h"
 #include "test_lib.h"
 #include <math.h>
-#include <stdbool.h>
 #include <string.h>
-
-typedef const char* string;
-vector_register(int)
-vector_register(char)
-vector_register(string)
 
 unit_test(test_vector)
 {
@@ -63,7 +57,7 @@ unit_test(test_vector_push_peek_pop)
 
 unit_test(test_pointer_type)
 {
-    vector(string) vector = vector_create();
+    vector(const char*) vector = vector_create();
     vector_push(&vector, "!\n");
     vector_push(&vector, "world");
     vector_push(&vector, ", ");
@@ -83,7 +77,8 @@ unit_test(test_pointer_type)
 
 unit_test(test_vector_create)
 {
-    vector(int) vector = vector_create();
+    typedef vector(int) vector_int;
+    vector_int vector = vector_create();
     assert_true(!vector.array);
     assert_true(vector.size == 0);
     assert_true(vector.capacity == 0);
@@ -93,7 +88,7 @@ unit_test(test_vector_create)
     vector_destroy(&vector);
     assert_true(vector_is_full(&vector));
     assert_true(vector_is_empty(&vector));
-    vector = (vector(int))vector_create(.growth_factor = 3.0);
+    vector = (vector_int)vector_create(.growth_factor = 3.0);
     assert_true(vector.growth_factor == 3.0);
     vector_destroy(&vector);
 }

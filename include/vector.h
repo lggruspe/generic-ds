@@ -23,16 +23,13 @@
 #pragma once
 #include <stdlib.h>
 
-#define vector(type) struct vector_##type
-
-#define vector_register(type) \
-struct vector_##type {\
+#define vector(type) struct {\
     int size;\
     int capacity;\
     type *array;\
     double growth_factor;\
     type dummy;\
-};
+}
 
 #define vector_get(vec, i) ((vec)->array[i])
 
