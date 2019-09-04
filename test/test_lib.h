@@ -13,29 +13,27 @@
     }\
 } while (0)
 
-bool global_passed = true;
-
-void fail_tests()
-{
-    global_passed = false;\
-}
+int total_tests = 0;
+int total_failed = 0;
 
 #define run_test(test) do {\
+    ++total_tests;\
     if (!(test)()) {\
         printf(#test " failed\n");\
-        fail_tests();\
+        ++total_failed;\
     }\
 } while (0)
 
 #define run_unit_test(test, ...) do {\
+    ++total_tests;\
     if (!(test)(true, ##__VA_ARGS__)) {\
         printf(#test " failed\n");\
-        fail_tests();\
+        ++total_failed;\
     }\
 } while (0)
 
 int exit_test()
 {
-    printf("passed: %s\n\n", global_passed ? "yes" : "no");
-    return global_passed ? EXIT_SUCCESS : EXIT_FAILURE;
+    printf("Passed: %d out of %d\n", (total_tests - total_failed), total_tests);
+    return total_failed == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
