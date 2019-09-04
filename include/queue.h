@@ -5,26 +5,21 @@
 #define queue(type) struct {\
     type dummy;\
     type *array;\
-    size_t size;\
-    size_t capacity;\
-    size_t front;\
-    size_t back;\
+    int size;\
+    int capacity;\
+    int front;\
+    int back;\
+    double growth_factor;\
 }
 
-#define queue_init(queue) do {\
-    (queue).array = NULL;\
-    (queue).size = 0;\
-    (queue).capacity = 0;\
-    (queue).front = 0;\
-    (queue).back = 0;\
-} while (0)
+#define queue_create(...) {.growth_factor = 2.0, ##__VA_ARGS__}
 
 #define queue_is_empty(queue) ((queue).size == 0)
 
 #define queue_is_full(queue) ((queue).size >= (queue).capacity)
 
 #define queue_increase_capacity(queue) do {\
-    size_t new_capacity = 2*(queue).capacity;\
+    int new_capacity = (queue).growth_factor*(queue).capacity;\
     new_capacity = new_capacity ? new_capacity : 1;\
     void *temp = malloc(new_capacity * sizeof((queue).dummy));\
     if (temp) {\
