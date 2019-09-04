@@ -21,8 +21,9 @@
 // SOFTWARE.
 
 #pragma once
-#include <stddef.h>
 #include <stdlib.h>
+
+#define vector(type) struct vector_##type
 
 #define vector_register(type) \
 struct vector_##type {\
@@ -30,6 +31,7 @@ struct vector_##type {\
     int capacity;\
     type *array;\
     double growth_factor;\
+    type dummy;\
 };
 
 #define vector_get(vec, i) ((vec)->array[i])
@@ -41,7 +43,7 @@ struct vector_##type {\
 } while (0)
 
 #define vector_is_empty(vector) ((vector)->size == 0)
-#define vector_is_full(vector) ((vector)->size == (vector)->capacity)
+#define vector_is_full(vector) ((vector)->size >= (vector)->capacity)
 #define vector_create(...) {.growth_factor = 2.0, ##__VA_ARGS__}
 #define vector_peek(vec) vector_get((vec), (vec)->size - 1)
 
@@ -57,7 +59,7 @@ struct vector_##type {\
         if (capacity <= 0) {\
             capacity = 1;\
         }\
-        void *array = realloc((vec)->array, capacity * sizeof(data));\
+        void *array = realloc((vec)->array, capacity * sizeof((vec)->dummy));\
         if (array) {\
             (vec)->array = array;\
             (vec)->capacity = capacity;\
