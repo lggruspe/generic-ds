@@ -84,11 +84,13 @@ unit_test(test_queue_peek)
         queue_enqueue(&queue, array[i]);
     }
     for (int i = 0; i < 10; ++i) {
-        assert_true(array[i] == *(queue_peek_pointer(&queue)));
+        char front = queue_peek(&queue);
+        char *head = queue_peek_pointer(&queue);
+        assert_true(front == array[i]);
+        assert_true(head && *head == front);
         queue_dequeue(&queue);
     }
-    void *ptr = queue_peek_pointer(&queue);
-    assert_true(!ptr);
+    assert_true(!queue_peek_pointer(&queue));
     queue_destroy(&queue);
 }
 
@@ -117,14 +119,35 @@ unit_test(test_queue_pointer_type)
 
     const char *array[] = {"hello", ", ", "world", "!\n"};
     for (int i = 0; i < 4; ++i) {
+        const char *front = queue_peek(&queue);
         const char **ptr = queue_peek_pointer(&queue);
-        queue_dequeue(&queue);
-        assert_true(ptr);
+        assert_true(strcmp(front, array[i]) == 0);
         if (ptr) {
             assert_true(strcmp(*ptr, array[i]) == 0);
+            assert_true(strcmp(*ptr, front) == 0);
         }
+        queue_dequeue(&queue);
     }
     queue_destroy(&queue);
+}
+
+unit_test(test_queue_get_set)
+{
+    queue(int) queue = queue_create();
+    assert_true(!queue_peek_pointer(&queue));
+    assert_true(!queue_get_pointer(&queue, 0));
+    for (int i = 0; i < 10; ++i) {
+        queue_enqueue(&queue, i);
+        queue_set(&queue, i, 2*i);
+    }
+    for (int i = 0; i < 10; ++i) {
+        assert_true(queue_get(&queue, i) == 2*i);
+        int *ptr = queue_get_pointer(&queue, i);
+        assert_true(ptr && *ptr == 2*i);
+    }
+    queue_destroy(&queue);
+    assert_true(!queue_peek_pointer(&queue));
+    assert_true(!queue_get_pointer(&queue, 0));
 }
 
 int main()
@@ -136,5 +159,6 @@ int main()
     run_unit_test(test_queue_peek);
     run_unit_test(test_queue_enqueue);
     run_unit_test(test_queue_dequeue);
+    run_unit_test(test_queue_get_set);
     return exit_test();
 }

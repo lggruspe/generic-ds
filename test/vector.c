@@ -31,6 +31,7 @@ unit_test(test_vector)
     }
 
     assert_true(vector_is_empty(&vector));
+    assert_true(!vector_peek_pointer(&vector));
     vector_destroy(&vector);
 }
 
@@ -51,7 +52,7 @@ unit_test(test_vector_push_peek_pop)
         assert_true(top == array[i]);
         vector_pop(&vector);
     }
-    assert_true(!vector_get_pointer(&vector, 0));
+    assert_true(!vector_peek_pointer(&vector));
     vector_destroy(&vector);
 }
 
