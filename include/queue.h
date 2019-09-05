@@ -51,8 +51,30 @@
     }\
 } while (0)
 
-// returns pointer to front
-#define queue_peek(queue) (queue_is_empty(queue) ? NULL : (queue)->array + (queue)->front)
+#define queue_peek(queue) ((queue)->array[(queue)->front])
+
+#define queue_peek_pointer(queue) (queue_is_empty(queue) ? NULL : (queue)->array + (queue)->front)
+
+#define queue_get(queue, index) (\
+    ((index) + (queue)->front < (queue)->capacity) ?\
+     (queue)->array[(queue)->front + (index)] :\
+     (queue)->array[(queue)->front + (index) - (queue)->capacity])
+
+#define queue_get_pointer(queue, index) (\
+    ((index) < 0 || (index) >= (queue)->size) ? NULL :\
+        ((index) + (queue)->front < (queue)->capacity) ?\
+        (queue)->array + (queue)->front + (index) :\
+        (queue)->array + (queue)->front + (index) - (queue)->capacity)
+
+#define queue_set(queue, index, value) do {\
+    if (0 <= (index) && (index) < (queue)->size) {\
+        if ((index) + (queue)->front < (queue)->capacity) {\
+            (queue)->array[(queue)->front + (index)] = (value);\
+        } else {\
+            (queue)->array[(queue)->front + (index) - (queue)->capacity] = (value);\
+        }\
+    }\
+} while (0)
 
 #define queue_dequeue(queue) do {\
     if (!queue_is_empty(queue)) {\

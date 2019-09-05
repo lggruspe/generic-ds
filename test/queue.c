@@ -84,10 +84,10 @@ unit_test(test_queue_peek)
         queue_enqueue(&queue, array[i]);
     }
     for (int i = 0; i < 10; ++i) {
-        assert_true(array[i] == *(queue_peek(&queue)));
+        assert_true(array[i] == *(queue_peek_pointer(&queue)));
         queue_dequeue(&queue);
     }
-    void *ptr = queue_peek(&queue);
+    void *ptr = queue_peek_pointer(&queue);
     assert_true(!ptr);
     queue_destroy(&queue);
 }
@@ -117,7 +117,7 @@ unit_test(test_queue_pointer_type)
 
     const char *array[] = {"hello", ", ", "world", "!\n"};
     for (int i = 0; i < 4; ++i) {
-        const char **ptr = queue_peek(&queue);
+        const char **ptr = queue_peek_pointer(&queue);
         queue_dequeue(&queue);
         assert_true(ptr);
         if (ptr) {

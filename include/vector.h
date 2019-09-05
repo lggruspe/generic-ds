@@ -34,7 +34,7 @@
 #define vector_get(vec, i) ((vec)->array[i])
 
 #define vector_set(vec, j, data) do {\
-    if ((j) < (vec)->size) {\
+    if (0 <= (j) && (j) < (vec)->size) {\
         (vec)->array[(j)] = (data);\
     }\
 } while (0)
@@ -43,6 +43,7 @@
 #define vector_is_full(vector) ((vector)->size >= (vector)->capacity)
 #define vector_create(...) {.growth_factor = 2.0, ##__VA_ARGS__}
 #define vector_peek(vec) vector_get((vec), (vec)->size - 1)
+#define vector_peek_pointer(vec) (vector_is_empty(vec) ? NULL : (vec)->array + (vec)->size - 1)
 
 #define vector_pop(vec) do {\
     if (!vector_is_empty(vec)) {\
@@ -72,13 +73,13 @@
 } while (0)
 
 #define vector_get_pointer(vec, i) \
-    ((i) >= (vec)->size) ? NULL : (vec)->array + (i)
+    ((i) < 0 || (i) >= (vec)->size) ? NULL : (vec)->array + (i)
 
 #define vector_destroy(vector) do {\
     if ((vector)->array) {\
         free((vector)->array);\
+        (vector)->array = NULL;\
     }\
-    (vector)->array = NULL;\
     (vector)->size = 0;\
     (vector)->capacity = 0;\
 } while (0)
