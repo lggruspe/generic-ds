@@ -19,20 +19,20 @@
 #define queue_is_full(queue) ((queue)->size >= (queue)->capacity)
 
 #define queue_increase_capacity(queue) do {\
-    int new_capacity = (queue)->growth_factor*(queue)->capacity;\
-    new_capacity = new_capacity ? new_capacity : 1;\
-    void *temp = malloc(new_capacity * sizeof((queue)->dummy));\
-    if (temp) {\
+    int capacity = (queue)->growth_factor*(queue)->capacity;\
+    capacity = capacity ? capacity : 1;\
+    void *array = malloc(capacity * sizeof((queue)->dummy));\
+    if (array) {\
         if ((queue)->front < (queue)->back) {\
-            memcpy(temp, (queue)->array, ((queue)->back - (queue)->front) * sizeof((queue)->dummy));\
+            memcpy(array, (queue)->array, ((queue)->back - (queue)->front) * sizeof((queue)->dummy));\
         } else if (!queue_is_empty(queue)) {\
-            memcpy(temp, (queue)->array + (queue)->front, ((queue)->capacity - (queue)->front) * sizeof((queue)->dummy));\
-            memcpy((char*)temp + ((queue)->capacity - (queue)->front) * sizeof((queue)->dummy),\
+            memcpy(array, (queue)->array + (queue)->front, ((queue)->capacity - (queue)->front) * sizeof((queue)->dummy));\
+            memcpy((char*)array + ((queue)->capacity - (queue)->front) * sizeof((queue)->dummy),\
                     (queue)->array, (queue)->back * sizeof((queue)->dummy));\
         }\
         free((queue)->array);\
-        (queue)->array = temp;\
-        (queue)->capacity = new_capacity;\
+        (queue)->array = array;\
+        (queue)->capacity = capacity;\
         (queue)->front = 0;\
         (queue)->back = (queue)->size;\
     }\
@@ -55,24 +55,18 @@
 
 #define queue_peek_pointer(queue) (queue_is_empty(queue) ? NULL : (queue)->array + (queue)->front)
 
-#define queue_get(queue, index) (\
-    ((index) + (queue)->front < (queue)->capacity) ?\
-     (queue)->array[(queue)->front + (index)] :\
-     (queue)->array[(queue)->front + (index) - (queue)->capacity])
+#define queue_index(queue, index) ((index) + (queue)->front < (queue)->capacity ?\
+        (queue)->front + (index) : (queue)->front + (index) - (queue)->capacity)
 
-#define queue_get_pointer(queue, index) (\
-    ((index) < 0 || (index) >= (queue)->size) ? NULL :\
-        ((index) + (queue)->front < (queue)->capacity) ?\
-        (queue)->array + (queue)->front + (index) :\
-        (queue)->array + (queue)->front + (index) - (queue)->capacity)
+#define queue_get(queue, index) ((queue)->array[queue_index((queue), (index))])
+
+#define queue_get_pointer(queue, index) \
+   (((index) < 0 || (index) >= (queue)->size) ? NULL : \
+        (queue)->array + queue_index((queue), (index)))
 
 #define queue_set(queue, index, value) do {\
     if (0 <= (index) && (index) < (queue)->size) {\
-        if ((index) + (queue)->front < (queue)->capacity) {\
-            (queue)->array[(queue)->front + (index)] = (value);\
-        } else {\
-            (queue)->array[(queue)->front + (index) - (queue)->capacity] = (value);\
-        }\
+        (queue)->array[queue_index((queue), (index))] = (value);\
     }\
 } while (0)
 
