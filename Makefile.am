@@ -9,9 +9,8 @@ test_test_list_SOURCES = test/list.c include/list.h test/test_lib.h
 test_test_queue_SOURCES = test/queue.c include/queue.h test/test_lib.h
 test_test_rbtree_SOURCES = test/rbtree.c include/rbtree.h test/test_lib.h
 test_test_vector_SOURCES = test/vector.c include/vector.h test/test_lib.h
-test_test_vector_CFLAGS = -g -Wall -Wpedantic
 
-AM_CFLAGS = -g -Wall -Wextra -Wpedantic
+AM_CFLAGS = -g -Wall -Wextra -Wpedantic -Werror
 AM_CPPFLAGS = -I$(abs_top_srcdir)/include -I$(abs_top_srcdir)/test
 TESTS = $(check_PROGRAMS)
 

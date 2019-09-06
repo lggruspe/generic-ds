@@ -5,41 +5,68 @@
 // circular doubly-linked list
 // empty list is just a null pointer
 // the list pointer should point to the head if it's nonempty
-#define list_register_type(name, type) struct name {\
+#define list_register(name, type) \
+\
+struct name {\
     type value;\
     struct name *prev;\
     struct name *next;\
+};\
+\
+struct name *name##_new(type value)\
+{\
+    struct name *node = malloc(sizeof(struct name));\
+    if (node) {\
+        node->value = value;\
+        node->next = node;\
+        node->prev = node;\
+    }\
+    return node;\
+}\
+\
+struct name *name##_delete(struct name *list)\
+{\
+    struct name *node = list;\
+    list = list_delete(list);\
+    free(node);\
+    return list;\
+}\
+\
+void name##_destroy(struct name *list)\
+{\
+    while (!list_is_empty(list)) {\
+        struct name *node = list;\
+        list = list_delete(list);\
+        free(node);\
+    }\
 }
 
+#define list_create() (NULL)
 #define list_head(list) (list)
 #define list_tail(list) ((list) ? (list)->prev : NULL)
 #define list_is_empty(list) (!(list))
 
 // append suffix to list
-// NOTE params shouldn't be functional expressions that call malloc
-#define list_append(list, suffix) do {\
-    if (suffix) {\
-        if (list) {\
-            (list)->prev->next = (suffix)->prev;\
-            (suffix)->prev = (list)->prev;\
-            (list)->prev = (list)->prev->next;\
-            (list)->prev->next = (list);\
-            (suffix)->prev->next = (suffix);\
-        } else {\
-            (list) = (suffix);\
-        }\
-    }\
-} while (0)
+#define list_append(list, suffix) (\
+        (!(list) ? (suffix) : !(suffix) ? (list) : \
+         ( \
+            ((list)->prev->next = (suffix)->prev),\
+            ((suffix)->prev = (list)->prev),\
+            ((list)->prev = (list)->prev->next),\
+            ((list)->prev->next = (list)),\
+            ((suffix)->prev->next = (suffix)),\
+            (list)\
+        )))
 
 // deletes the node that list points to
 // caller should save a pointer to list->next before calling
-#define list_delete(list) do {\
-    if (list) {\
-        assert((list)->next && (list)->prev);\
-        (list)->next->prev = (list)->prev;\
-        (list)->prev->next = (list)->next;\
-    }\
-} while (0)
+#define list_delete(list) \
+    ( \
+    ((list) ? \
+    (((list)->next->prev = (list)->prev),\
+    ((list)->prev->next = (list)->next))\
+    : NULL),\
+    ((list)->next != (list) ? (list)->next : NULL))
 
 // list and result are both pointers to lists
 // points result to the first matching node
