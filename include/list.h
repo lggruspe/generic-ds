@@ -1,5 +1,4 @@
 #pragma once
-#include <assert.h>
 #include <stddef.h>
 
 // circular doubly-linked list
@@ -35,9 +34,7 @@ struct name *name##_delete(struct name *list)\
 void name##_destroy(struct name *list)\
 {\
     while (!list_is_empty(list)) {\
-        struct name *node = list;\
-        list = list_delete(list);\
-        free(node);\
+        list = name##_delete(list);\
     }\
 }
 
