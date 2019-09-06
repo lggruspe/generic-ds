@@ -19,8 +19,8 @@ unit_test(test_vector)
     }
 
     for (int i = 0; i < 10; ++i) {
-        vector_set(&vector, i, i*i);
-        int *ptr = vector_get_pointer(&vector, i);
+        vector_get(&vector, i) = i*i;
+        int *ptr = &(vector_get(&vector, i));
         *ptr += 1;
     }
 
@@ -31,7 +31,6 @@ unit_test(test_vector)
     }
 
     assert_true(vector_is_empty(&vector));
-    assert_true(!vector_peek_pointer(&vector));
     vector_destroy(&vector);
 }
 
@@ -46,13 +45,12 @@ unit_test(test_vector_push_peek_pop)
     assert_true(vector.size == 26);
 
     for (int i = 25; !vector_is_empty(&vector); --i) {
-        char *ptr = vector_get_pointer(&vector, i);
+        char *ptr = &(vector_get(&vector, i));
         char top = vector_peek(&vector);
         assert_true(ptr && *ptr == top);
         assert_true(top == array[i]);
         vector_pop(&vector);
     }
-    assert_true(!vector_peek_pointer(&vector));
     vector_destroy(&vector);
 }
 
@@ -68,10 +66,7 @@ unit_test(test_pointer_type)
     for (int i = 0; i < 4; ++i) {
         const char *ptr = vector_peek(&vector);
         vector_pop(&vector);
-        assert_true(ptr);
-        if (ptr) {
-            assert_true(strcmp(ptr, array[i]) == 0);
-        }
+        assert_true(ptr && strcmp(ptr, array[i]) == 0);
     }
     vector_destroy(&vector);
 }
