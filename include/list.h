@@ -1,117 +1,139 @@
-#pragma once
-#include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
-// circular doubly-linked list
-// empty list is just a null pointer
-// the list pointer should point to the head if it's nonempty
-#define list_register(name, type) \
-\
-struct name {\
-    type value;\
-    struct name *prev;\
-    struct name *next;\
-};\
-\
-struct name *name##_new(type value)\
-{\
-    struct name *node = malloc(sizeof(struct name));\
-    if (node) {\
-        node->value = value;\
-        node->next = node;\
-        node->prev = node;\
-    }\
-    return node;\
-}\
-\
-struct name *name##_delete(struct name *list)\
-{\
-    struct name *node = list;\
-    list = list_delete(list);\
-    free(node);\
-    return list;\
-}\
-\
-void name##_destroy(struct name *list)\
-{\
-    while (!list_is_empty(list)) {\
-        list = name##_delete(list);\
-    }\
+#define list(Namespace) struct Namespace##_list *
+#define list_head(Namespace, list) Namespace##_head(list)
+#define list_tail(Namespace, list) Namespace##_tail(list)
+#define list_is_empty(Namespace, list) Namespace##_is_empty(list)
+#define list_append(Namespace, list, suffix) Namespace##_append((list), (suffix))
+#define list_new(Namespace, data) Namespace##_new(data)
+#define list_delete(Namespace, list) Namespace##_delete(list)
+#define list_delete_and_free(Namespace, list) Namespace##_delete_and_free(list)
+#define list_search(Namespace, list, data) Namespace##_search((list), (data))
+#define list_search_if(Namespace, list, predicate) Namespace##_search_if((list), (predicate))
+#define list_search_compare(Namespace, list, data, compare) Namespace##_search_compare((list), (data), (compare))
+#define list_destroy(Namespace, list) Namespace##_destroy(list)
+
+#define LIST_RETURN_SEARCH_RESULT(condition) \
+    if (!list) { \
+        return NULL; \
+    } \
+    tail->next = NULL; \
+    while (list && !(condition)) { \
+        list = list->next; \
+    } \
+    tail->next = head; \
+    return list
+
+#define list_register(Namespace, Type) \
+ \
+struct Namespace##_list { \
+    Type data; \
+    list(Namespace) prev; \
+    list(Namespace) next; \
+}; \
+ \
+list(Namespace) Namespace##_head(list(Namespace) list) \
+{ \
+    return list; \
+} \
+ \
+list(Namespace) Namespace##_tail(list(Namespace) list) \
+{ \
+    return list ? list->prev : NULL; \
+} \
+ \
+bool Namespace##_is_empty(list(Namespace) list) \
+{ \
+    return !list; \
+} \
+ \
+list(Namespace) Namespace##_append( \
+    list(Namespace) list,  \
+    list(Namespace) suffix) \
+{ \
+    if (!list) { \
+        return suffix; \
+    } \
+    if (!suffix) { \
+        return list; \
+    } \
+    list(Namespace) tail_list = list_tail(Namespace, list); \
+    list(Namespace) tail_suffix = list_tail(Namespace, suffix); \
+    tail_list->next = suffix; \
+    suffix->prev = tail_list; \
+    tail_suffix->next = list; \
+    list->prev = tail_suffix; \
+    return list; \
+} \
+ \
+list(Namespace) Namespace##_delete(list(Namespace) list) \
+{ \
+    if (!list) { \
+        return NULL; \
+    } \
+    list->prev->next = list->next; \
+    list->next->prev = list->prev; \
+    return list->next != list ? list->next : NULL; \
+} \
+ \
+list(Namespace) Namespace##_new(Type data) \
+{ \
+    list(Namespace) node = malloc(sizeof(struct Namespace##_list)); \
+    if (node) { \
+        node->data = data; \
+        node->prev = node; \
+        node->next = node; \
+    } \
+    return node; \
+} \
+ \
+list(Namespace) Namespace##_delete_and_free(list(Namespace) list) \
+{ \
+    list(Namespace) new_list = list_delete(Namespace, list); \
+    if (list) { \
+        free(list); \
+    } \
+    return new_list; \
+} \
+ \
+list(Namespace) Namespace##_search( \
+    list(Namespace) list,  \
+    Type data) \
+{ \
+    list(Namespace) head = list_head(Namespace, list); \
+    list(Namespace) tail = list_tail(Namespace, list); \
+    LIST_RETURN_SEARCH_RESULT(list->data == data); \
+} \
+ \
+list(Namespace) Namespace##_search_if( \
+    list(Namespace) list,  \
+    bool (*predicate)(Type)) \
+{ \
+    list(Namespace) head = list_head(Namespace, list); \
+    list(Namespace) tail = list_tail(Namespace, list); \
+    LIST_RETURN_SEARCH_RESULT(predicate(list->data)); \
+} \
+ \
+list(Namespace) Namespace##_search_compare( \
+    list(Namespace) list, \
+    Type data, \
+    int (*compare)(Type, Type)) \
+{ \
+    list(Namespace) head = list_head(Namespace, list); \
+    list(Namespace) tail = list_tail(Namespace, list); \
+    LIST_RETURN_SEARCH_RESULT(compare(list->data, data) == 0); \
+} \
+ \
+list(Namespace) Namespace##_destroy(list(Namespace) list) \
+{ \
+    if (!list) { \
+        return NULL; \
+    } \
+    list(Namespace) tail = list_tail(Namespace, list); \
+    tail->next = NULL; \
+    while (!list_is_empty(Namespace, list)) { \
+        list = list_delete_and_free(Namespace, list); \
+    } \
+    return list; \
 }
-
-#define list_create() (NULL)
-#define list_head(list) (list)
-#define list_tail(list) ((list) ? (list)->prev : NULL)
-#define list_is_empty(list) (!(list))
-
-// append suffix to list
-#define list_append(list, suffix) (\
-        (!(list) ? (suffix) : !(suffix) ? (list) : \
-         ( \
-            ((list)->prev->next = (suffix)->prev),\
-            ((suffix)->prev = (list)->prev),\
-            ((list)->prev = (list)->prev->next),\
-            ((list)->prev->next = (list)),\
-            ((suffix)->prev->next = (suffix)),\
-            (list)\
-        )))
-
-// deletes the node that list points to
-// caller should save a pointer to list->next before calling
-#define list_delete(list) \
-    ( \
-    ((list) ? \
-    (((list)->next->prev = (list)->prev),\
-    ((list)->prev->next = (list)->next))\
-    : NULL),\
-    ((list)->next != (list) ? (list)->next : NULL))
-
-// list and result are both pointers to lists
-// points result to the first matching node
-// result is passed by reference
-#define list_search(list, result, _value) do {\
-    if (list) {\
-        (result) = (list)->next;\
-        while ((result) != (list) && (result)->value != (_value)) {\
-            (result) = (result)->next;\
-        }\
-        if ((result) == (list) && (result)->value != (_value)) {\
-            (result) = NULL;\
-        }\
-    } else {\
-        (result) = NULL;\
-    }\
-} while (0)
-
-// same as list_search, but with a custom comparator
-// the comparator should take list->values as inputs
-// and return -1 (<), 0 (=) or 1 (>)
-#define list_search_custom(list, result, _value, compare) do {\
-    if (list) {\
-        (result) = (list)->next;\
-        while ((result) != (list) && (compare)((result)->value, (_value))) {\
-            (result) = (result)->next;\
-        }\
-        if ((result) == (list) && (compare)((result)->value, (_value))) {\
-            (result) = NULL;\
-        }\
-    } else {\
-        (result) = NULL;\
-    }\
-} while (0)
-
-// points result to the first list that satisfies the predicate
-// if there are none, result is set to NULL
-// result is passed by reference
-#define list_search_if(list, result, predicate) do {\
-    if (list) {\
-        (result) = (list)->next;\
-        while ((result) != (list) && !(predicate)((result)->value)) {\
-            (result) = (result)->next;\
-        }\
-        if ((result) == (list) && !(predicate)((result)->value)) {\
-            (result) = NULL;\
-        }\
-    } else {\
-        (result) = NULL;\
-    }\
-} while (0)

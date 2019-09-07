@@ -1,135 +1,129 @@
 #include "list.h"
 #include "test_lib.h"
-#include <stdbool.h>
+#include <string.h>
 
-list_register(list_int, int)
-typedef struct list_int list_int;
+list_register(li, int)
+list_register(ls, const char *)
 
-bool is_circular(list_int *list)
+bool is_circular(list(li) list)
 {
     if (!list) {
         return true;
     }
-    list_int *node = list;
-    while (node && node != list->prev) {
-        if ((node->next && node->next->prev != node)
-                || (node->prev && node->prev->next != node)) {
+    list(li) head = list_head(li, list);
+    list(li) tail = list_tail(li, list);
+    if (!head || head->prev != tail) {
+        return false;
+    }
+    if (!tail || tail->next != head) {
+        return false;
+    }
+    for (list(li) node = head; node != tail; node = node->next) {
+        if (node->prev->next != node || node->next->prev != node) {
             return false;
         }
-        node = node->next;
     }
-    return !node 
-        || (list->prev && list->prev->next == list
-        && list->next && list->next->prev == list);
+    return true;
 }
 
-bool contains(list_int *list, int item)
+bool contains(list(li) list, int item)
 {
-    list_int *result = NULL;
-    list_search(list, result, item);
-    return result && result->value == item;
+    list(li) result = list_search(li, list, item);
+    return result && result->data == item;
 }
 
 unit_test(test_list_null)
 {
-    list_int *list = NULL;
-    assert_true(!list_head(list));
-    assert_true(!list_tail(list));
-    assert_true(list_is_empty(list));
+    list(li) list = NULL;
+    assert_true(!list_head(li, list));
+    assert_true(!list_tail(li, list));
+    assert_true(list_is_empty(li, list));
     assert_true(is_circular(list));
     assert_true(!contains(list, 0));
 }
 
 unit_test(test_list_append)
 {
-    list_int *list = NULL;
+    list(li) list = NULL;
     for (int i = 0; i < 10; ++i) {
         assert_true(!contains(list, i));
-        list_int *node = list_int_new(i);
-        list = list_append(list, node);;
-        assert_true(contains(list, i));
-        assert_true(is_circular(list));
+        list = list_append(li, list, list_new(li, i));
     }
-    list_int_delete(list->prev);
-    list_int *temp = list->next;
-    list_int_delete(list);
-    list = temp;
+    assert_true(!list_is_empty(li, list));
+    for (int i = 0; i < 10; ++i) {
+        assert_true(contains(list, i));
+    }
+    assert_true(is_circular(list));
+
+    list = list_delete_and_free(li, list_head(li, list));
+    list = list_delete_and_free(li, list_tail(li, list));
     assert_true(!contains(list, 0));
     assert_true(!contains(list, 9));
     assert_true(is_circular(list));
-    temp = list;
-    for (int i = 1; temp != list->prev; ++i) {
-        assert_true(temp->value == i);
-        temp = temp->next;
+
+    list(li) node = list_head(li, list);
+    for (int i = 1; node != list_tail(li, list); ++i, node = node->next) {
+        assert_true(node->data == i);
     }
-    assert_true(temp->value == 8);
-    list_int_destroy(list);
+    assert_true(node->data == 8);
+    list = list_destroy(li, list);
+    assert_true(list_is_empty(li, list));
 }
 
-int int_compare(int a, int b)
+int li_compare(int a, int b)
 {
     return a - b;
 }
 
-unit_test(test_list_search_custom)
+bool is_five(int n)
 {
-    list_int *list = NULL;
-    for (int i = 0; i < 10; ++i) {
-        list_int *node = list_int_new(i);
-        list = list_append(list, node);
-    }
-
-    list_int *result = NULL;
-    list_search_custom(list, result, 5, int_compare);
-    assert_true(result && result->value == 5);
-    list_int_destroy(list);
+    return n == 5;
 }
 
-bool is_nine(int n)
+unit_test(test_list_search)
 {
-    return n == 9;
+    list(li) list = NULL;
+    for (int i = 0; i < 10; ++i) {
+        list = list_append(li, list, list_new(li, i));
+    }
+    list(li) res1 = list_search(li, list, 5);
+    list(li) res2 = list_search_if(li, list, is_five);
+    list(li) res3 = list_search_compare(li, list, 5, li_compare);
+    assert_true(res1 == res2 && res2 == res3);
+    list_destroy(li, list);
 }
 
-unit_test(test_list_search_if)
+bool is_foo(const char *string)
 {
-    list_int *list = NULL;
-    for (int i = 0; i < 10; ++i) {
-        list_int *node = list_int_new(i);
-        list = list_append(list, node);
-    }
-
-    list_int *result = NULL;
-    list_search_if(list, result, is_nine);
-    assert_true(result && result->value == 9);
-    list_int_destroy(list);
+    return strcmp(string, "foo") == 0;
 }
 
 unit_test(test_list_search_nonexistent)
 {
-    list_int *list = NULL;
-    list_int *node = list_int_new(0);
-    list = list_append(list, node);
+    const char* strings[] = { "Hello", ",", " ", "world", "!", "\n" };
+    list(ls) list = NULL;
 
-    list_int *result = NULL;
-    list_search(list, result, 1);
-    assert_true(!result);
+    for (int i = 0; i < 6; ++i) {
+        list = list_append(ls, list, list_new(ls, strings[i]));
+    }
 
-    result = NULL;
-    list_search_custom(list, result, 1, int_compare);
-    assert_true(!result);
+    list(ls) result = list_search_compare(ls, list, "world", strcmp);
+    assert_true(result && strcmp("world", result->data) == 0);
 
-    result = NULL;
-    list_search_if(list, result, is_nine);
+    result = list_search_compare(ls, list, "foo", strcmp);
     assert_true(!result);
-    list_int_destroy(list);
+    result = list_search(ls, list, "asdf");
+    assert_true(!result);
+    result = list_search_if(ls, list, is_foo);
+    assert_true(!result);
+    list_destroy(ls, list);
 }
 
 int main()
 {
     run_unit_test(test_list_null);
     run_unit_test(test_list_append);
-    run_unit_test(test_list_search_custom);
-    run_unit_test(test_list_search_if);
+    run_unit_test(test_list_search);
     run_unit_test(test_list_search_nonexistent);
     return exit_test();
 }
