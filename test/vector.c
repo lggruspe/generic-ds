@@ -3,90 +3,92 @@
 #include <math.h>
 #include <string.h>
 
+vector_register(vi, int)
+vector_register(vc, char)
+vector_register(vs, const char *)
+
 unit_test(test_vector)
 {
-    vector(int) vector = vector_create();
-    assert_true(vector_is_empty(&vector));
+    vector(vi) vector = vector_create(vi);
+    assert_true(vector_is_empty(vi, vector));
 
     for (int i = 0; i < 10; ++i) {
-        vector_push(&vector, i);
+        vector = vector_push(vi, vector, i);
     }
 
-    assert_true(!vector_is_empty(&vector));
+    assert_true(!vector_is_empty(vi, vector));
+
     for (int i = 0; i < 10; ++i) {
-        int j = vector_get(&vector, i);
-        assert_true(i == j);
+        assert_true(vector.array[i] == i);
     }
 
     for (int i = 0; i < 10; ++i) {
-        vector_get(&vector, i) = i*i;
-        int *ptr = &(vector_get(&vector, i));
-        *ptr += 1;
+        vector.array[i] = i*i;
     }
 
     for (int i = 9; i >= 0; --i) {
-        int top = vector_peek(&vector);
-        vector_pop(&vector);
-        assert_true(top == i*i + 1);
+        int top = vector_peek(vi, vector);
+        vector = vector_pop(vi, vector);
+        assert_true(top == i*i);
     }
 
-    assert_true(vector_is_empty(&vector));
-    vector_destroy(&vector);
+    assert_true(vector_is_empty(vi, vector));
+    vector_destroy(vi, vector);
 }
 
 unit_test(test_vector_push_peek_pop)
 {
-    vector(char) vector = vector_create();
+    vector(vc) vector = vector_create(vc);
+    assert_true(vector_is_empty(vc, vector));
+
     char array[] = "abcdefghijklmnopqrstuvwxyz";
     for (int i = 0; i < 26; ++i) {
-        vector_push(&vector, array[i]);
-        assert_true(!vector_is_empty(&vector));
+        vector = vector_push(vc, vector, array[i]);
     }
     assert_true(vector.size == 26);
 
-    for (int i = 25; !vector_is_empty(&vector); --i) {
-        char *ptr = &(vector_get(&vector, i));
-        char top = vector_peek(&vector);
-        assert_true(ptr && *ptr == top);
+    for (int i = 25; !vector_is_empty(vc, vector); --i) {
+        char top = vector_peek(vc, vector);
         assert_true(top == array[i]);
-        vector_pop(&vector);
+        vector = vector_pop(vc, vector);
     }
-    vector_destroy(&vector);
+    vector_destroy(vc, vector);
 }
 
 unit_test(test_pointer_type)
 {
-    vector(const char*) vector = vector_create();
-    vector_push(&vector, "!\n");
-    vector_push(&vector, "world");
-    vector_push(&vector, ", ");
-    vector_push(&vector, "hello");
+    vector(vs) vector = vector_create(vs);
+    vector = vector_push(vs, vector, "!\n");
+    vector = vector_push(vs, vector, "world");
+    vector = vector_push(vs, vector, ", ");
+    vector = vector_push(vs, vector, "hello");
 
-    const char *array[] = {"hello", ", ", "world", "!\n"};
+    const char *array[] = { "hello", ", ", "world", "!\n" };
     for (int i = 0; i < 4; ++i) {
-        const char *ptr = vector_peek(&vector);
-        vector_pop(&vector);
-        assert_true(ptr && strcmp(ptr, array[i]) == 0);
+        const char *top = vector_peek(vs, vector);
+        assert_true(top && strcmp(top, array[i]) == 0);
+        vector = vector_pop(vs, vector);
     }
-    vector_destroy(&vector);
+    vector_destroy(vs, vector);
 }
 
 unit_test(test_vector_create)
 {
-    typedef vector(int) vector_int;
-    vector_int vector = vector_create();
+    vector(vi) vector = vector_create(vi);
     assert_true(!vector.array);
     assert_true(vector.size == 0);
     assert_true(vector.capacity == 0);
     assert_true(vector.growth_factor == 2.0);
-    assert_true(vector_is_empty(&vector));
-    assert_true(vector_is_full(&vector));
-    vector_destroy(&vector);
-    assert_true(vector_is_full(&vector));
-    assert_true(vector_is_empty(&vector));
-    vector = (vector_int)vector_create(.growth_factor = 3.0);
+    assert_true(vector_is_full(vi, vector));
+    assert_true(vector_is_empty(vi, vector));
+    vector_destroy(vi, vector);
+
+    assert_true(vector_is_full(vi, vector));
+    assert_true(vector_is_empty(vi, vector));
+
+    vector = vector_create(vi, .growth_factor = 3.0);
     assert_true(vector.growth_factor == 3.0);
-    vector_destroy(&vector);
+    vector_destroy(vi, vector);
 }
 
 int required_capacity(double growth_factor, int size)
@@ -96,25 +98,25 @@ int required_capacity(double growth_factor, int size)
 
 unit_test(test_resize, double growth_factor)
 {
-    vector(int) vector = vector_create(.growth_factor = growth_factor);
+    vector(vi) vector = vector_create(vi, .growth_factor = growth_factor);
     assert_true(vector.capacity == 0);
 
     int n = (int)(pow(growth_factor, 3));
     for (int i = 1; i <= n; ++i) {
-            vector_push(&vector, i);
+        vector = vector_push(vi, vector, i);
         assert_true(required_capacity(growth_factor, vector.size) == vector.capacity);
     }
-    vector_destroy(&vector);
+    vector_destroy(vi, vector);
 }
 
 int main()
 {
     run_unit_test(test_vector);
-    run_unit_test(test_vector_create);
     run_unit_test(test_vector_push_peek_pop);
     run_unit_test(test_pointer_type);
-    run_unit_test(test_resize, 1.0);
-    run_unit_test(test_resize, 2.0);
-    run_unit_test(test_resize, 3.0);
+    run_unit_test(test_vector_create);
+    for (int i = 1; i <= 3; ++i) {
+        run_unit_test(test_resize, (double)i);
+    }
     return exit_test();
 }

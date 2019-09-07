@@ -21,55 +21,90 @@
 // SOFTWARE.
 
 #pragma once
+#include <stdbool.h>
 #include <stdlib.h>
 
-#define vector(type) struct {\
-    int size;\
-    int capacity;\
-    type *array;\
-    double growth_factor;\
-    type dummy;\
+#define Namespace
+#define Type
+
+#define vector(Namespace) struct Namespace##_vector
+#define vector_is_full(Namespace, vector) Namespace##_is_full(vector)
+#define vector_is_empty(Namespace, vector) Namespace##_is_empty(vector)
+#define vector_resize(Namespace, vector) Namespace##_resize(vector)
+#define vector_peek(Namespace, vector) Namespace##_peek(vector)
+#define vector_push(Namespace, vector, data) Namespace##_push((vector), (data))
+#define vector_pop(Namespace, vector) Namespace##_pop(vector)
+#define vector_create(Namespace, ...) (struct Namespace##_vector){ .growth_factor = 2.0, ##__VA_ARGS__ }
+#define vector_destroy(Namespace, vector) Namespace##_destroy(vector)
+
+#define vector_register(Namespace, Type) \
+ \
+struct Namespace##_vector { \
+    Type *array; \
+    int size; \
+    int capacity; \
+    double growth_factor; \
+}; \
+ \
+vector(Namespace) Namespace##_resize(vector(Namespace) vector) \
+{ \
+    int capacity = vector.capacity * vector.growth_factor; \
+    if (capacity <= 0) {\
+        capacity = 1;\
+    }\
+    if (capacity <= vector.size) { \
+        return vector; \
+    } \
+    Type *array = realloc(vector.array, capacity * sizeof(Type)); \
+    if (!array) { \
+        return vector; \
+    } \
+    vector.capacity = capacity; \
+    vector.array = array; \
+    return vector; \
+} \
+ \
+bool Namespace##_is_empty(vector(Namespace) vector) \
+{ \
+    return vector.size <= 0; \
+} \
+ \
+bool Namespace##_is_full(vector(Namespace) vector) \
+{ \
+    return vector.size >= vector.capacity; \
+} \
+ \
+vector(Namespace) Namespace##_push(vector(Namespace) vector, Type data) \
+{ \
+    if (vector_is_full(Namespace, vector)) { \
+        vector = vector_resize(Namespace, vector); \
+    } \
+    if (!vector_is_full(Namespace, vector)) { \
+        vector.array[vector.size++] = data; \
+    } \
+    return vector; \
+} \
+ \
+Type Namespace##_peek(vector(Namespace) vector) \
+{ \
+    return vector.array[vector.size - 1]; \
+} \
+ \
+vector(Namespace) Namespace##_pop(vector(Namespace) vector) \
+{ \
+    if (!vector_is_empty(Namespace, vector)) { \
+        vector.size--; \
+    } \
+    return vector; \
+} \
+ \
+vector(Namespace) Namespace##_destroy(vector(Namespace) vector) \
+{ \
+    if (vector.array) { \
+        free(vector.array); \
+        vector.array = NULL; \
+    } \
+    vector.size = 0; \
+    vector.capacity = 0; \
+    return vector; \
 }
-
-#define vector_get(vec, i) ((vec)->array[i])
-
-#define vector_is_empty(vector) ((vector)->size == 0)
-#define vector_is_full(vector) ((vector)->size >= (vector)->capacity)
-#define vector_create(...) {.growth_factor = 2.0, ##__VA_ARGS__}
-#define vector_peek(vec) vector_get((vec), (vec)->size - 1)
-
-#define vector_pop(vec) do {\
-    if (!vector_is_empty(vec)) {\
-        (vec)->size--;\
-    }\
-} while (0)
-
-#define vector_push(vec, data) do {\
-    if (vector_is_full(vec)) {\
-        int capacity = (vec)->capacity * (vec)->growth_factor;\
-        if (capacity <= (vec)->size) {\
-            capacity = (vec)->size + 1;\
-        }\
-        if (capacity <= 0) {\
-            capacity = 1;\
-        }\
-        void *array = realloc((vec)->array, capacity * sizeof((vec)->dummy));\
-        if (array) {\
-            (vec)->array = array;\
-            (vec)->capacity = capacity;\
-        }\
-    }\
-    if (!vector_is_full(vec)) {\
-        (vec)->size++;\
-        vector_get((vec), (vec)->size - 1) = (data);\
-    }\
-} while (0)
-
-#define vector_destroy(vector) do {\
-    if ((vector)->array) {\
-        free((vector)->array);\
-        (vector)->array = NULL;\
-    }\
-    (vector)->size = 0;\
-    (vector)->capacity = 0;\
-} while (0)
