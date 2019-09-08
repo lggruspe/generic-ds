@@ -1,5 +1,4 @@
 #pragma once
-
 #include <stdlib.h>
 
 #define bst(Namespace) struct Namespace##_bst *
@@ -14,17 +13,17 @@
 #define bst_insert_compare(Namespace, root, node, compare) Namespace##_insert_compare((root), (node), (compare))
 #define bst_delete(Namespace, root, node) Namespace##_delete((root), (node))
 #define bst_transplant(Namespace, root, node, replacement) Namespace##_transplant((root), (node), (replacement))
-
 #define bst_delete_and_free(Namespace, root, node) Namespace##_delete_and_free((root), (node))
 #define bst_destroy(Namespace, root) Namespace##_destroy(root)
 
-#define bst_register(Namespace, Type) \
+#define bst_register(Namespace, Type, ...) \
  \
 struct Namespace##_bst { \
     Type data; \
     struct Namespace##_bst *left; \
     struct Namespace##_bst *right; \
     struct Namespace##_bst *parent; \
+    __VA_ARGS__ \
 }; \
  \
 bst(Namespace) Namespace##_new(Type data) \
@@ -214,7 +213,9 @@ bst(Namespace) Namespace##_delete(bst(Namespace) root, bst(Namespace) node) \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_delete_and_free(bst(Namespace) root, bst(Namespace) node) \
+bst(Namespace) Namespace##_delete_and_free( \
+    bst(Namespace) root, \
+    bst(Namespace) node) \
 { \
     bst(Namespace) new_root = bst_delete(Namespace, root, node); \
     free(node); \
