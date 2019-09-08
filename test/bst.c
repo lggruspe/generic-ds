@@ -3,12 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define test_bst_setup() bool passed = true;\
-Map *map = map_create()
-
-#define test_bst_teardown() map_destroy(map);\
-return passed 
-
 typedef bst_node_register_type(map_node, const char *, int) map_node;
 
 typedef bst(map_node) Map;
@@ -70,36 +64,35 @@ void map_destroy(Map *map)
     free(map);
 }
 
-bool test_bst_init()
+unit_test(test_bst_init)
 {
-    test_bst_setup();
-    check_assertion(!map->root);
-    check_assertion(!map->result);
-    check_assertion(map->size == 0);
-    test_bst_teardown();
+    Map *map = map_create();
+    assert_true(!map->root);
+    assert_true(!map->result);
+    assert_true(map->size == 0);
+    map_destroy(map);
 }
 
-bool test_bst_get_set_delete()
+unit_test(test_bst_get_set_delete)
 {
-    test_bst_setup();
-    check_assertion(map_get(map, "a", -1) == -1);
+    Map *map = map_create();
+    assert_true(map_get(map, "a", -1) == -1);
     map_set(map, "a", 1);
     map_set(map, "b", 2);
     map_set(map, "c", 2);
     map_set(map, "c", 3);
-    check_assertion(map_get(map, "a", -1) == 1);
-    check_assertion(map_get(map, "b", -1) == 2);
-    check_assertion(map_get(map, "c", -1) == 3);
+    assert_true(map_get(map, "a", -1) == 1);
+    assert_true(map_get(map, "b", -1) == 2);
+    assert_true(map_get(map, "c", -1) == 3);
 
     map_delete(map, "a");
-    check_assertion(map_get(map, "a", -1) == -1);
-    check_assertion(map_get(map, "d", -1) == -1);
-    test_bst_teardown();
+    assert_true(map_get(map, "a", -1) == -1);
+    assert_true(map_get(map, "d", -1) == -1);
 }
 
 int main()
 {
-    run_test(test_bst_init);
-    run_test(test_bst_get_set_delete);
+    run_unit_test(test_bst_init);
+    run_unit_test(test_bst_get_set_delete);
     return exit_test();
 }
