@@ -19,11 +19,11 @@ unit_test(test_vector)
     assert_true(!vector_is_empty(vi, vector));
 
     for (int i = 0; i < 10; ++i) {
-        assert_true(vector.array[i] == i);
+        assert_true(vector_get(vi, vector, i) == i);
     }
 
     for (int i = 0; i < 10; ++i) {
-        vector.array[i] = i*i;
+        vector = vector_set(vi, vector, i, i*i);
     }
 
     for (int i = 9; i >= 0; --i) {
@@ -109,6 +109,21 @@ unit_test(test_resize, double growth_factor)
     vector_destroy(vi, vector);
 }
 
+unit_test(test_vector_get_set)
+{
+    vector(vi) vector = vector_create(vi);
+    for (int i = 0; i < 10; ++i) {
+        vector = vector_push(vi, vector, i);
+    }
+    for (int i = 0; i < 10; ++i) {
+        vector = vector_set(vi, vector, i, i*i+1);
+    }
+    for (int i = 0; i < 10; ++i) {
+        assert_true(vector_get(vi, vector, i) == i*i + 1);
+    }
+    vector_destroy(vi, vector);
+}
+
 int main()
 {
     run_unit_test(test_vector);
@@ -118,5 +133,6 @@ int main()
     for (int i = 1; i <= 3; ++i) {
         run_unit_test(test_resize, (double)i);
     }
+    run_unit_test(test_vector_get_set);
     return exit_test();
 }

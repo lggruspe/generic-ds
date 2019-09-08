@@ -31,6 +31,8 @@
 #define vector_pop(Namespace, vector) Namespace##_pop(vector)
 #define vector_create(Namespace, ...) (struct Namespace##_vector){ .growth_factor = 2.0, ##__VA_ARGS__ }
 #define vector_destroy(Namespace, vector) Namespace##_destroy(vector)
+#define vector_get(Namespace, vector, index) Namespace##_get((vector), (index))
+#define vector_set(Namespace, vector, index, data) Namespace##_set((vector), (index), (data))
 
 #define vector_register(Namespace, Type) \
  \
@@ -101,5 +103,16 @@ vector(Namespace) Namespace##_destroy(vector(Namespace) vector) \
     } \
     vector.size = 0; \
     vector.capacity = 0; \
+    return vector; \
+} \
+ \
+Type Namespace##_get(vector(Namespace) vector, int index) \
+{ \
+    return vector.array[index]; \
+} \
+ \
+vector(Namespace) Namespace##_set(vector(Namespace) vector, int index, Type data) \
+{ \
+    vector.array[index] = data; \
     return vector; \
 }
