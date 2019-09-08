@@ -14,7 +14,8 @@
 #define deque_destroy(Namespace, deque) Namespace##_destroy(deque)
 
 #define deque_index(Namespace, deque, index) Namespace##_index((deque), (index))
-#define DEQUE_GET(Namespace, deque, index) (deque).array[deque_index(Namespace, (deque), (index))]
+#define deque_get(Namespace, deque, index) Namespace##_get((deque), (index))
+#define deque_set(Namespace, deque, index, data) Namespace##_set((deque), (index), (data))
 
 #define deque_register(Namespace, Type) \
  \
@@ -144,18 +145,20 @@ deque(Namespace) Namespace##_destroy(deque(Namespace) deque) \
  \
 int Namespace##_index(deque(Namespace) deque, int index) \
 { \
-  int logical_index = index + deque.front; \
-    if (logical_index >= deque.capacity) { \
-        logical_index -= deque.capacity; \
+  int physical_index = index + deque.front; \
+    if (physical_index >= deque.capacity) { \
+        physical_index -= deque.capacity; \
     } \
-    return logical_index;    \
+    return physical_index;    \
 } \
  \
 Type Namespace##_get(deque(Namespace) deque, int index) \
 { \
-    int logical_index = index + deque.front; \
-    if (logical_index >= deque.capacity) { \
-        logical_index -= deque.capacity; \
-    } \
-    return deque.array[logical_index]; \
+    return deque.array[deque_index(Namespace, deque, index)]; \
+} \
+ \
+deque(Namespace) Namespace##_set(deque(Namespace) deque, int index, Type data) \
+{ \
+    deque.array[deque_index(Namespace, deque, index)] = data; \
+    return deque; \
 }

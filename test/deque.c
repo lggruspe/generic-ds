@@ -123,17 +123,17 @@ unit_test(test_deque_pointer_type)
     deque_destroy(qs, deque);
 }
 
-unit_test(test_deque_get)
+unit_test(test_deque_get_set)
 {
     deque(qi) deque = deque_create(qi);
     for (int i = 0; i < 10; ++i) {
         deque = deque_push(qi, deque, 0);
     }
     for (int i = 0; i < 10; ++i) {
-        DEQUE_GET(qi, deque, i) = i;
+        deque = deque_set(qi, deque, i, i*i + 1);
     }
     for (int i = 0; i < 10; ++i) {
-        assert_true(DEQUE_GET(qi, deque, i) == i);
+        assert_true(deque_get(qi, deque, i) == i*i + 1);
     }
     deque_destroy(qi, deque);
 }
@@ -148,6 +148,6 @@ int main()
     run_unit_test(test_deque_push_pop);
     run_unit_test(test_deque_destroy);
     run_unit_test(test_deque_pointer_type);
-    run_unit_test(test_deque_get);
+    run_unit_test(test_deque_get_set);
     return exit_test();
 }
