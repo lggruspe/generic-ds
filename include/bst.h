@@ -1,240 +1,230 @@
 #pragma once
+
 #include <stdlib.h>
-#include <assert.h>
 
-// bst (duplicates not allowed)
+#define bst(Namespace) struct Namespace##_bst *
+#define bst_new(Namespace, data) Namespace##_new(data)
+#define bst_search(Namespace, root, data) Namespace##_search((root), (data))
+#define bst_search_compare(Namespace, root, data, compare) Namespace##_search_compare((root), (data), (compare))
+#define bst_minimum(Namespace, root) Namespace##_minimum(root)
+#define bst_maximum(Namespace, root) Namespace##_maximum(root)
+#define bst_predecessor(Namespace, node) Namespace##_predecessor(node)
+#define bst_successor(Namespace, node) Namespace##_successor(node)
+#define bst_insert(Namespace, root, node) Namespace##_insert((root), (node))
+#define bst_insert_compare(Namespace, root, node, compare) Namespace##_insert_compare((root), (node), (compare))
+#define bst_delete(Namespace, root, node) Namespace##_delete((root), (node))
+#define bst_transplant(Namespace, root, node, replacement) Namespace##_transplant((root), (node), (replacement))
 
-#define bst_node_register_type(name, key_type, value_type) struct name {\
-    key_type key;\
-    value_type value;\
-    struct name *left;\
-    struct name *right;\
-    struct name *parent;\
+#define bst_delete_and_free(Namespace, root, node) Namespace##_delete_and_free((root), (node))
+#define bst_destroy(Namespace, root) Namespace##_destroy(root)
+
+#define bst_register(Namespace, Type) \
+ \
+struct Namespace##_bst { \
+    Type data; \
+    struct Namespace##_bst *left; \
+    struct Namespace##_bst *right; \
+    struct Namespace##_bst *parent; \
+}; \
+ \
+bst(Namespace) Namespace##_new(Type data) \
+{ \
+    bst(Namespace) node = malloc(sizeof(struct Namespace##_bst)); \
+    if (node) { \
+        node->data = data; \
+        node->left = NULL; \
+        node->right = NULL; \
+        node->parent = NULL; \
+    } \
+    return node; \
+} \
+bst(Namespace) Namespace##_search(bst(Namespace) root, Type data) \
+{ \
+    while (root && root->data != data) { \
+        root = data < root->data ? root->left : root->right; \
+    } \
+    return root; \
+} \
+ \
+bst(Namespace) Namespace##_search_compare( \
+    bst(Namespace) root,  \
+    Type data, \
+    int (*compare)(Type, Type)) \
+{ \
+    int comparison; \
+    while (root && (comparison = compare(data, root->data)) != 0) { \
+        root = comparison < 0 ? root->left : root->right; \
+    } \
+    return root; \
+} \
+ \
+bst(Namespace) Namespace##_minimum(bst(Namespace) root) \
+{ \
+    if (!root) { \
+        return NULL; \
+    } \
+    while (root->left) { \
+        root = root->left; \
+    } \
+    return root; \
+} \
+ \
+bst(Namespace) Namespace##_maximum(bst(Namespace) root) \
+{ \
+    if (!root) { \
+        return NULL; \
+    } \
+    while (root->right) { \
+        root = root->right; \
+    } \
+    return root; \
+} \
+ \
+bst(Namespace) Namespace##_successor(bst(Namespace) node) \
+{ \
+    if (!node) { \
+        return NULL; \
+    } \
+    if (node->right) { \
+        return bst_minimum(Namespace, node->right); \
+    } \
+    bst(Namespace) parent = node->parent; \
+    while (parent && node != parent->left) { \
+        node = parent; \
+        parent = parent->parent; \
+    } \
+    return parent; \
+} \
+ \
+bst(Namespace) Namespace##_predecessor(bst(Namespace) node) \
+{ \
+    if (!node) { \
+        return NULL; \
+    } \
+    if (node->left) { \
+        return bst_maximum(Namespace, node->left); \
+    } \
+    bst(Namespace) parent = node->parent; \
+    while (parent && node != parent->right) { \
+        node = parent; \
+        parent = parent->parent; \
+    } \
+    return parent; \
+} \
+ \
+bst(Namespace) Namespace##_insert(bst(Namespace) root, bst(Namespace) node) \
+{ \
+    if (!node) { \
+        return root; \
+    } \
+    if (!root) { \
+        return node; \
+    } \
+    bst(Namespace) parent = NULL; \
+    bst(Namespace) child = root; \
+    while (child && child->data != node->data) { \
+        parent = child; \
+        child = node->data < child->data ? child->left : child->right; \
+    } \
+    if (child) { \
+        return root; \
+    } \
+    node->parent = parent; \
+    if (node->data < parent->data) { \
+        parent->left = node; \
+    } else { \
+        parent->right = node; \
+    } \
+    return root; \
+} \
+ \
+bst(Namespace) Namespace##_insert_compare( \
+    bst(Namespace) root,  \
+    bst(Namespace) node, \
+    int (*compare)(Type, Type)) \
+{ \
+    if (!node) { \
+        return root; \
+    } \
+    if (!root) { \
+        return node; \
+    } \
+    bst(Namespace) parent = NULL; \
+    bst(Namespace) child = root; \
+    int comparison; \
+    while (child && (comparison = compare(node->data, child->data)) != 0) { \
+        parent = child; \
+        child = comparison < 0 ? child->left : child->right; \
+    } \
+    if (child) { \
+        return root; \
+    } \
+    node->parent = parent; \
+    if (compare(node->data, parent->data) < 0) { \
+        parent->left = node; \
+    } else { \
+        parent->right = node; \
+    } \
+    return root; \
+} \
+ \
+bst(Namespace) Namespace##_transplant( \
+    bst(Namespace) root,  \
+    bst(Namespace) node,  \
+    bst(Namespace) replacement) \
+{ \
+    if (replacement) { \
+        replacement->parent = node->parent; \
+    } \
+    if (!node->parent) { \
+        root = replacement; \
+    } else if (node->parent->left == node) { \
+        node->parent->left = replacement; \
+    } else { \
+        node->parent->right = replacement; \
+    } \
+    return root; \
+} \
+ \
+bst(Namespace) Namespace##_delete(bst(Namespace) root, bst(Namespace) node) \
+{ \
+    if (!root || !node) { \
+        return NULL; \
+    } \
+    if (!node->left && !node->right) { \
+        return bst_transplant(Namespace, root, node, NULL); \
+    } \
+    if (!node->left || !node->right) { \
+        bst(Namespace) child = node->left ? node->left : node->right; \
+        return bst_transplant(Namespace, root, node, child); \
+    } \
+ \
+    bst(Namespace) successor = bst_successor(Namespace, node); \
+    bst(Namespace) successor_parent = successor->parent; \
+    bst(Namespace) successor_child = successor->right; \
+ \
+    root = bst_transplant(Namespace, root, node, successor); \
+    successor->left = node->left; \
+    if (successor != node->right) { \
+        if (successor_child) { \
+            successor_child->parent = successor_parent; \
+        } \
+        successor_parent->left = successor_child; \
+    } \
+    return root; \
+} \
+ \
+bst(Namespace) Namespace##_delete_and_free(bst(Namespace) root, bst(Namespace) node) \
+{ \
+    bst(Namespace) new_root = bst_delete(Namespace, root, node); \
+    free(node); \
+    return new_root; \
+} \
+ \
+bst(Namespace) Namespace##_destroy(bst(Namespace) root) \
+{ \
+    while (root) { \
+        root = bst_delete_and_free(Namespace, root, root); \
+    } \
+    return NULL; \
 }
-
-#define bst_node_init(node, _key, _value, _left, _right, _parent) do {\
-    (node)->key = (_key);\
-    (node)->value = (_value);\
-    (node)->left = (_left);\
-    (node)->right = (_right);\
-    (node)->parent = (_parent);\
-} while (0)
-
-// set tree.result to matching node
-#define bst_search(tree, _key) do {\
-    (tree)->result = (tree)->root;\
-    while ((tree)->result && (tree)->result->key != (_key)) {\
-        (tree)->result = (_key) < (tree)->result->key ? (tree)->result->left : (tree)->result->right;\
-    }\
-} while (0)
-
-// same as bst_search but with a custom comparator for keys
-#define bst_search_custom(tree, _key, compare) do {\
-    (tree)->result = (tree)->root;\
-    int comparison;\
-    while ((tree)->result && (comparison = (compare)((_key), (tree)->result->key)) != 0) {\
-        (tree)->result = (comparison < 0 ? (tree)->result->left : (tree)->result->right);\
-    }\
-} while (0)
-
-#define bst_minimum(tree, node) do {\
-    (tree)->result = (node);\
-    if (node) {\
-        while ((tree)->result->left) {\
-            (tree)->result = (tree)->result->left;\
-        }\
-    }\
-} while (0)
-
-#define bst_successor(tree, node) do {\
-    (tree)->result = (node);\
-    if (node) {\
-        if ((node)->right) {\
-            bst_minimum((tree), (node)->right);\
-        } else {\
-            while ((tree)->result->parent && (tree)->result->parent->left != (tree)->result) {\
-                (tree)->result = (tree)->result->parent;\
-            }\
-        }\
-    }\
-} while (0)
-
-#define bst(node_type) struct {\
-    node_type *root;\
-    node_type *result;\
-    size_t size;\
-}
-
-// comparator compares keys
-#define bst_init(tree) do {\
-    (tree)->root = NULL;\
-    (tree)->result = NULL;\
-    (tree)->size = 0;\
-} while (0)
-
-// sets tree.result to parent of null node that node will replace
-#define bst_match_or_parent(tree, node) do {\
-    if ((tree)->root) {\
-        (tree)->result = (tree)->root;\
-        while ((tree)->result) {\
-            if ((node)->key == (tree)->result->key) {\
-                break;\
-            } else if ((node)->key < (tree)->result->key) {\
-                if (!((tree)->result->left)) {\
-                    break;\
-                }\
-                (tree)->result = (tree)->result->left;\
-            } else {\
-                if (!((tree)->result->right)) {\
-                    break;\
-                }\
-                (tree)->result = (tree)->result->right;\
-            }\
-        }\
-    }\
-} while (0)
-
-// search with custom comparator
-#define bst_match_or_parent_custom(tree, node, comparator) do {\
-    if ((tree)->root) {\
-        (tree)->result = (tree)->root;\
-        while ((tree)->result) {\
-            int comparison = (comparator)((node)->key, (tree)->result->key);\
-            if (comparison == 0) {\
-                break;\
-            } else if (comparison < 0) {\
-                if (!((tree)->result->left)) {\
-                    break;\
-                }\
-                (tree)->result = (tree)->result->left;\
-            } else {\
-                if (!((tree)->result->right)) {\
-                    break;\
-                }\
-                (tree)->result = (tree)->result->right;\
-            }\
-        }\
-    }\
-} while (0)
-
-// u and v are pointers to nodes
-#define bst_transplant(tree, u, v) do {\
-    assert(u && v);\
-    if (!((u)->parent)) {\
-        (tree)->root = (v);\
-    } else if ((u)->parent->left == (u)) {\
-        (u)->parent->left = (v);\
-    } else {\
-        (u)->parent->right = (v);\
-    }\
-    (v)->parent = (u)->parent;\
-} while (0)
-
-// node is a pointer, shouldn't be null
-// replaces matching node if it already exists
-// sets children pointers of node to NULL
-// and parent pointer to its new parent
-// NOTE if there's already a match, the node to be replaced is stored
-// in tree->result so it can be deallocayed by the user
-#define bst_insert(tree, node) do {\
-    if (node) {\
-        (node)->left = NULL;\
-        (node)->right = NULL;\
-        if (!(tree)->root) {\
-            (tree)->root = (node);\
-            (tree)->root->parent = NULL;\
-            (tree)->size++;\
-            (tree)->result = NULL;\
-        } else {\
-            bst_match_or_parent((tree), (node));\
-            (node)->parent = (tree)->result;\
-            if ((node)->key == (tree)->result->key) {\
-                (node)->left = (tree)->result->left;\
-                (node)->right = (tree)->result->right;\
-                if ((node)->left) {\
-                    (node)->left->parent = (node);\
-                }\
-                if ((node)->right) {\
-                    (node)->right->parent = (node);\
-                }\
-                bst_transplant((tree), (tree)->result, (node));\
-            } else if ((node)->key < (tree)->result->key) {\
-                (tree)->result->left = (node);\
-                (tree)->size++;\
-                (tree)->result = NULL;\
-            } else {\
-                (tree)->result->right = (node);\
-                (tree)->size++;\
-                (tree)->result = NULL;\
-            }\
-        }\
-    } else {\
-        (tree)->result = NULL;\
-    }\
-} while (0)
-
-#define bst_insert_custom(tree, node, comparator) do {\
-    if (node) {\
-        (node)->left = NULL;\
-        (node)->right = NULL;\
-        if (!(tree)->root) {\
-            (tree)->root = (node);\
-            (tree)->root->parent = NULL;\
-            (tree)->size++;\
-            (tree)->result = NULL;\
-        } else {\
-            bst_match_or_parent((tree), (node));\
-            (node)->parent = (tree)->result;\
-            int comparison = (comparator)((node)->key, (tree)->result->key);\
-            if (comparison == 0) {\
-                (node)->left = (tree)->result->left;\
-                (node)->right = (tree)->result->right;\
-                if ((node)->left) {\
-                    (node)->left->parent = (node);\
-                }\
-                if ((node)->right) {\
-                    (node)->right->parent = (node);\
-                }\
-                bst_transplant((tree), (tree)->result, (node));\
-            } else if (comparison < 0) {\
-                (tree)->result->left = (node);\
-                (tree)->size++;\
-                (tree)->result = NULL;\
-            } else {\
-                (tree)->result->right = (node);\
-                (tree)->size++;\
-                (tree)->result = NULL;\
-            }\
-        }\
-    } else {\
-        (tree)->result = NULL;\
-    }\
-} while (0)
-
-// TODO what if node isn't in the tree?
-#define bst_delete(tree, node) do {\
-    if (node) {\
-        (tree)->size--;\
-        if (!((node)->left) && !((node)->right)) {\
-            if (!((node)->parent)) {\
-                (tree)->root = NULL;\
-            } else if ((node)->parent->left == (node)) {\
-                (node)->parent->left = NULL;\
-            } else {\
-                (node)->parent->right = NULL;\
-            }\
-        } else if (!((node)->left) || !((node)->right)) {\
-            bst_transplant((tree), (node), (node)->left ? (node)->left : (node)->right);\
-        } else {\
-            bst_successor((tree), (node));\
-            if ((node)->right != (tree)->result) {\
-                bst_transplant(tree, (tree)->result, (tree)->result->right);\
-                (tree)->result->right = (node)->right;\
-                (tree)->result->right->parent = (tree)->result;\
-            }\
-            (tree)->result->left = (node)->left;\
-            (tree)->result->left->parent = (tree)->result;\
-            bst_transplant(tree, (node), (tree)->result);\
-        }\
-    }\
-} while (0)

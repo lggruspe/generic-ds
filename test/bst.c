@@ -1,98 +1,87 @@
 #include "bst.h"
 #include "test_lib.h"
-#include <stdlib.h>
 #include <string.h>
 
-typedef bst_node_register_type(map_node, const char *, int) map_node;
-
-typedef bst(map_node) Map;
-
-map_node *map_node_create(const char *key, int value)
-{
-    map_node *node = malloc(sizeof(map_node));
-    if (node) {
-        bst_node_init(node, key, value, NULL, NULL, NULL);
-    }
-    return node;
-}
-
-Map *map_create()
-{
-    Map *map= malloc(sizeof(Map));
-    bst_init(map);
-    return map;
-}
-
-int map_get(Map *map, const char *key, int def)
-{
-    bst_search_custom(map, key, strcmp); 
-    map_node *node = map->result;
-    return node ? node->value : def;
-}
-
-void map_set(Map *map, const char *key, int val)
-{
-    map_node *node = map_node_create(key, val);
-    bst_insert_custom(map, node, strcmp);
-    if (map->result) {
-        free(map->result);
-    }
-}
-
-void map_delete(Map *map, const char *key)
-{
-    bst_search_custom(map, key, strcmp);
-    if (map->result) {
-        bst_delete(map, map->result);;
-        free(map->result);
-    }
-}
-
-void map_destroy(Map *map)
-{
-    while (map->size > 1) {
-        map_node *node = map->root;
-        bst_delete(map, node);
-        free(node);
-    }
-    if (map->size == 1) {
-        map_node *node = map->root;
-        bst_delete(map, node);
-        free(node);
-        map->root = NULL;
-    }
-    free(map);
-}
+bst_register(ti, int)
+bst_register(ts, const char *)
 
 unit_test(test_bst_init)
 {
-    Map *map = map_create();
-    assert_true(!map->root);
-    assert_true(!map->result);
-    assert_true(map->size == 0);
-    map_destroy(map);
+    bst(ts) tree = NULL;
+    assert_true(!bst_search(ts, tree, ""));
+    assert_true(!bst_search_compare(ts, tree, "", strcmp));
+    bst_destroy(ts, tree);
 }
 
-unit_test(test_bst_get_set_delete)
+unit_test(test_bst_int)
 {
-    Map *map = map_create();
-    assert_true(map_get(map, "a", -1) == -1);
-    map_set(map, "a", 1);
-    map_set(map, "b", 2);
-    map_set(map, "c", 2);
-    map_set(map, "c", 3);
-    assert_true(map_get(map, "a", -1) == 1);
-    assert_true(map_get(map, "b", -1) == 2);
-    assert_true(map_get(map, "c", -1) == 3);
+    bst(ti) tree = NULL;
+    for (int i = 0; i < 3; ++i) {
+        tree = bst_insert(ti, tree, bst_new(ti, 2-i));
+    }
 
-    map_delete(map, "a");
-    assert_true(map_get(map, "a", -1) == -1);
-    assert_true(map_get(map, "d", -1) == -1);
+    bst(ti) result = bst_minimum(ti, tree);
+    for (int i = 0; i < 3; ++i) {
+        assert_true(result && result->data == i);
+        result = bst_successor(ti, result);
+    }
+    assert_true(!result);
+
+    result = bst_maximum(ti, tree);
+    for (int i = 2; i >= 0; --i) {
+        assert_true(result && result->data == i);
+        result = bst_predecessor(ti, result);
+    }
+    assert_true(!result);
+
+    for (int i = 0; i < 3; ++i) {
+        result = bst_search(ti, tree, i);
+        assert_true(result && result->data == i);
+        tree = bst_delete_and_free(ti, tree, result);
+        result = bst_search(ti, tree, i);
+        assert_true(!result);
+    }
+    assert_true(!tree);
+    bst_destroy(ti, tree);
+}
+
+unit_test(test_bst_string)
+{
+    const char *array[] = {"a", "b", "c"};
+    bst(ts) tree = NULL;
+    for (int i = 0; i < 3; ++i) {
+        tree = bst_insert_compare(ts, tree, bst_new(ts, array[2-i]), strcmp);
+    }
+
+    bst(ts) result = bst_minimum(ts, tree);
+    for (int i = 0; i < 3 && result; ++i) {
+        assert_true(result && strcmp(result->data, array[i]) == 0);
+        result = bst_successor(ts, result);
+    }
+    assert_true(!result);
+
+    result = bst_maximum(ts, tree);
+    for (int i = 2; i >= 0; --i) {
+        assert_true(result && strcmp(result->data, array[i]) == 0);
+        result = bst_predecessor(ts, result);
+    }
+    assert_true(!result);
+
+    for (int i = 0; i < 3; ++i) {
+        result = bst_search_compare(ts, tree, array[i], strcmp);
+        assert_true(result && strcmp(result->data, array[i]) == 0);
+        tree = bst_delete_and_free(ts, tree, result);
+        result = bst_search_compare(ts, tree, array[i], strcmp);
+        assert_true(!result);
+    }
+    assert_true(!tree);
+    bst_destroy(ts, tree);
 }
 
 int main()
 {
     run_unit_test(test_bst_init);
-    run_unit_test(test_bst_get_set_delete);
+    run_unit_test(test_bst_int);
+    run_unit_test(test_bst_string);
     return exit_test();
 }
