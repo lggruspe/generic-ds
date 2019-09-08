@@ -1,6 +1,7 @@
-check_PROGRAMS = test/test_heap test/test_list test/test_rbtree test/test_vector test/test_deque test/test_bst
+check_PROGRAMS = test/test_heap test/test_list test/test_rbtree test/test_vector test/test_deque test/test_bst test/test_rb
 # test/heap_m
 
+test_test_rb_SOURCES = test/rb.c include/rb.h test/test_lib.h
 test_test_bst_SOURCES = test/bst.c include/bst.h test/test_lib.h
 test_test_deque_SOURCES = test/deque.c include/deque.h test/test_lib.h
 test_test_heap_SOURCES = test/heap.c include/heap.h test/test_lib.h
