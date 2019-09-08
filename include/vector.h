@@ -21,11 +21,6 @@
 // SOFTWARE.
 
 #pragma once
-#include <stdbool.h>
-#include <stdlib.h>
-
-#define Namespace
-#define Type
 
 #define vector(Namespace) struct Namespace##_vector
 #define vector_is_full(Namespace, vector) Namespace##_is_full(vector)

@@ -1,6 +1,4 @@
 #pragma once
-#include <stdbool.h>
-#include <stdlib.h>
 
 #define list(Namespace) struct Namespace##_list *
 #define list_head(Namespace, list) Namespace##_head(list)
