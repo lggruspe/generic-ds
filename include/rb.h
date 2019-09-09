@@ -117,28 +117,29 @@ rb(Namespace) Namespace##_rb_repair(rb(Namespace) root, rb(Namespace) node) \
     if (node->parent->color == RB_BLACK) { \
         return root; \
     } \
-    rb(Namespace) grandparent = node->parent->parent; \
-    rb(Namespace) uncle = grandparent->left == node->parent  \
+    rb(Namespace) parent = node->parent; \
+    rb(Namespace) grandparent = parent->parent; \
+    rb(Namespace) uncle = grandparent->left == parent  \
         ? grandparent->right  \
         : grandparent->left; \
-    if (uncle) { \
+    if (uncle && uncle->color == RB_RED) { \
         grandparent->color = RB_RED; \
-        node->parent->color = RB_BLACK; \
+        parent->color = RB_BLACK; \
         uncle->color = RB_BLACK; \
         return rb_repair(Namespace, root, grandparent); \
     } \
      \
-    if (grandparent->left == node->parent && node->parent->right == node) { \
-        root = rb_rotate_left(Namespace, root, node->parent); \
-    } else if (grandparent->right == node->parent && node->parent->left == node) { \
-        root = rb_rotate_right(Namespace, root, node->parent); \
+    if (grandparent->left == parent && parent->right == node) { \
+        root = rb_rotate_left(Namespace, root, parent); \
+    } else if (grandparent->right == parent && parent->left == node) { \
+        root = rb_rotate_right(Namespace, root, parent); \
     } \
  \
     grandparent->color = RB_RED; \
-    node->parent->color = RB_BLACK; \
-    if (grandparent->left == node->parent && node->parent->left == node) { \
+    parent->color = RB_BLACK; \
+    if (grandparent->left == parent && parent->left == node) { \
         root = rb_rotate_right(Namespace, root, grandparent); \
-    } else if (grandparent->right == node->parent && node->parent->right == node) { \
+    } else if (grandparent->right == parent && parent->right == node) { \
         root = rb_rotate_left(Namespace, root, grandparent); \
     } \
  \
@@ -150,9 +151,9 @@ rb(Namespace) Namespace##_rb_insert(rb(Namespace) root, rb(Namespace) node) \
 { \
     if (node) { \
         node->color = RB_RED; \
+        root = bst_insert(Namespace, root, node); \
+        root = rb_repair(Namespace, root, node); \
     } \
-    root = bst_insert(Namespace, root, node); \
-    root = rb_repair(Namespace, root, node); \
     return root; \
 } \
  \
@@ -163,9 +164,9 @@ rb(Namespace) Namespace##_rb_insert_compare( \
 { \
     if (node) { \
         node->color = RB_RED; \
+        root = bst_insert_compare(Namespace, root, node, compare); \
+        root = rb_repair(Namespace, root, node); \
     } \
-    root = bst_insert_compare(Namespace, root, node, compare); \
-    root = rb_repair(Namespace, root, node); \
     return root; \
 } \
  \

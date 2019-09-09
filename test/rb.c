@@ -19,7 +19,6 @@ unit_test(test_rb_int)
     for (int i = 0; i < 3; ++i) {
         tree = rb_insert(ri, tree, rb_new(ri, 2-i));
     }
-    assert_true(rb_is_binary_search_tree(ri, tree));
     assert_true(rb_is_balanced(ri, tree));
     assert_true(rb_is_red_black_tree(ri, tree));
 
@@ -51,7 +50,6 @@ unit_test(test_rb_string)
     for (int i = 0; i < 3; ++i) {
         tree = rb_insert_compare(rs, tree, rb_new(rs, array[2-i]), strcmp);
     }
-    assert_true(rb_is_binary_search_tree_compare(rs, tree, strcmp));
     assert_true(rb_is_balanced(rs, tree));
     assert_true(rb_is_red_black_tree_compare(rs, tree, strcmp));
 
@@ -76,10 +74,26 @@ unit_test(test_rb_string)
     rb_destroy(rs, tree);
 }
 
+unit_test(test_rb_balanced)
+{
+    rb(ri) tree = NULL;
+    for (int i = 0; i < 100; ++i) {
+        tree = rb_insert(ri, tree, rb_new(ri, i));
+        assert_true(rb_is_red_black_tree(ri, tree));
+        //assert_true(rb_weight(ri, tree) == i+1);
+
+        rb(ri) result = rb_maximum(ri, tree);
+        assert_true(result && result->data == i);
+        //printf("i=%d w=%d h=%d\n", i, rb_weight(ri, tree), rb_height(ri, tree));
+    }
+    rb_destroy(ri, tree);
+}
+
 int main()
 {
     run_unit_test(test_rb_init);
     run_unit_test(test_rb_int);
     run_unit_test(test_rb_string);
+    run_unit_test(test_rb_balanced);
     return exit_test();
 }
