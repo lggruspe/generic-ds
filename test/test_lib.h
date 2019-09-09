@@ -16,23 +16,8 @@ struct test_status {
     }\
 } while (0)
 
-#define check_assertion(condition) do {\
-    if (!(condition)) {\
-        printf(#condition "\n");\
-        passed = false;\
-    }\
-} while (0)
-
 int total_tests = 0;
 int total_failed = 0;
-
-#define run_test(test) do {\
-    ++total_tests;\
-    if (!(test)()) {\
-        printf(#test " failed\n");\
-        ++total_failed;\
-    }\
-} while (0)
 
 #define run_unit_test(test, ...) do {\
     ++total_tests;\
