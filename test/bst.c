@@ -19,6 +19,7 @@ unit_test(test_bst_int)
     for (int i = 0; i < 3; ++i) {
         tree = bst_insert(ti, tree, bst_new(ti, 2-i));
     }
+    assert_true(bst_is_binary_search_tree(ti, tree));
 
     bst(ti) result = bst_minimum(ti, tree);
     for (int i = 0; i < 3; ++i) {
@@ -52,6 +53,7 @@ unit_test(test_bst_string)
     for (int i = 0; i < 3; ++i) {
         tree = bst_insert_compare(ts, tree, bst_new(ts, array[2-i]), strcmp);
     }
+    assert_true(bst_is_binary_search_tree_compare(ts, tree, strcmp));
 
     bst(ts) result = bst_minimum(ts, tree);
     for (int i = 0; i < 3 && result; ++i) {
