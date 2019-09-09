@@ -80,11 +80,9 @@ unit_test(test_rb_balanced)
     for (int i = 0; i < 100; ++i) {
         tree = rb_insert(ri, tree, rb_new(ri, i));
         assert_true(rb_is_red_black_tree(ri, tree));
-        //assert_true(rb_weight(ri, tree) == i+1);
-
+        assert_true(rb_weight(ri, tree) == i+1);
         rb(ri) result = rb_maximum(ri, tree);
         assert_true(result && result->data == i);
-        //printf("i=%d w=%d h=%d\n", i, rb_weight(ri, tree), rb_height(ri, tree));
     }
     rb_destroy(ri, tree);
 }

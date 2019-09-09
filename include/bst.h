@@ -251,8 +251,8 @@ int Namespace##_bst_weight(bst(Namespace) root) \
      if (!root) { \
         return 0; \
     } \
-    int left = bst_height(Namespace, root->left); \
-    int right = bst_height(Namespace, root->right); \
+    int left = bst_weight(Namespace, root->left); \
+    int right = bst_weight(Namespace, root->right); \
     return left + right + 1; \
 } \
  \
