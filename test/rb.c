@@ -84,6 +84,11 @@ unit_test(test_rb_balanced)
         rb(ri) result = rb_maximum(ri, tree);
         assert_true(result && result->data == i);
     }
+
+    for (int i = 0; i < 100; ++i) {
+        rb(ri) result = rb_search(ri, tree, i);
+        assert_true(result && result->data == i);
+    }
     rb_destroy(ri, tree);
 }
 

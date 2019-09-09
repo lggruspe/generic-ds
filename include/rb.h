@@ -17,7 +17,7 @@
 #define rb_insert(Namespace, root, node) Namespace##_rb_insert((root), (node))
 #define rb_insert_compare(Namespace, root, node, compare) Namespace##_rb_insert_compare((root), (node), (compare))
 #define rb_repair(Namespace, root, node) Namespace##_rb_repair((root), (node))
-#define rb_destroy(Namespace, root) bst_destroy(Namespace, (root))
+#define rb_destroy(Namespace, root) Namespace##_rb_destroy(root)
 #define rb_color(Namespace, node) Namespace##_rb_color(node)
 #define rb_rotate_left(Namespace, root, x) Namespace##_rotate_left((root), (x))
 #define rb_rotate_right(Namespace, root, y) Namespace##_rotate_right((root), (y))
@@ -232,4 +232,14 @@ bool Namespace##_is_red_black_tree_compare( \
         return false; \
     } \
     return rb_black_height(Namespace, root) && rb_red_child_black_parent(Namespace, root); \
+} \
+ \
+rb(Namespace) Namespace##_rb_destroy(rb(Namespace) root) \
+{ \
+    if (root) { \
+        root->left = rb_destroy(Namespace, root->left); \
+        root->right = rb_destroy(Namespace, root->right); \
+        free(root); \
+    } \
+    return NULL; \
 }

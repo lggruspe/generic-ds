@@ -223,9 +223,9 @@ bst(Namespace) Namespace##_delete_and_free( \
     bst(Namespace) root, \
     bst(Namespace) node) \
 { \
-    bst(Namespace) new_root = bst_delete(Namespace, root, node); \
+    root = bst_delete(Namespace, root, node); \
     free(node); \
-    return new_root; \
+    return root; \
 } \
  \
 bst(Namespace) Namespace##_destroy(bst(Namespace) root) \
