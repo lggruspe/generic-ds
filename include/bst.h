@@ -264,7 +264,7 @@ bool Namespace##_is_binary_search_tree(bst(Namespace) root) \
     if (root->left && root->left->data > root->data) { \
         return false; \
     } \
-    if (root->right && root->right->data > root->data) { \
+    if (root->right && root->right->data < root->data) { \
         return false; \
     } \
     if (!bst_is_binary_search_tree(Namespace, root->left)) { \
@@ -286,7 +286,7 @@ bool Namespace##_is_binary_search_tree_compare( \
     if (root->left && compare(root->left->data, root->data) > 0) { \
         return false; \
     } \
-     if (root->right && compare(root->right->data, root->data) > 0) { \
+     if (root->right && compare(root->right->data, root->data) < 0) { \
         return false; \
     } \
     if (!bst_is_binary_search_tree_compare(Namespace, root->left, compare)) { \

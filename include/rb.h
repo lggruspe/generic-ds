@@ -9,7 +9,7 @@
 #define rb(Namespace) bst(Namespace)
 #define rb_new(Namespace, data) Namespace##_rb_new(data)
 #define rb_search(Namespace, root, data) bst_search(Namespace, (root), (data))
-#define rb_search_compare(Namespace, root, data) bst_search_compare(Namespace, (root), (data))
+#define rb_search_compare(Namespace, root, data, compare) bst_search_compare(Namespace, (root), (data), (compare))
 #define rb_minimum(Namespace, root) bst_minimum(Namespace, (root))
 #define rb_maximum(Namespace, root) bst_maximum(Namespace, (root))
 #define rb_successor(Namespace, node) bst_successor(Namespace, (node))
