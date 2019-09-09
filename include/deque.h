@@ -1,21 +1,23 @@
 #pragma once
+#include <stdbool.h>
+#include <stdlib.h>
 
 #define deque(Namespace) struct Namespace##_deque
 #define deque_create(Namespace, ...) (struct Namespace##_deque){ .growth_factor = 2.0, ##__VA_ARGS__ }
-#define deque_is_full(Namespace, deque) Namespace##_is_full(deque)
-#define deque_is_empty(Namespace, deque) Namespace##_is_empty(deque)
-#define deque_resize(Namespace, deque) Namespace##_resize(deque)
-#define deque_push(Namespace, deque, data) Namespace##_push((deque), (data))
-#define deque_peek(Namespace, deque) Namespace##_peek(deque)
-#define deque_pop(Namespace, deque) Namespace##_pop(deque)
-#define deque_push_front(Namespace, deque, data) Namespace##_push_front((deque), (data))
-#define deque_peek_front(Namespace, deque) Namespace##_peek_front(deque)
-#define deque_pop_front(Namespace, deque) Namespace##_pop_front(deque)
-#define deque_destroy(Namespace, deque) Namespace##_destroy(deque)
+#define deque_is_full(Namespace, deque) Namespace##_deque_is_full(deque)
+#define deque_is_empty(Namespace, deque) Namespace##_deque_is_empty(deque)
+#define deque_resize(Namespace, deque) Namespace##_deque_resize(deque)
+#define deque_push(Namespace, deque, data) Namespace##_deque_push((deque), (data))
+#define deque_peek(Namespace, deque) Namespace##_deque_peek(deque)
+#define deque_pop(Namespace, deque) Namespace##_deque_pop(deque)
+#define deque_push_front(Namespace, deque, data) Namespace##_deque_push_front((deque), (data))
+#define deque_peek_front(Namespace, deque) Namespace##_deque_peek_front(deque)
+#define deque_pop_front(Namespace, deque) Namespace##_deque_pop_front(deque)
+#define deque_destroy(Namespace, deque) Namespace##_deque_destroy(deque)
 
-#define deque_index(Namespace, deque, index) Namespace##_index((deque), (index))
-#define deque_get(Namespace, deque, index) Namespace##_get((deque), (index))
-#define deque_set(Namespace, deque, index, data) Namespace##_set((deque), (index), (data))
+#define deque_index(Namespace, deque, index) Namespace##_deque_index((deque), (index))
+#define deque_get(Namespace, deque, index) Namespace##_deque_get((deque), (index))
+#define deque_set(Namespace, deque, index, data) Namespace##_deque_set((deque), (index), (data))
 
 #define deque_register(Namespace, Type) \
  \
@@ -28,17 +30,17 @@ struct Namespace##_deque { \
     double growth_factor; \
 }; \
  \
-bool Namespace##_is_full(deque(Namespace) deque) \
+bool Namespace##_deque_is_full(deque(Namespace) deque) \
 { \
     return deque.size >= deque.capacity; \
 } \
  \
-bool Namespace##_is_empty(deque(Namespace) deque) \
+bool Namespace##_deque_is_empty(deque(Namespace) deque) \
 { \
     return deque.size <= 0; \
 } \
  \
-deque(Namespace) Namespace##_resize(deque(Namespace) deque) \
+deque(Namespace) Namespace##_deque_resize(deque(Namespace) deque) \
 { \
     int capacity = deque.capacity * deque.growth_factor; \
     if (capacity <= 0) { \
@@ -65,7 +67,7 @@ deque(Namespace) Namespace##_resize(deque(Namespace) deque) \
     return deque; \
 } \
  \
-deque(Namespace) Namespace##_push(deque(Namespace) deque, Type data) \
+deque(Namespace) Namespace##_deque_push(deque(Namespace) deque, Type data) \
 { \
     if (deque_is_full(Namespace, deque)) { \
         deque = deque_resize(Namespace, deque); \
@@ -80,12 +82,12 @@ deque(Namespace) Namespace##_push(deque(Namespace) deque, Type data) \
     return deque; \
 } \
  \
-Type Namespace##_peek(deque(Namespace) deque) \
+Type Namespace##_deque_peek(deque(Namespace) deque) \
 { \
     return deque.array[deque.back == 0 ? deque.capacity - 1 : deque.back - 1]; \
 } \
  \
-deque(Namespace) Namespace##_pop(deque(Namespace) deque) \
+deque(Namespace) Namespace##_deque_pop(deque(Namespace) deque) \
 { \
     if (!deque_is_empty(Namespace, deque)) { \
         deque.back--; \
@@ -97,12 +99,12 @@ deque(Namespace) Namespace##_pop(deque(Namespace) deque) \
     return deque; \
 } \
  \
-Type Namespace##_peek_front(deque(Namespace) deque) \
+Type Namespace##_deque_peek_front(deque(Namespace) deque) \
 { \
     return deque.array[deque.front]; \
 } \
  \
-deque(Namespace) Namespace##_push_front(deque(Namespace) deque, Type data) \
+deque(Namespace) Namespace##_deque_push_front(deque(Namespace) deque, Type data) \
 { \
     if (deque_is_full(Namespace, deque)) { \
         deque = deque_resize(Namespace, deque); \
@@ -118,7 +120,7 @@ deque(Namespace) Namespace##_push_front(deque(Namespace) deque, Type data) \
     return deque; \
 } \
  \
-deque(Namespace) Namespace##_pop_front(deque(Namespace) deque) \
+deque(Namespace) Namespace##_deque_pop_front(deque(Namespace) deque) \
 { \
     if (!deque_is_empty(Namespace, deque)) { \
         deque.front++; \
@@ -130,7 +132,7 @@ deque(Namespace) Namespace##_pop_front(deque(Namespace) deque) \
     return deque; \
 } \
  \
-deque(Namespace) Namespace##_destroy(deque(Namespace) deque) \
+deque(Namespace) Namespace##_deque_destroy(deque(Namespace) deque) \
 { \
     if (deque.array) { \
         free(deque.array); \
@@ -143,7 +145,7 @@ deque(Namespace) Namespace##_destroy(deque(Namespace) deque) \
     return deque; \
 } \
  \
-int Namespace##_index(deque(Namespace) deque, int index) \
+int Namespace##_deque_index(deque(Namespace) deque, int index) \
 { \
   int physical_index = index + deque.front; \
     if (physical_index >= deque.capacity) { \
@@ -152,12 +154,12 @@ int Namespace##_index(deque(Namespace) deque, int index) \
     return physical_index;    \
 } \
  \
-Type Namespace##_get(deque(Namespace) deque, int index) \
+Type Namespace##_deque_get(deque(Namespace) deque, int index) \
 { \
     return deque.array[deque_index(Namespace, deque, index)]; \
 } \
  \
-deque(Namespace) Namespace##_set(deque(Namespace) deque, int index, Type data) \
+deque(Namespace) Namespace##_deque_set(deque(Namespace) deque, int index, Type data) \
 { \
     deque.array[deque_index(Namespace, deque, index)] = data; \
     return deque; \

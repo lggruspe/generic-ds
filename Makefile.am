@@ -1,5 +1,6 @@
-check_PROGRAMS = test/test_heap test/test_list test/test_vector test/test_deque test/test_bst test/test_rb
+check_PROGRAMS = test/test_heap test/test_list test/test_vector test/test_deque test/test_bst test/test_rb test/test_namespace
 
+test_test_namespace_SOURCES = test/namespace.c
 test_test_rb_SOURCES = test/rb.c include/rb.h test/test_lib.h
 test_test_bst_SOURCES = test/bst.c include/bst.h test/test_lib.h
 test_test_deque_SOURCES = test/deque.c include/deque.h test/test_lib.h
@@ -9,6 +10,7 @@ test_test_vector_SOURCES = test/vector.c include/vector.h test/test_lib.h
 test_test_vector_CFLAGS = -g -Wall -Wpedantic -Werror
 test_test_deque_CFLAGS = -g -Wall -Wpedantic -Werror
 test_test_heap_CFLAGS = -g -Wall -Wpedantic -Werror
+test_test_namespace_CFLAGS = -g -Wall -Wpedantic -Werror
 
 AM_CFLAGS = -g -Wall -Wextra -Wpedantic -Werror
 AM_CPPFLAGS = -I$(abs_top_srcdir)/include -I$(abs_top_srcdir)/test

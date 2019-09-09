@@ -3,24 +3,24 @@
 #include <stdlib.h>
 
 #define bst(Namespace) struct Namespace##_bst *
-#define bst_new(Namespace, data) Namespace##_new(data)
-#define bst_search(Namespace, root, data) Namespace##_search((root), (data))
-#define bst_search_compare(Namespace, root, data, compare) Namespace##_search_compare((root), (data), (compare))
-#define bst_minimum(Namespace, root) Namespace##_minimum(root)
-#define bst_maximum(Namespace, root) Namespace##_maximum(root)
-#define bst_predecessor(Namespace, node) Namespace##_predecessor(node)
-#define bst_successor(Namespace, node) Namespace##_successor(node)
-#define bst_insert(Namespace, root, node) Namespace##_insert((root), (node))
-#define bst_insert_compare(Namespace, root, node, compare) Namespace##_insert_compare((root), (node), (compare))
-#define bst_delete(Namespace, root, node) Namespace##_delete((root), (node))
-#define bst_transplant(Namespace, root, node, replacement) Namespace##_transplant((root), (node), (replacement))
-#define bst_delete_and_free(Namespace, root, node) Namespace##_delete_and_free((root), (node))
-#define bst_destroy(Namespace, root) Namespace##_destroy(root)
+#define bst_new(Namespace, data) Namespace##_bst_new(data)
+#define bst_search(Namespace, root, data) Namespace##_bst_search((root), (data))
+#define bst_search_compare(Namespace, root, data, compare) Namespace##_bst_search_compare((root), (data), (compare))
+#define bst_minimum(Namespace, root) Namespace##_bst_minimum(root)
+#define bst_maximum(Namespace, root) Namespace##_bst_maximum(root)
+#define bst_predecessor(Namespace, node) Namespace##_bst_predecessor(node)
+#define bst_successor(Namespace, node) Namespace##_bst_successor(node)
+#define bst_insert(Namespace, root, node) Namespace##_bst_insert((root), (node))
+#define bst_insert_compare(Namespace, root, node, compare) Namespace##_bst_insert_compare((root), (node), (compare))
+#define bst_delete(Namespace, root, node) Namespace##_bst_delete((root), (node))
+#define bst_transplant(Namespace, root, node, replacement) Namespace##_bst_transplant((root), (node), (replacement))
+#define bst_delete_and_free(Namespace, root, node) Namespace##_bst_delete_and_free((root), (node))
+#define bst_destroy(Namespace, root) Namespace##_bst_destroy(root)
 
 #define bst_height(Namespace, root) Namespace##_bst_height(root)
 #define bst_weight(Namespace, root) Namespace##_bst_weight(root)
-#define bst_is_binary_search_tree(Namespace, root) Namespace##_is_binary_search_tree(root)
-#define bst_is_binary_search_tree_compare(Namespace, root, compare) Namespace##_is_binary_search_tree_compare((root), (compare))
+#define bst_is_binary_search_tree(Namespace, root) Namespace##_bst_is_binary_search_tree(root)
+#define bst_is_binary_search_tree_compare(Namespace, root, compare) Namespace##_bst_is_binary_search_tree_compare((root), (compare))
 
 #define bst_register(Namespace, Type, ...) \
  \
@@ -32,7 +32,7 @@ struct Namespace##_bst { \
     __VA_ARGS__ \
 }; \
  \
-bst(Namespace) Namespace##_new(Type data) \
+bst(Namespace) Namespace##_bst_new(Type data) \
 { \
     bst(Namespace) node = malloc(sizeof(struct Namespace##_bst)); \
     if (node) { \
@@ -43,7 +43,7 @@ bst(Namespace) Namespace##_new(Type data) \
     } \
     return node; \
 } \
-bst(Namespace) Namespace##_search(bst(Namespace) root, Type data) \
+bst(Namespace) Namespace##_bst_search(bst(Namespace) root, Type data) \
 { \
     while (root && root->data != data) { \
         root = data < root->data ? root->left : root->right; \
@@ -51,7 +51,7 @@ bst(Namespace) Namespace##_search(bst(Namespace) root, Type data) \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_search_compare( \
+bst(Namespace) Namespace##_bst_search_compare( \
     bst(Namespace) root,  \
     Type data, \
     int (*compare)(Type, Type)) \
@@ -63,7 +63,7 @@ bst(Namespace) Namespace##_search_compare( \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_minimum(bst(Namespace) root) \
+bst(Namespace) Namespace##_bst_minimum(bst(Namespace) root) \
 { \
     if (!root) { \
         return NULL; \
@@ -74,7 +74,7 @@ bst(Namespace) Namespace##_minimum(bst(Namespace) root) \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_maximum(bst(Namespace) root) \
+bst(Namespace) Namespace##_bst_maximum(bst(Namespace) root) \
 { \
     if (!root) { \
         return NULL; \
@@ -85,7 +85,7 @@ bst(Namespace) Namespace##_maximum(bst(Namespace) root) \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_successor(bst(Namespace) node) \
+bst(Namespace) Namespace##_bst_successor(bst(Namespace) node) \
 { \
     if (!node) { \
         return NULL; \
@@ -101,7 +101,7 @@ bst(Namespace) Namespace##_successor(bst(Namespace) node) \
     return parent; \
 } \
  \
-bst(Namespace) Namespace##_predecessor(bst(Namespace) node) \
+bst(Namespace) Namespace##_bst_predecessor(bst(Namespace) node) \
 { \
     if (!node) { \
         return NULL; \
@@ -117,7 +117,7 @@ bst(Namespace) Namespace##_predecessor(bst(Namespace) node) \
     return parent; \
 } \
  \
-bst(Namespace) Namespace##_insert(bst(Namespace) root, bst(Namespace) node) \
+bst(Namespace) Namespace##_bst_insert(bst(Namespace) root, bst(Namespace) node) \
 { \
     if (!node) { \
         return root; \
@@ -143,7 +143,7 @@ bst(Namespace) Namespace##_insert(bst(Namespace) root, bst(Namespace) node) \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_insert_compare( \
+bst(Namespace) Namespace##_bst_insert_compare( \
     bst(Namespace) root,  \
     bst(Namespace) node, \
     int (*compare)(Type, Type)) \
@@ -173,7 +173,7 @@ bst(Namespace) Namespace##_insert_compare( \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_transplant( \
+bst(Namespace) Namespace##_bst_transplant( \
     bst(Namespace) root,  \
     bst(Namespace) node,  \
     bst(Namespace) replacement) \
@@ -191,7 +191,7 @@ bst(Namespace) Namespace##_transplant( \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_delete(bst(Namespace) root, bst(Namespace) node) \
+bst(Namespace) Namespace##_bst_delete(bst(Namespace) root, bst(Namespace) node) \
 { \
     if (!root || !node) { \
         return NULL; \
@@ -219,7 +219,7 @@ bst(Namespace) Namespace##_delete(bst(Namespace) root, bst(Namespace) node) \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_delete_and_free( \
+bst(Namespace) Namespace##_bst_delete_and_free( \
     bst(Namespace) root, \
     bst(Namespace) node) \
 { \
@@ -228,7 +228,7 @@ bst(Namespace) Namespace##_delete_and_free( \
     return root; \
 } \
  \
-bst(Namespace) Namespace##_destroy(bst(Namespace) root) \
+bst(Namespace) Namespace##_bst_destroy(bst(Namespace) root) \
 { \
     while (root) { \
         root = bst_delete_and_free(Namespace, root, root); \
@@ -256,7 +256,7 @@ int Namespace##_bst_weight(bst(Namespace) root) \
     return left + right + 1; \
 } \
  \
-bool Namespace##_is_binary_search_tree(bst(Namespace) root) \
+bool Namespace##_bst_is_binary_search_tree(bst(Namespace) root) \
 { \
     if (!root) { \
         return true; \
@@ -276,7 +276,7 @@ bool Namespace##_is_binary_search_tree(bst(Namespace) root) \
     return true; \
 } \
  \
-bool Namespace##_is_binary_search_tree_compare( \
+bool Namespace##_bst_is_binary_search_tree_compare( \
     bst(Namespace) root,  \
     int (*compare)(Type, Type)) \
 { \

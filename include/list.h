@@ -1,17 +1,17 @@
 #pragma once
 
 #define list(Namespace) struct Namespace##_list *
-#define list_head(Namespace, list) Namespace##_head(list)
-#define list_tail(Namespace, list) Namespace##_tail(list)
-#define list_is_empty(Namespace, list) Namespace##_is_empty(list)
-#define list_append(Namespace, list, suffix) Namespace##_append((list), (suffix))
-#define list_new(Namespace, data) Namespace##_new(data)
-#define list_delete(Namespace, list) Namespace##_delete(list)
-#define list_delete_and_free(Namespace, list) Namespace##_delete_and_free(list)
-#define list_search(Namespace, list, data) Namespace##_search((list), (data))
-#define list_search_if(Namespace, list, predicate) Namespace##_search_if((list), (predicate))
-#define list_search_compare(Namespace, list, data, compare) Namespace##_search_compare((list), (data), (compare))
-#define list_destroy(Namespace, list) Namespace##_destroy(list)
+#define list_head(Namespace, list) Namespace##_list_head(list)
+#define list_tail(Namespace, list) Namespace##_list_tail(list)
+#define list_is_empty(Namespace, list) Namespace##_list_is_empty(list)
+#define list_append(Namespace, list, suffix) Namespace##_list_append((list), (suffix))
+#define list_new(Namespace, data) Namespace##_list_new(data)
+#define list_delete(Namespace, list) Namespace##_list_delete(list)
+#define list_delete_and_free(Namespace, list) Namespace##_list_delete_and_free(list)
+#define list_search(Namespace, list, data) Namespace##_list_search((list), (data))
+#define list_search_if(Namespace, list, predicate) Namespace##_list_search_if((list), (predicate))
+#define list_search_compare(Namespace, list, data, compare) Namespace##_list_search_compare((list), (data), (compare))
+#define list_destroy(Namespace, list) Namespace##_list_destroy(list)
 
 #define LIST_RETURN_SEARCH_RESULT(condition) \
     if (!list) { \
@@ -32,22 +32,22 @@ struct Namespace##_list { \
     list(Namespace) next; \
 }; \
  \
-list(Namespace) Namespace##_head(list(Namespace) list) \
+list(Namespace) Namespace##_list_head(list(Namespace) list) \
 { \
     return list; \
 } \
  \
-list(Namespace) Namespace##_tail(list(Namespace) list) \
+list(Namespace) Namespace##_list_tail(list(Namespace) list) \
 { \
     return list ? list->prev : NULL; \
 } \
  \
-bool Namespace##_is_empty(list(Namespace) list) \
+bool Namespace##_list_is_empty(list(Namespace) list) \
 { \
     return !list; \
 } \
  \
-list(Namespace) Namespace##_append( \
+list(Namespace) Namespace##_list_append( \
     list(Namespace) list,  \
     list(Namespace) suffix) \
 { \
@@ -66,7 +66,7 @@ list(Namespace) Namespace##_append( \
     return list; \
 } \
  \
-list(Namespace) Namespace##_delete(list(Namespace) list) \
+list(Namespace) Namespace##_list_delete(list(Namespace) list) \
 { \
     if (!list) { \
         return NULL; \
@@ -76,7 +76,7 @@ list(Namespace) Namespace##_delete(list(Namespace) list) \
     return list->next != list ? list->next : NULL; \
 } \
  \
-list(Namespace) Namespace##_new(Type data) \
+list(Namespace) Namespace##_list_new(Type data) \
 { \
     list(Namespace) node = malloc(sizeof(struct Namespace##_list)); \
     if (node) { \
@@ -87,7 +87,7 @@ list(Namespace) Namespace##_new(Type data) \
     return node; \
 } \
  \
-list(Namespace) Namespace##_delete_and_free(list(Namespace) list) \
+list(Namespace) Namespace##_list_delete_and_free(list(Namespace) list) \
 { \
     list(Namespace) new_list = list_delete(Namespace, list); \
     if (list) { \
@@ -96,7 +96,7 @@ list(Namespace) Namespace##_delete_and_free(list(Namespace) list) \
     return new_list; \
 } \
  \
-list(Namespace) Namespace##_search( \
+list(Namespace) Namespace##_list_search( \
     list(Namespace) list,  \
     Type data) \
 { \
@@ -105,7 +105,7 @@ list(Namespace) Namespace##_search( \
     LIST_RETURN_SEARCH_RESULT(list->data == data); \
 } \
  \
-list(Namespace) Namespace##_search_if( \
+list(Namespace) Namespace##_list_search_if( \
     list(Namespace) list,  \
     bool (*predicate)(Type)) \
 { \
@@ -114,7 +114,7 @@ list(Namespace) Namespace##_search_if( \
     LIST_RETURN_SEARCH_RESULT(predicate(list->data)); \
 } \
  \
-list(Namespace) Namespace##_search_compare( \
+list(Namespace) Namespace##_list_search_compare( \
     list(Namespace) list, \
     Type data, \
     int (*compare)(Type, Type)) \
@@ -124,7 +124,7 @@ list(Namespace) Namespace##_search_compare( \
     LIST_RETURN_SEARCH_RESULT(compare(list->data, data) == 0); \
 } \
  \
-list(Namespace) Namespace##_destroy(list(Namespace) list) \
+list(Namespace) Namespace##_list_destroy(list(Namespace) list) \
 { \
     if (!list) { \
         return NULL; \

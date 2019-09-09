@@ -25,16 +25,16 @@
 #include <stdlib.h>
 
 #define vector(Namespace) struct Namespace##_vector
-#define vector_is_full(Namespace, vector) Namespace##_is_full(vector)
-#define vector_is_empty(Namespace, vector) Namespace##_is_empty(vector)
-#define vector_resize(Namespace, vector) Namespace##_resize(vector)
-#define vector_peek(Namespace, vector) Namespace##_peek(vector)
-#define vector_push(Namespace, vector, data) Namespace##_push((vector), (data))
-#define vector_pop(Namespace, vector) Namespace##_pop(vector)
+#define vector_is_full(Namespace, vector) Namespace##_vector_is_full(vector)
+#define vector_is_empty(Namespace, vector) Namespace##_vector_is_empty(vector)
+#define vector_resize(Namespace, vector) Namespace##_vector_resize(vector)
+#define vector_peek(Namespace, vector) Namespace##_vector_peek(vector)
+#define vector_push(Namespace, vector, data) Namespace##_vector_push((vector), (data))
+#define vector_pop(Namespace, vector) Namespace##_vector_pop(vector)
 #define vector_create(Namespace, ...) (vector(Namespace)){ .growth_factor = 2.0, ##__VA_ARGS__ }
-#define vector_destroy(Namespace, vector) Namespace##_destroy(vector)
-#define vector_get(Namespace, vector, index) Namespace##_get((vector), (index))
-#define vector_set(Namespace, vector, index, data) Namespace##_set((vector), (index), (data))
+#define vector_destroy(Namespace, vector) Namespace##_vector_destroy(vector)
+#define vector_get(Namespace, vector, index) Namespace##_vector_get((vector), (index))
+#define vector_set(Namespace, vector, index, data) Namespace##_vector_set((vector), (index), (data))
 
 #define vector_register(Namespace, Type, ...) \
  \
@@ -46,7 +46,7 @@ struct Namespace##_vector { \
     __VA_ARGS__ \
 }; \
  \
-vector(Namespace) Namespace##_resize(vector(Namespace) vector) \
+vector(Namespace) Namespace##_vector_resize(vector(Namespace) vector) \
 { \
     int capacity = vector.capacity * vector.growth_factor; \
     if (capacity <= 0) {\
@@ -64,17 +64,17 @@ vector(Namespace) Namespace##_resize(vector(Namespace) vector) \
     return vector; \
 } \
  \
-bool Namespace##_is_empty(vector(Namespace) vector) \
+bool Namespace##_vector_is_empty(vector(Namespace) vector) \
 { \
     return vector.size <= 0; \
 } \
  \
-bool Namespace##_is_full(vector(Namespace) vector) \
+bool Namespace##_vector_is_full(vector(Namespace) vector) \
 { \
     return vector.size >= vector.capacity; \
 } \
  \
-vector(Namespace) Namespace##_push(vector(Namespace) vector, Type data) \
+vector(Namespace) Namespace##_vector_push(vector(Namespace) vector, Type data) \
 { \
     if (vector_is_full(Namespace, vector)) { \
         vector = vector_resize(Namespace, vector); \
@@ -85,12 +85,12 @@ vector(Namespace) Namespace##_push(vector(Namespace) vector, Type data) \
     return vector; \
 } \
  \
-Type Namespace##_peek(vector(Namespace) vector) \
+Type Namespace##_vector_peek(vector(Namespace) vector) \
 { \
     return vector.array[vector.size - 1]; \
 } \
  \
-vector(Namespace) Namespace##_pop(vector(Namespace) vector) \
+vector(Namespace) Namespace##_vector_pop(vector(Namespace) vector) \
 { \
     if (!vector_is_empty(Namespace, vector)) { \
         vector.size--; \
@@ -98,7 +98,7 @@ vector(Namespace) Namespace##_pop(vector(Namespace) vector) \
     return vector; \
 } \
  \
-vector(Namespace) Namespace##_destroy(vector(Namespace) vector) \
+vector(Namespace) Namespace##_vector_destroy(vector(Namespace) vector) \
 { \
     if (vector.array) { \
         free(vector.array); \
@@ -109,12 +109,12 @@ vector(Namespace) Namespace##_destroy(vector(Namespace) vector) \
     return vector; \
 } \
  \
-Type Namespace##_get(vector(Namespace) vector, int index) \
+Type Namespace##_vector_get(vector(Namespace) vector, int index) \
 { \
     return vector.array[index]; \
 } \
  \
-vector(Namespace) Namespace##_set(vector(Namespace) vector, int index, Type data) \
+vector(Namespace) Namespace##_vector_set(vector(Namespace) vector, int index, Type data) \
 { \
     vector.array[index] = data; \
     return vector; \
