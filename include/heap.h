@@ -1,116 +1,190 @@
 #pragma once
-#include <assert.h>
+#include "vector.h"
 #include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#define heap_parent(i) (((i) - 1)/2)
-#define heap_left(i) (2*(i) + 1)
-#define heap_right(i) (heap_left(i) + 1)
 
-// implements a max heap
+// don't resize if heap.growth_factor = 0
 
-struct heap {
-    void *array;
-    size_t size;
-    size_t nbytes;  // # of bytes per element
-    int (*comparator)(const void*, const void*);
-};
+#define heap(Namespace) vector(Namespace)
+#define heap_is_empty(Namespace, heap) vector_is_empty(Namespace, (heap))
+#define heap_is_full(Namespace, heap) vector_is_full(Namespace, (heap))
+#define heap_resize(Namespace, heap) Namespace##_heap_resize(heap)
+#define heap_peek(Namespace, heap) Namespace##_heap_peek(heap)
+#define heap_pop(Namespace, heap) Namespace##_heap_pop(heap)
+#define heap_push(Namespace, heap, data) Namespace##_heap_push((heap), (data))
+#define heap_create(Namespace, ...) (heap(Namespace)){ .growth_factor = 2.0, ##__VA_ARGS__ }
+#define heap_destroy(Namespace, heap) Namespace##_heap_destroy(heap)
+#define heap_sift_up(Namespace, heap, index) Namespace##_heap_sift_up((heap), (index))
+#define heap_sift_down(Namespace, heap, index) Namespace##_heap_sift_down((heap), (index))
+#define heap_heapify(Namespace, array, size) Namespace##_heap_heapify((array), (size))
+#define heap_heapify_compare(Namespace, array, size, compare) Namespace##_heap_heapify_compare((array), (size), (compare))
+#define heap_compare(Namespace, heap, a, b) Namespace##_heap_compare((heap), (a), (b))
+#define heap_is_heap(Namespace, heap) Namespace##_heap_is_heap(heap)
+#define heap_sort(Namespace, heap) Namespace##_heap_sort(heap)
 
-void *heap_get(struct heap *heap, size_t i)
+int heap_parent(int i)
 {
-    assert(heap && heap->array);
-    return i < heap->size
-        ? (char*)(heap->array) + i*(heap->nbytes)
-        : NULL;
+    return (i - 1)/2;
 }
 
-void heap_set(struct heap *heap, size_t i, void *value)
+int heap_left(int i)
 {
-    assert(heap && value);
-    void *ptr = heap_get(heap, i);
-    if (ptr) {
-        memcpy(ptr, value, heap->nbytes);
-    }
+    return 2*i + 1;
 }
 
-// returns true if successful
-bool heap_swap(struct heap *heap, size_t i, size_t j)
+int heap_right(int i)
 {
-    assert(heap);
-    void *it = heap_get(heap, i);
-    void *jt = heap_get(heap, j);
-
-    void *temp = malloc(heap->nbytes);
-    if (!temp || !it || !jt) {
-        return false;
-    }
-    memcpy(temp, it, heap->nbytes);
-    memcpy(it, jt, heap->nbytes);
-    memcpy(jt, temp, heap->nbytes);
-    free(temp);
-    return true;
+    return 2*i + 2;
 }
 
-void heap_sift_up(struct heap *heap, size_t i)
-{
-    assert(heap && heap->comparator);
-    void *ptr = heap_get(heap, i);
-    while (i > 0 && heap->comparator(ptr, heap_get(heap, heap_parent(i))) > 0) {
-        heap_set(heap, i, heap_get(heap, heap_parent(i)));
-        i = heap_parent(i);
-    }
-    heap_set(heap, i, ptr);
-}
-
-// returns true if successful
-bool heap_sift_down(struct heap *heap, size_t i)
-{
-    assert(heap && heap->comparator);
-    for (;;) {
-        size_t l = 2*i + 1;
-        size_t r = l + 1;
-        size_t p = i;
-
-        void *left = heap_get(heap, l);
-        if (left && heap->comparator(heap_get(heap, p), left) < 0) {
-            p = l;
-        }
-        void *right = heap_get(heap, r);
-        if (right && heap->comparator(heap_get(heap, p), right) < 0) {
-            p = r;
-        }
-
-        if (i != p) {
-            if (!heap_swap(heap, i, p)) {
-                return false;
-            }
-            i = p;
-        } else {
-            break;
-        }
-    }
-    return true;
-}
-
-bool heap_heapify(struct heap *heap)
-{
-    assert(heap);
-    for (size_t i = (heap->size - 1)/2; i > 0; --i) {
-        if (!heap_sift_down(heap, i)) {
-            return false;
-        }
-    }
-    return heap_sift_down(heap, 0);
-}
-
-// does not run heap_heapify
-struct heap heap_create(void *array, size_t size, size_t nbytes, 
-        int (*comparator)(const void*, const void*))
-{
-    struct heap heap;
-    heap.array = array;
-    heap.size = size;
-    heap.nbytes = nbytes;
-    heap.comparator = comparator;
-    return heap;
+#define heap_register(Namespace, Type) \
+ \
+vector_register(Namespace, Type, int (*compare)(Type, Type);) \
+ \
+heap(Namespace) Namespace##_heap_resize(heap(Namespace) heap) \
+{ \
+    if (heap.growth_factor == 0.0) { \
+        return heap; \
+    } \
+    return vector_resize(Namespace, heap); \
+} \
+ \
+Type Namespace##_heap_peek(heap(Namespace) heap) \
+{ \
+    return heap.array[0]; \
+} \
+ \
+int Namespace##_heap_compare(heap(Namespace) heap, Type a, Type b) \
+{ \
+    if (!heap.compare) { \
+        return a < b ? -1 : a == b ? 0 : 1; \
+    } \
+    return heap.compare(a, b); \
+} \
+heap(Namespace) Namespace##_heap_sift_up(heap(Namespace) heap, int i) \
+{ \
+    while (i > 0) { \
+        int p = heap_parent(i); \
+        Type a = heap.array[i]; \
+        if (heap_compare(Namespace, heap, a, heap.array[p]) <= 0) { \
+            break; \
+        } \
+        heap.array[i] = heap.array[p]; \
+        heap.array[p] = a; \
+        i = p; \
+    } \
+    return heap; \
+} \
+ \
+heap(Namespace) Namespace##_heap_push(heap(Namespace) heap, Type data) \
+{ \
+    if (heap.growth_factor == 0.0) { \
+        return heap; \
+    } \
+    if (heap_is_full(Namespace, heap)) { \
+        heap = heap_resize(Namespace, heap); \
+    } \
+    if (!heap_is_full(Namespace, heap)) { \
+        heap.array[heap.size++] = data; \
+        heap = heap_sift_up(Namespace, heap, heap.size-1); \
+    } \
+    return heap; \
+} \
+ \
+heap(Namespace) Namespace##_heap_sift_down(heap(Namespace) heap, int i) \
+{ \
+    while (i < heap.size) { \
+        int l = heap_left(i); \
+        int r = heap_right(i); \
+        int p = i; \
+        if (l < heap.size && heap_compare(Namespace, heap, heap.array[l], heap.array[p]) > 0) { \
+            p = l; \
+        } \
+        if (r < heap.size && heap_compare(Namespace, heap, heap.array[r], heap.array[p]) > 0) { \
+            p = r; \
+        } \
+        if (i == p) { \
+            break; \
+        } \
+ \
+        Type a = heap.array[i]; \
+        heap.array[i] = heap.array[p]; \
+        heap.array[p] = a; \
+        i = p; \
+    } \
+    return heap; \
+} \
+ \
+heap(Namespace) Namespace##_heap_pop(heap(Namespace) heap) \
+{ \
+    Type max = heap.array[0]; \
+    heap.size--; \
+    heap.array[0] = heap.array[heap.size]; \
+    heap.array[heap.size] = max; \
+    return heap_sift_down(Namespace, heap, 0); \
+} \
+ \
+heap(Namespace) Namespace##_heap_destroy(heap(Namespace) heap) \
+{ \
+    if (heap.growth_factor == 0.0) { \
+        heap.array = NULL; \
+    } \
+    return vector_destroy(Namespace, heap); \
+} \
+ \
+heap(Namespace) Namespace##_heap_heapify(Type array[], int size) \
+{ \
+    heap(Namespace) heap = heap_create( \
+        Namespace, \
+        .array = array, \
+        .growth_factor = 0.0, \
+        .size = size, \
+        .capacity = size); \
+    for (int i = heap.size/2 - 1; i >= 0; --i) { \
+        heap = heap_sift_down(Namespace, heap, i); \
+    } \
+    return heap; \
+} \
+ \
+heap(Namespace) Namespace##_heap_heapify_compare( \
+    Type array[], \
+    int size, \
+    int (*compare)(Type, Type)) \
+{ \
+    heap(Namespace) heap = heap_create( \
+        Namespace, \
+        .array = array, \
+        .growth_factor = 0.0, \
+        .size = size, \
+        .capacity = size, \
+        .compare = compare); \
+    for (int i = heap.size/2 - 1; i >= 0; --i) { \
+        heap = heap_sift_down(Namespace, heap, i); \
+    } \
+    return heap; \
+} \
+ \
+bool Namespace##_heap_is_heap(heap(Namespace) heap) \
+{ \
+    for (int i = 0; i < heap.size; ++i) { \
+        int l = heap_left(i); \
+        int r = heap_right(i); \
+        Type a = heap.array[i]; \
+        if (l < heap.size && heap_compare(Namespace, heap, a, heap.array[l]) < 0) { \
+            return false; \
+        } \
+        if (r < heap.size && heap_compare(Namespace, heap, a, heap.array[r]) < 0) { \
+            return false; \
+        } \
+    } \
+    return true; \
+} \
+ \
+heap(Namespace) Namespace##_heap_sort(heap(Namespace) heap) \
+{ \
+    while (heap.size > 0) { \
+        Type max = heap_peek(Namespace, heap); \
+        heap = heap_pop(Namespace, heap); \
+        heap.array[heap.size] = max; \
+    } \
+    return heap; \
 }

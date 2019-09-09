@@ -2,122 +2,62 @@
 #include "test_lib.h"
 #include <string.h>
 
+heap_register(hi, int)
+heap_register(hs, const char *)
 
-#define test_heap_setup(array, n, type, comparator) bool passed = true;\
-struct heap heap = heap_create((array), (n), sizeof(type), (comparator))
-
-#define test_heap_teardown() return passed
-
-bool is_heap(struct heap *heap)
+unit_test(test_heap_static)
 {
-    for (size_t i = 0; i < heap->size/2; ++i) {
-        void *parent = heap_get(heap, i);
-        void *left = heap_get(heap, heap_left(i));
-        void *right = heap_get(heap, heap_right(i));
-        if (parent && left && right) {
-            if (heap->comparator(parent, left) < 0 
-                    || heap->comparator(parent, right) < 0) {
-                return false;
-            }
-        }
+    const char *array[] = {"1", "0", "2", "9", "3", "8", "4", "7", "5", "6"};
+    heap(hs) heap = heap_heapify_compare(hs, array, 10, strcmp);
+    assert_true(heap_is_heap(hs, heap));
+    heap = heap_sort(hs, heap);
+    assert_true(heap_is_empty(hs, heap));
+    assert_true(heap_is_heap(hs, heap));
+    for (int i = 1; i < 10; ++i) {
+        assert_true(strcmp(array[i-1], array[i]) < 0);
     }
-    return true;
+    heap_destroy(hs, heap);
 }
 
-bool is_heap_sorted(struct heap *heap)
+unit_test(test_heap_hs_dynamic)
 {
-    for (size_t i = 1; i < heap->size; ++i) {
-        int comparison = heap->comparator(heap_get(heap, i-1), 
-                heap_get(heap, i));
-        if (comparison > 0) {
-            return false;
-        }
+    const char *array[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+    heap(hs) heap = heap_create(hs, .compare = strcmp);
+    for (int i = 0; i < 10; ++i) {
+        heap = heap_push(hs, heap, array[i]);
     }
-    return true;
-}
 
-int string_comparator(const void *p, const void *q)
-{
-    return strcmp((const char*)p, (const char*)q);
-}
+    assert_true(heap_is_heap(hs, heap));
 
-void heap_sort(struct heap *heap)
-{
-    heap_heapify(heap);
-    while (heap->size > 0) {
-        heap_swap(heap, 0, heap->size - 1);
-        heap->size--;
-        heap_sift_down(heap, 0);
+    for (int i = 9; i >= 0; --i) {
+        const char *max = heap_peek(hs, heap);
+        heap = heap_pop(hs, heap);
+        assert_true(max && strcmp(max, array[i]) == 0);
     }
+    assert_true(heap_is_empty(hs, heap));
+    heap_destroy(hs, heap);
 }
 
-bool test_heap_get()
+unit_test(test_heap_dynamic)
 {
-    const char *array[] = {"hello"};
-    test_heap_setup(array, 1, const char*, string_comparator);
-
-    void *ptr = heap_get(&heap, 0);
-    check_assertion(ptr && heap.comparator(ptr, array) == 0);
-    check_assertion(!heap_get(&heap, 1));
-
-    test_heap_teardown();
-}
-
-bool test_heap_set()
-{
-    const char *array[] = {"foo"};
-    test_heap_setup(array, 1, const char*, string_comparator);
-
-    const char *bar = "bar";
-    heap_set(&heap, 0, &bar);
-
-    void *ptr = heap_get(&heap, 0);
-    check_assertion(ptr && heap.comparator(ptr, &bar) == 0);
-    test_heap_teardown();
-}
-
-bool test_heap_swap()
-{
-    const char *array[] = {"foo", "bar"};
-    test_heap_setup(array, 2, const char*, string_comparator);
-
-    heap_swap(&heap, 0, 1);
-    const char *foo = "foo";
-    const char *bar = "bar";
-    
-    void *ptr = heap_get(&heap, 0);
-    check_assertion(ptr && heap.comparator(ptr, &bar) == 0);
-    ptr = heap_get(&heap, 1);
-    check_assertion(ptr && heap.comparator(ptr, &foo) == 0);
-    test_heap_teardown();
-}
-
-bool test_heap_heapify()
-{
-    const char *array[] = {"a", "b", "b", "c", "c", "c"};
-    test_heap_setup(array, 6, const char*, string_comparator);
-    heap_heapify(&heap);
-    check_assertion(is_heap(&heap));
-    test_heap_teardown();
-}
-
-bool test_heap_sort()
-{
-    const char *array[] = {"a", "b", "b", "c", "c", "c"};
-    test_heap_setup(array, 6, const char*, string_comparator);
-    heap_heapify(&heap);
-    check_assertion(is_heap(&heap));
-    heap_sort(&heap);
-    check_assertion(is_heap_sorted(&heap));
-    test_heap_teardown();
+    heap(hi) heap = heap_create(hi);
+    for (int i = 0; i < 10; ++i) {
+        heap = heap_push(hi, heap, i);
+    }
+    assert_true(heap_is_heap(hi, heap));
+    for (int i = 9; i >= 0; --i) {
+        int max = heap_peek(hi, heap);
+        heap = heap_pop(hi, heap);
+        assert_true(max == i);
+    }
+    assert_true(heap_is_empty(hi, heap));
+    heap_destroy(hi, heap);
 }
 
 int main()
 {
-    run_test(test_heap_get);
-    run_test(test_heap_set);
-    run_test(test_heap_swap);
-    run_test(test_heap_heapify);
-    run_test(test_heap_sort);
+    run_unit_test(test_heap_static);
+    run_unit_test(test_heap_hs_dynamic);
+    run_unit_test(test_heap_dynamic);
     return exit_test();
 }
