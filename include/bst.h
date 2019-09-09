@@ -1,4 +1,5 @@
 #pragma once
+#include <stdbool.h>
 #include <stdlib.h>
 
 #define bst(Namespace) struct Namespace##_bst *
@@ -15,6 +16,11 @@
 #define bst_transplant(Namespace, root, node, replacement) Namespace##_transplant((root), (node), (replacement))
 #define bst_delete_and_free(Namespace, root, node) Namespace##_delete_and_free((root), (node))
 #define bst_destroy(Namespace, root) Namespace##_destroy(root)
+
+#define bst_height(Namespace, root) Namespace##_bst_height(root)
+#define bst_weight(Namespace, root) Namespace##_bst_weight(root)
+#define bst_is_binary_search_tree(Namespace, root) Namespace##_is_binary_search_tree(root)
+#define bst_is_binary_search_tree_compare(Namespace, root, compare) Namespace##_is_binary_search_tree_compare((root), (compare))
 
 #define bst_register(Namespace, Type, ...) \
  \
@@ -228,4 +234,66 @@ bst(Namespace) Namespace##_destroy(bst(Namespace) root) \
         root = bst_delete_and_free(Namespace, root, root); \
     } \
     return NULL; \
+} \
+ \
+int Namespace##_bst_height(bst(Namespace) root) \
+{ \
+    if (!root) { \
+        return 0; \
+    } \
+    int left = bst_height(Namespace, root->left); \
+    int right = bst_height(Namespace, root->right); \
+    return 1 + (left > right ? left : right); \
+} \
+ \
+int Namespace##_bst_weight(bst(Namespace) root) \
+{ \
+     if (!root) { \
+        return 0; \
+    } \
+    int left = bst_height(Namespace, root->left); \
+    int right = bst_height(Namespace, root->right); \
+    return left + right + 1; \
+} \
+ \
+bool Namespace##_is_binary_search_tree(bst(Namespace) root) \
+{ \
+    if (!root) { \
+        return true; \
+    } \
+    if (root->left && root->left->data > root->data) { \
+        return false; \
+    } \
+    if (root->right && root->right->data > root->data) { \
+        return false; \
+    } \
+    if (!bst_is_binary_search_tree(Namespace, root->left)) { \
+        return false; \
+    } \
+    if (!bst_is_binary_search_tree(Namespace, root->right)) { \
+        return false; \
+    } \
+    return true; \
+} \
+ \
+bool Namespace##_is_binary_search_tree_compare( \
+    bst(Namespace) root,  \
+    int (*compare)(Type, Type)) \
+{ \
+    if (!root) { \
+        return true; \
+    } \
+    if (root->left && compare(root->left->data, root->data) > 0) { \
+        return false; \
+    } \
+     if (root->right && compare(root->right->data, root->data) > 0) { \
+        return false; \
+    } \
+    if (!bst_is_binary_search_tree_compare(Namespace, root->left, compare)) { \
+        return false; \
+    } \
+    if (!bst_is_binary_search_tree_compare(Namespace, root->right, compare)) { \
+        return false; \
+    } \
+    return true; \
 }
