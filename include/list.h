@@ -1,7 +1,9 @@
 #pragma once
+#include <stdbool.h>
 #include <stdlib.h>
 
-#define list(Namespace) struct Namespace##_list *
+#define list_struct(Namespace) struct Namespace##_list
+#define list(Namespace) list_struct(Namespace) *
 #define list_head(Namespace, list) Namespace##_list_head(list)
 #define list_tail(Namespace, list) Namespace##_list_tail(list)
 #define list_is_empty(Namespace, list) Namespace##_list_is_empty(list)
@@ -27,7 +29,7 @@
 
 #define list_register(Namespace, Type) \
  \
-struct Namespace##_list { \
+list_struct(Namespace) { \
     Type data; \
     list(Namespace) prev; \
     list(Namespace) next; \
@@ -79,7 +81,7 @@ list(Namespace) Namespace##_list_delete(list(Namespace) list) \
  \
 list(Namespace) Namespace##_list_new(Type data) \
 { \
-    list(Namespace) node = malloc(sizeof(struct Namespace##_list)); \
+    list(Namespace) node = malloc(sizeof(list_struct(Namespace))); \
     if (node) { \
         node->data = data; \
         node->prev = node; \

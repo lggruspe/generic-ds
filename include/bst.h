@@ -2,7 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define bst(Namespace) struct Namespace##_bst *
+#define bst_struct(Namespace) struct Namespace##_bst
+#define bst(Namespace) bst_struct(Namespace) *
 #define bst_new(Namespace, data) Namespace##_bst_new(data)
 #define bst_search(Namespace, root, data) Namespace##_bst_search((root), (data))
 #define bst_search_compare(Namespace, root, data, compare) Namespace##_bst_search_compare((root), (data), (compare))
@@ -24,17 +25,17 @@
 
 #define bst_register(Namespace, Type, ...) \
  \
-struct Namespace##_bst { \
+bst_struct(Namespace) { \
     Type data; \
-    struct Namespace##_bst *left; \
-    struct Namespace##_bst *right; \
-    struct Namespace##_bst *parent; \
+    bst(Namespace) left; \
+    bst(Namespace) right; \
+    bst(Namespace) parent; \
     __VA_ARGS__ \
 }; \
  \
 bst(Namespace) Namespace##_bst_new(Type data) \
 { \
-    bst(Namespace) node = malloc(sizeof(struct Namespace##_bst)); \
+    bst(Namespace) node = malloc(sizeof(bst_struct(Namespace))); \
     if (node) { \
         node->data = data; \
         node->left = NULL; \

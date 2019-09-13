@@ -6,7 +6,8 @@
 // slist_delete returns new head
 // insert and operations return leftmost available node
 
-#define slist(Namespace) struct Namespace##_slist *
+#define slist_struct(Namespace) struct Namespace##_slist
+#define slist(Namespace) slist_struct(Namespace) *
 #define slist_new(Namespace, data) Namespace##_slist_new(data)
 #define slist_head(Namespace, list) Namespace##_slist_head(list)
 #define slist_tail(Namespace, list) Namespace##_slist_tail(list)
@@ -24,14 +25,14 @@
 
 #define slist_register(Namespace, Type) \
  \
-struct Namespace##_slist { \
+slist_struct(Namespace) { \
     Type data; \
     slist(Namespace) next; \
 }; \
  \
 slist(Namespace) Namespace##_slist_new(Type data) \
 { \
-    slist(Namespace) list = malloc(sizeof(struct Namespace##_slist)); \
+    slist(Namespace) list = malloc(sizeof(slist_struct(Namespace))); \
     if (list) { \
         list->data = data; \
         list->next = NULL; \
