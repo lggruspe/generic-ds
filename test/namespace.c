@@ -4,20 +4,23 @@
 #include "list.h"
 #include "rb.h"
 #include "vector.h"
+#include "slist.h"
 
-bst_register(bst, int)
-deque_register(deque, int)
-heap_register(heap, int)
-list_register(list, int)
-rb_register(rb, int)
-vector_register(vector, int)
+bst_register(bst, const char *)
+deque_register(deque, const char *)
+heap_register(heap, const char *)
+list_register(list, const char *)
+rb_register(rb, const char *)
+vector_register(vector, const char *)
+slist_register(slist, const char *)
 
-bst_register(Namespace, int)
-deque_register(Namespace, int)
-heap_register(Namespace, int)
-list_register(Namespace, int)
-rb_register(Namespace, int)
-vector_register(Namespace, int)
+bst_register(Namespace, const char *)
+deque_register(Namespace, const char *)
+heap_register(Namespace, const char *)
+list_register(Namespace, const char *)
+rb_register(Namespace, const char *)
+vector_register(Namespace, const char *)
+slist_register(Namespace, const char *)
 
 int main()
 {
