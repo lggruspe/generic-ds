@@ -8,7 +8,7 @@
 
 #define slist_struct(Namespace) struct Namespace##_slist
 #define slist(Namespace) slist_struct(Namespace) *
-#define slist_new(Namespace, data) Namespace##_slist_new(data)
+#define slist_new(Namespace, Data, ...) Namespace##_slist_new((slist_struct(Namespace)){ .data = (Data), ##__VA_ARGS__ })
 #define slist_head(Namespace, list) Namespace##_slist_head(list)
 #define slist_tail(Namespace, list) Namespace##_slist_tail(list)
 #define slist_delete(Namespace, list) Namespace##_slist_delete(list)
@@ -30,12 +30,11 @@ slist_struct(Namespace) { \
     slist(Namespace) next; \
 }; \
  \
-slist(Namespace) Namespace##_slist_new(Type data) \
+slist(Namespace) Namespace##_slist_new(slist_struct(Namespace) args) \
 { \
     slist(Namespace) list = malloc(sizeof(slist_struct(Namespace))); \
     if (list) { \
-        list->data = data; \
-        list->next = NULL; \
+        *list = args; \
     } \
     return list; \
 } \

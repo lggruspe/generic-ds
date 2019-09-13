@@ -8,7 +8,7 @@
 #define list_tail(Namespace, list) Namespace##_list_tail(list)
 #define list_is_empty(Namespace, list) Namespace##_list_is_empty(list)
 #define list_append(Namespace, list, suffix) Namespace##_list_append((list), (suffix))
-#define list_new(Namespace, data) Namespace##_list_new(data)
+#define list_new(Namespace, Data, ...) Namespace##_list_new((list_struct(Namespace)){ .data = (Data), ##__VA_ARGS__ })
 #define list_delete(Namespace, list) Namespace##_list_delete(list)
 #define list_delete_and_free(Namespace, list) Namespace##_list_delete_and_free(list)
 #define list_search(Namespace, list, data) Namespace##_list_search((list), (data))
@@ -79,11 +79,12 @@ list(Namespace) Namespace##_list_delete(list(Namespace) list) \
     return list->next != list ? list->next : NULL; \
 } \
  \
-list(Namespace) Namespace##_list_new(Type data) \
+\
+list(Namespace) Namespace##_list_new(list_struct(Namespace) args) \
 { \
     list(Namespace) node = malloc(sizeof(list_struct(Namespace))); \
     if (node) { \
-        node->data = data; \
+        *node = args; \
         node->prev = node; \
         node->next = node; \
     } \

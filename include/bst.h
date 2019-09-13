@@ -4,7 +4,6 @@
 
 #define bst_struct(Namespace) struct Namespace##_bst
 #define bst(Namespace) bst_struct(Namespace) *
-#define bst_new(Namespace, data) Namespace##_bst_new(data)
 #define bst_search(Namespace, root, data) Namespace##_bst_search((root), (data))
 #define bst_search_compare(Namespace, root, data, compare) Namespace##_bst_search_compare((root), (data), (compare))
 #define bst_minimum(Namespace, root) Namespace##_bst_minimum(root)
@@ -17,6 +16,8 @@
 #define bst_transplant(Namespace, root, node, replacement) Namespace##_bst_transplant((root), (node), (replacement))
 #define bst_delete_and_free(Namespace, root, node) Namespace##_bst_delete_and_free((root), (node))
 #define bst_destroy(Namespace, root) Namespace##_bst_destroy(root)
+
+#define bst_new(Namespace, Data, ...) Namespace##_bst_new((bst_struct(Namespace)){ .data = Data, ##__VA_ARGS__ })
 
 #define bst_height(Namespace, root) Namespace##_bst_height(root)
 #define bst_weight(Namespace, root) Namespace##_bst_weight(root)
@@ -33,17 +34,15 @@ bst_struct(Namespace) { \
     __VA_ARGS__ \
 }; \
  \
-bst(Namespace) Namespace##_bst_new(Type data) \
+bst(Namespace) Namespace##_bst_new(bst_struct(Namespace) args) \
 { \
     bst(Namespace) node = malloc(sizeof(bst_struct(Namespace))); \
     if (node) { \
-        node->data = data; \
-        node->left = NULL; \
-        node->right = NULL; \
-        node->parent = NULL; \
+        *node = args; \
     } \
     return node; \
 } \
+ \
 bst(Namespace) Namespace##_bst_search(bst(Namespace) root, Type data) \
 { \
     while (root && root->data != data) { \

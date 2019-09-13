@@ -7,7 +7,7 @@
 // rb_insert assumes inserted node is a singleton and is red
 
 #define rb(Namespace) bst(rb_##Namespace)
-#define rb_new(Namespace, data) Namespace##_rb_new(data)
+#define rb_new(Namespace, data, ...) bst_new(rb_##Namespace, (data), .color = RB_BLACK,  ##__VA_ARGS__)
 #define rb_search(Namespace, root, data) bst_search(rb_##Namespace, (root), (data))
 #define rb_search_compare(Namespace, root, data, compare) bst_search_compare(rb_##Namespace, (root), (data), (compare))
 #define rb_minimum(Namespace, root) bst_minimum(rb_##Namespace, (root))
@@ -38,21 +38,9 @@ enum rb_color { RB_BLACK, RB_RED };
  \
 bst_register(rb_##Namespace, Type, enum rb_color color;) \
  \
-rb(Namespace) Namespace##_rb_new(Type data) \
-{ \
-    rb(Namespace) node = bst_new(rb_##Namespace, data); \
-    if (node) { \
-        node->color = RB_BLACK; \
-    } \
-    return node; \
-} \
- \
 enum rb_color Namespace##_rb_color(rb(Namespace) node) \
 { \
-    if (!node) { \
-        return RB_BLACK; \
-    } \
-    return node->color; \
+    return node ? node->color : RB_BLACK; \
 } \
  \
 rb(Namespace) Namespace##_rb_rotate_left( \
