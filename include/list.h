@@ -1,4 +1,5 @@
 #pragma once
+#include <stdlib.h>
 
 #define list(Namespace) struct Namespace##_list *
 #define list_head(Namespace, list) Namespace##_list_head(list)
