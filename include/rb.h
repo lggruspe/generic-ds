@@ -6,14 +6,14 @@
 
 // rb_insert assumes inserted node is a singleton and is red
 
-#define rb(Namespace) bst(rb_##Namespace)
-#define rb_new(Namespace, data, ...) bst_new(rb_##Namespace, (data), .color = RB_BLACK,  ##__VA_ARGS__)
-#define rb_search(Namespace, root, data) bst_search(rb_##Namespace, (root), (data))
-#define rb_search_compare(Namespace, root, data, compare) bst_search_compare(rb_##Namespace, (root), (data), (compare))
-#define rb_minimum(Namespace, root) bst_minimum(rb_##Namespace, (root))
-#define rb_maximum(Namespace, root) bst_maximum(rb_##Namespace, (root))
-#define rb_successor(Namespace, node) bst_successor(rb_##Namespace, (node))
-#define rb_predecessor(Namespace, node) bst_predecessor(rb_##Namespace, (node))
+#define rb(Namespace) bst(Namespace)
+#define rb_new(Namespace, data, ...) bst_new(Namespace, (data), .color = RB_BLACK,  ##__VA_ARGS__)
+#define rb_search(Namespace, root, data) bst_search(Namespace, (root), (data))
+#define rb_search_compare(Namespace, root, data, compare) bst_search_compare(Namespace, (root), (data), (compare))
+#define rb_minimum(Namespace, root) bst_minimum(Namespace, (root))
+#define rb_maximum(Namespace, root) bst_maximum(Namespace, (root))
+#define rb_successor(Namespace, node) bst_successor(Namespace, (node))
+#define rb_predecessor(Namespace, node) bst_predecessor(Namespace, (node))
 #define rb_insert(Namespace, root, node) Namespace##_rb_insert((root), (node))
 #define rb_insert_compare(Namespace, root, node, compare) Namespace##_rb_insert_compare((root), (node), (compare))
 #define rb_repair(Namespace, root, node) Namespace##_rb_repair((root), (node))
@@ -22,10 +22,10 @@
 #define rb_rotate_left(Namespace, root, x) Namespace##_rb_rotate_left((root), (x))
 #define rb_rotate_right(Namespace, root, y) Namespace##_rb_rotate_right((root), (y))
 
-#define rb_height(Namespace, root) bst_height(rb_##Namespace, root)
-#define rb_weight(Namespace, root) bst_weight(rb_##Namespace, root)
-#define rb_is_binary_search_tree(Namespace, root) bst_is_binary_search_tree(rb_##Namespace, root)
-#define rb_is_binary_search_tree_compare(Namespace, root, compare) bst_is_binary_search_tree_compare(rb_##Namespace, (root), (compare))
+#define rb_height(Namespace, root) bst_height(Namespace, root)
+#define rb_weight(Namespace, root) bst_weight(Namespace, root)
+#define rb_is_binary_search_tree(Namespace, root) bst_is_binary_search_tree(Namespace, root)
+#define rb_is_binary_search_tree_compare(Namespace, root, compare) bst_is_binary_search_tree_compare(Namespace, (root), (compare))
 #define rb_is_balanced(Namespace, root) Namespace##_rb_is_balanced(root)
 #define rb_black_height(Namespace, root) Namespace##_rb_black_height(root)
 #define rb_red_child_black_parent(Namespace, root) Namespace##_rb_red_child_black_parent(root)
@@ -36,7 +36,7 @@ enum rb_color { RB_BLACK, RB_RED };
 
 #define rb_register(Namespace, Type) \
  \
-bst_register(rb_##Namespace, Type, enum rb_color color;) \
+bst_register(Namespace, Type, enum rb_color color;) \
  \
 enum rb_color Namespace##_rb_color(rb(Namespace) node) \
 { \
@@ -139,7 +139,7 @@ rb(Namespace) Namespace##_rb_insert(rb(Namespace) root, rb(Namespace) node) \
 { \
     if (node) { \
         node->color = RB_RED; \
-        root = bst_insert(rb_##Namespace, root, node); \
+        root = bst_insert(Namespace, root, node); \
         root = rb_repair(Namespace, root, node); \
     } \
     return root; \
@@ -152,7 +152,7 @@ rb(Namespace) Namespace##_rb_insert_compare( \
 { \
     if (node) { \
         node->color = RB_RED; \
-        root = bst_insert_compare(rb_##Namespace, root, node, compare); \
+        root = bst_insert_compare(Namespace, root, node, compare); \
         root = rb_repair(Namespace, root, node); \
     } \
     return root; \
