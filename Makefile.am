@@ -7,10 +7,12 @@ check_PROGRAMS = \
 	test/test_bst \
 	test/test_rb \
 	test/test_chash \
+	test/test_ohash \
 	test/test_namespace
 
 test_test_namespace_SOURCES = test/namespace.c
 test_test_chash_SOURCES = test/chash.c include/chash.h test/test_lib.h
+test_test_ohash_SOURCES = test/ohash.c include/ohash.h test/test_lib.h
 test_test_slist_SOURCES = test/slist.c include/slist.h test/test_lib.h
 test_test_rb_SOURCES = test/rb.c include/rb.h test/test_lib.h
 test_test_bst_SOURCES = test/bst.c include/bst.h test/test_lib.h
@@ -35,7 +37,8 @@ include_HEADERS = \
 	include/deque.h \
 	include/bst.h \
 	include/slist.h \
-	include/chash.h
+	include/chash.h \
+	include/ohash.h
 
 .PHONY:	leakcheck
 leakcheck:	$(TESTS)
