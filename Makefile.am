@@ -6,6 +6,7 @@ check_PROGRAMS = \
 	test/test_deque \
 	test/test_bst \
 	test/test_rb \
+	test/test_chash \
 	test/test_namespace
 
 test_test_namespace_SOURCES = test/namespace.c
@@ -26,8 +27,15 @@ AM_CFLAGS = -g -Wall -Wextra -Wpedantic -Werror
 AM_CPPFLAGS = -I$(abs_top_srcdir)/include -I$(abs_top_srcdir)/test
 TESTS = $(check_PROGRAMS)
 
-include_HEADERS = include/heap.h include/list.h include/rb.h include/vector.h include/deque.h include/bst.h include/slist.h
-#include/chash.h
+include_HEADERS = \
+	include/heap.h \
+	include/list.h \
+	include/rb.h \
+	include/vector.h \
+	include/deque.h \
+	include/bst.h \
+	include/slist.h \
+	include/chash.h
 
 .PHONY:	leakcheck
 leakcheck:	$(TESTS)

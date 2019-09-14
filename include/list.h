@@ -133,6 +133,10 @@ list(Namespace) Namespace##_list_destroy(list(Namespace) list) \
     if (!list) { \
         return NULL; \
     } \
+    if (list == list->next) { \
+        free(list); \
+        return NULL; \
+    } \
     list(Namespace) tail = list_tail(Namespace, list); \
     tail->next = NULL; \
     while (!list_is_empty(Namespace, list)) { \

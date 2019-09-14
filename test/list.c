@@ -119,11 +119,20 @@ unit_test(test_list_search_nonexistent)
     list_destroy(ls, list);
 }
 
+unit_test(test_list_singleton_destroy)
+{
+    list(li) list = NULL;
+    list = list_append(li, list, list_new(li, 0));
+    list_destroy(li, list);
+    assert_true(true);
+}
+
 int main()
 {
     run_unit_test(test_list_null);
     run_unit_test(test_list_append);
     run_unit_test(test_list_search);
     run_unit_test(test_list_search_nonexistent);
+    run_unit_test(test_list_singleton_destroy);
     return exit_test();
 }
