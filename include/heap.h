@@ -4,9 +4,9 @@
 
 // don't resize if heap.growth_factor = 0
 
-#define heap(Namespace) vector(heap_##Namespace)
-#define heap_is_empty(Namespace, Heap) vector_is_empty(heap_##Namespace, (Heap))
-#define heap_is_full(Namespace, Heap) vector_is_full(heap_##Namespace, (Heap))
+#define heap(Namespace) vector(Namespace)
+#define heap_is_empty(Namespace, Heap) vector_is_empty(Namespace, (Heap))
+#define heap_is_full(Namespace, Heap) vector_is_full(Namespace, (Heap))
 #define heap_resize(Namespace, heap) Namespace##_heap_resize(heap)
 #define heap_peek(Namespace, heap) Namespace##_heap_peek(heap)
 #define heap_pop(Namespace, heap) Namespace##_heap_pop(heap)
@@ -38,14 +38,14 @@ int heap_right(int i)
 
 #define heap_register(Namespace, Type) \
  \
-vector_register(heap_##Namespace, Type, int (*compare)(Type, Type);) \
+vector_register(Namespace, Type, int (*compare)(Type, Type);) \
  \
 heap(Namespace) Namespace##_heap_resize(heap(Namespace) heap) \
 { \
     if (heap.growth_factor == 0.0) { \
         return heap; \
     } \
-    return vector_resize(heap_##Namespace, heap); \
+    return vector_resize(Namespace, heap); \
 } \
  \
 Type Namespace##_heap_peek(heap(Namespace) heap) \
@@ -128,7 +128,7 @@ heap(Namespace) Namespace##_heap_destroy(heap(Namespace) heap) \
     if (heap.growth_factor == 0.0) { \
         heap.array = NULL; \
     } \
-    return vector_destroy(heap_##Namespace, heap); \
+    return vector_destroy(Namespace, heap); \
 } \
  \
 heap(Namespace) Namespace##_heap_heapify(Type array[], int size) \
