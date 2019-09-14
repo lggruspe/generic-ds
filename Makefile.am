@@ -43,3 +43,7 @@ leakcheck:	$(TESTS)
 		valgrind --leak-check=full --log-file="$$TEST.log" $$TEST > /dev/null;\
 		python3 tools/quiet.py "$$TEST.log";\
 	done
+
+.PHONY: namespace
+namespace:
+	@python3 tools/namespace.py > test/namespace.c

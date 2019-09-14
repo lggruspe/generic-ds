@@ -16,20 +16,52 @@ vector_register(vector, const char *)
 slist_register(slist, const char *)
 chash_register(chash, const char *, 1)
 
-bst_register(ns1, const char *)
-deque_register(ns1, const char *)
+bst_register(ns0, const char *)
+heap_register(ns0, const char *)
+chash_register(ns0, const char *, 1)
+deque_register(ns0, const char *)
+slist_register(ns0, const char *)
+
+rb_register(ns1, const char *)
 heap_register(ns1, const char *)
 list_register(ns1, const char *)
-//vector_register(ns1, const char *)
+deque_register(ns1, const char *)
 slist_register(ns1, const char *)
 
-deque_register(ns2, const char *)
-heap_register(ns2, const char *)
+bst_register(ns2, const char *)
+vector_register(ns2, const char *)
 list_register(ns2, const char *)
-rb_register(ns2, const char *)
-//vector_register(ns2, const char *)
+deque_register(ns2, const char *)
 slist_register(ns2, const char *)
 
-int main()
-{
-}
+rb_register(ns3, const char *)
+vector_register(ns3, const char *)
+chash_register(ns3, const char *, 1)
+deque_register(ns3, const char *)
+slist_register(ns3, const char *)
+
+rb_register(ns4, const char *)
+heap_register(ns4, const char *)
+chash_register(ns4, const char *, 1)
+deque_register(ns4, const char *)
+slist_register(ns4, const char *)
+
+bst_register(ns5, const char *)
+heap_register(ns5, const char *)
+list_register(ns5, const char *)
+deque_register(ns5, const char *)
+slist_register(ns5, const char *)
+
+rb_register(ns6, const char *)
+vector_register(ns6, const char *)
+list_register(ns6, const char *)
+deque_register(ns6, const char *)
+slist_register(ns6, const char *)
+
+bst_register(ns7, const char *)
+vector_register(ns7, const char *)
+chash_register(ns7, const char *, 1)
+deque_register(ns7, const char *)
+slist_register(ns7, const char *)
+
+int main() {}
