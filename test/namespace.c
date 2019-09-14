@@ -5,6 +5,7 @@
 #include "rb.h"
 #include "vector.h"
 #include "slist.h"
+#include "chash.h"
 
 bst_register(bst, const char *)
 deque_register(deque, const char *)
@@ -13,6 +14,7 @@ list_register(list, const char *)
 rb_register(rb, const char *)
 vector_register(vector, const char *)
 slist_register(slist, const char *)
+chash_register(chash, const char *, 1)
 
 bst_register(ns1, const char *)
 deque_register(ns1, const char *)

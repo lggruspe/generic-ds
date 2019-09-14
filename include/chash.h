@@ -4,7 +4,7 @@
 #define chash(Namespace) struct Namespace##_chash
 #define chash_chain(Namespace) list(Namespace)
 #define chash_chain_search(Namespace, table, chain, data) Namespace##_chash_chain_search((table), (chain), (data))
-#define chash_create(Namespace, ...) (chash(Namespace)){ .size = 0, __VA_ARGS__ }
+#define chash_create(Namespace, Hash, ...) (chash(Namespace)){ .size = 0, .hash = (Hash), __VA_ARGS__ }
 #define chash_hash(Namespace, table, data) Namespace##_chash_hash((table), (data))
 #define chash_compare(Namespace, table, a, b) Namespace##_chash_compare((table), (a), (b))
 #define chash_search(Namespace, table, data) Namespace##_chash_search((table), (data))
@@ -25,7 +25,7 @@ chash(Namespace) { \
  \
 int Namespace##_chash_hash(chash(Namespace) table, Type data) \
 { \
-    return (table.hash ? table.hash(data) : data) % Bucket_size; \
+    return table.hash(data) % Bucket_size; \
 } \
  \
 int Namespace##_chash_compare(chash(Namespace) table, Type a, Type b) \
