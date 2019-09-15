@@ -1,11 +1,12 @@
 #pragma once
 #include <stdbool.h>
+#include <stdlib.h>
 
 // TODO record earliest deleted spot and move result to that spot
 
 #define ohash(Namespace) struct Namespace##_ohash
 #define ohash_entry(Namespace) struct Namespace##_ohash_entry
-#define ohash_create(Namespace, Hash, ...) (ohash(Namespace)){ .hash = (Hash), __VA_ARGS__ }
+#define ohash_create(Namespace, Hash, ...) Namespace##_ohash_create((ohash(Namespace)){ .hash = (Hash), __VA_ARGS__ })
 #define ohash_load_factor(Namespace, table) Namespace##_ohash_load_factor(table)
 #define ohash_hash(Namespace, table, data) Namespace##_ohash_hash((table), (data))
 #define ohash_compare(Namespace, table, a, b) Namespace##_ohash_compare((table), (a), (b))
@@ -16,6 +17,8 @@
 
 #define ohash_register(Namespace, Type, Bucket_size) \
  \
+int Namespace##_ohash_bucket_size = Bucket_size; \
+ \
 struct Namespace##_ohash_entry { \
     Type data; \
     bool valid; \
@@ -23,11 +26,21 @@ struct Namespace##_ohash_entry { \
 }; \
  \
 struct Namespace##_ohash { \
-    ohash_entry(Namespace) array[Bucket_size]; \
+    ohash_entry(Namespace) *array; \
     int size; \
     int (*hash)(Type); \
     int (*compare)(Type, Type); \
 }; \
+ \
+ohash(Namespace) Namespace##_ohash_create(ohash(Namespace) args) \
+{ \
+    ohash(Namespace) table = { \
+        .array = malloc(sizeof(ohash_entry(Namespace)) * Bucket_size), \
+        .hash = args.hash, \
+        .compare = args.compare, \
+    }; \
+    return table; \
+} \
  \
 double Namespace##_ohash_load_factor(ohash(Namespace) table) \
 { \
@@ -52,7 +65,10 @@ int Namespace##_ohash_search(ohash(Namespace) table, Type data) \
         if (!(entry.valid)) { \
             return -1; \
         } \
-        if (ohash_compare(Namespace, table, entry.data, data)) { \
+        if (entry.deleted) { \
+            continue; \
+        } \
+        if (ohash_compare(Namespace, table, entry.data, data) == 0) { \
             return i; \
         } \
     } \
@@ -61,7 +77,10 @@ int Namespace##_ohash_search(ohash(Namespace) table, Type data) \
         if (!(entry.valid)) { \
             return -1; \
         } \
-        if (ohash_compare(Namespace, table, entry.data, data)) { \
+        if (entry.deleted) { \
+            continue; \
+        } \
+        if (ohash_compare(Namespace, table, entry.data, data) == 0) { \
             return i; \
         } \
     } \
@@ -81,7 +100,7 @@ ohash(Namespace) Namespace##_ohash_insert(ohash(Namespace) table, Type data) \
             table.size++; \
             return table; \
         } \
-        if (ohash_compare(Namespace, table, entry.data, data)) { \
+        if (ohash_compare(Namespace, table, entry.data, data) == 0) { \
             table.array[i].data = data; \
             return table; \
         } \
@@ -96,7 +115,7 @@ ohash(Namespace) Namespace##_ohash_insert(ohash(Namespace) table, Type data) \
             table.size++; \
             return table; \
         } \
-        if (ohash_compare(Namespace, table, entry.data, data)) { \
+        if (ohash_compare(Namespace, table, entry.data, data) == 0) { \
             table.array[i].data = data; \
             return table; \
         } \
@@ -112,8 +131,11 @@ ohash(Namespace) Namespace##_ohash_delete(ohash(Namespace) table, Type data) \
         if (!(entry.valid)) { \
             return table; \
         } \
-        if (ohash_compare(Namespace, table, entry.data, data)) { \
-            table.array[i].deleted = false; \
+        if (entry.deleted) { \
+            continue; \
+        } \
+        if (ohash_compare(Namespace, table, entry.data, data) == 0) { \
+            table.array[i].deleted = true; \
             table.size--; \
             return table; \
         } \
@@ -123,8 +145,11 @@ ohash(Namespace) Namespace##_ohash_delete(ohash(Namespace) table, Type data) \
         if (!(entry.valid)) { \
             return table; \
         } \
-        if (ohash_compare(Namespace, table, entry.data, data)) { \
-            table.array[i].deleted = false; \
+        if (entry.deleted) { \
+            continue; \
+        } \
+        if (ohash_compare(Namespace, table, entry.data, data) == 0) { \
+            table.array[i].deleted = true; \
             table.size--; \
             return table; \
         } \
@@ -134,8 +159,9 @@ ohash(Namespace) Namespace##_ohash_delete(ohash(Namespace) table, Type data) \
  \
 ohash(Namespace) Namespace##_ohash_destroy(ohash(Namespace) table) \
 { \
-    for (int i = 0; i < 10; ++i) { \
-        table.array[i].valid = false; \
+    if (table.array) { \
+        free(table.array); \
+        table.array = NULL; \
     } \
     table.size = 0; \
     return table; \
