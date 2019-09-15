@@ -35,11 +35,12 @@ incompatibility_classes = [
     ("list", "chash"),
     ("deque",),
     ("slist",),
+    ("ohash",),
 ]
 
 def multiple_tests(i, S):
     for s in S:
-        if s == "chash":
+        if s == "chash" or s == "ohash":
             print(type_registration(s, f"ns{i}", 1))
         else:
             print(type_registration(s, f"ns{i}"))
