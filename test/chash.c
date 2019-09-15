@@ -24,8 +24,8 @@ unit_test(test_chash_string)
     const char *array[] = { "a", "aa", "aaa", "b", "bb", "bbb", "c", "cc", "ccc", "a", "b", "c" };
     chash(hs) set = chash_create(hs, string_hash, .compare = strcmp);
 
-    chash_chain(hs) node = chash_search(hs, set, "a");
-    assert_true(!node);
+    chash_chain(hs) ref = chash_search(hs, set, "a");
+    assert_true(!chash_is_valid(hs, ref));
 
     for (int j = 0; j < 10; ++j) {
         for (int i = 0; i < 12; ++i) {
@@ -35,21 +35,21 @@ unit_test(test_chash_string)
 
     assert_true(set.size == 9);
     for (int i = 0; i < 12; ++i) {
-        chash_chain(hs) node = chash_search(hs, set, array[i]);
-        assert_true(node && strcmp(node->data, array[i]) == 0);
+        chash_chain(hs) ref = chash_search(hs, set, array[i]);
+        assert_true(ref && strcmp(chash_deref(hs, ref), array[i]) == 0);
     }
 
     set = chash_delete(hs, set, "a");
     assert_true(set.size == 8);
 
-    node = chash_search(hs, set, "a");
-    assert_true(!node);
+    ref = chash_search(hs, set, "a");
+    assert_true(!chash_is_valid(hs, ref));
     for (int i = 1; i < 12; ++i) {
         if (i == 9) {
             continue;
         }
-        chash_chain(hs) node = chash_search(hs, set, array[i]);
-        assert_true(node && strcmp(node->data, array[i]) == 0);
+        chash_chain(hs) ref = chash_search(hs, set, array[i]);
+        assert_true(ref && strcmp(chash_deref(hs, ref), array[i]) == 0);
     }
 
     int Bucket_size = 50;
@@ -64,8 +64,8 @@ unit_test(test_chash_set)
 {
     chash(hi) set = chash_create(hi, identity_hash);
 
-    chash_chain(hi) node = chash_search(hi, set, 0);
-    assert_true(!node);
+    chash_chain(hi) ref = chash_search(hi, set, 0);
+    assert_true(!chash_is_valid(hi, ref));
 
     for (int j = 0; j < 10; ++j) {
         for (int i = 0; i < 10; ++i) {
@@ -75,16 +75,16 @@ unit_test(test_chash_set)
 
     assert_true(set.size == 10);
     for (int i = 0; i < 10; ++i) {
-        chash_chain(hi) node = chash_search(hi, set, i);
-        assert_true(node && node->data == i);
+        chash_chain(hi) ref = chash_search(hi, set, i);
+        assert_true(ref && chash_deref(hi, ref) == i);
     }
     set = chash_delete(hi, set, 0);
     assert_true(set.size == 9);
-    node = chash_search(hi, set, 0);
-    assert_true(!node);
+    ref = chash_search(hi, set, 0);
+    assert_true(!chash_is_valid(hi, ref));
     for (int i = 1; i < 10; ++i) {
-        chash_chain(hi) node = chash_search(hi, set, i);
-        assert_true(node && node->data == i);
+        chash_chain(hi) ref = chash_search(hi, set, i);
+        assert_true(ref && chash_deref(hi, ref) == i);
     }
 
     int Bucket_size = 100;

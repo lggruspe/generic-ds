@@ -1,5 +1,6 @@
 #pragma once
 #include "list.h"
+#include <stdbool.h>
 
 #define chash(Namespace) struct Namespace##_chash
 #define chash_chain(Namespace) list(Namespace)
@@ -11,6 +12,8 @@
 #define chash_insert(Namespace, table, data) Namespace##_chash_insert((table), (data))
 #define chash_delete(Namespace, table, data) Namespace##_chash_delete((table), (data))
 #define chash_destroy(Namespace, table) Namespace##_chash_destroy(table)
+#define chash_is_valid(Namespace, reference) Namespace##_chash_is_valid(reference)
+#define chash_deref(Namespace, reference) Namespace##_chash_deref(reference)
 
 #define chash_register(Namespace, Type, Bucket_size) \
  \
@@ -93,4 +96,14 @@ chash(Namespace) Namespace##_chash_destroy(chash(Namespace) table) \
     } \
     table.size = 0; \
     return table; \
+} \
+ \
+bool Namespace##_chash_is_valid(chash_chain(Namespace) reference) \
+{ \
+    return reference; \
+} \
+ \
+Type Namespace##_chash_deref(chash_chain(Namespace) reference) \
+{ \
+    return reference->data;  \
 }
