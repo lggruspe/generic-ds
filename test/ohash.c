@@ -2,8 +2,6 @@
 #include "test_lib.h"
 #include <string.h>
 
-#include <stdio.h>
-
 ohash_register(hi, int, 100)
 ohash_register(hs, const char *, 50)
 

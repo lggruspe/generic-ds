@@ -39,6 +39,12 @@ ohash(Namespace) Namespace##_ohash_create(ohash(Namespace) args) \
         .hash = args.hash, \
         .compare = args.compare, \
     }; \
+    if (table.array) { \
+        for (int i = 0; i < Bucket_size; ++i) { \
+            table.array[i].valid = false; \
+            table.array[i].deleted = false; \
+        } \
+    } \
     return table; \
 } \
  \
