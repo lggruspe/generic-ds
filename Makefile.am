@@ -44,9 +44,9 @@ include_HEADERS = \
 leakcheck:	$(TESTS)
 	@for TEST in $^; do\
 		valgrind --leak-check=full --log-file="$$TEST.log" $$TEST > /dev/null;\
-		python3 tools/quiet.py "$$TEST.log";\
+		python3 $(abs_top_srcdir)/tools/quiet.py "$$TEST.log";\
 	done
 
 .PHONY: namespace
 namespace:
-	@python3 tools/namespace.py > test/namespace.c
+	@python3 $(abs_top_srcdir)/tools/namespace.py > $(abs_top_srcdir)/test/namespace.c
