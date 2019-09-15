@@ -9,6 +9,7 @@ data_structures = [
     "vector",
     "slist",
     "chash",
+    "ohash",
 ]
 
 def type_registration(data_structure, namespace, *args):
@@ -22,7 +23,7 @@ def headers():
 
 def single_test():
     for ds in data_structures:
-        if ds == "chash":
+        if ds == "chash" or ds == "ohash":
             print(type_registration(ds, ds, 1))
         else:
             print(type_registration(ds, ds))
@@ -44,8 +45,11 @@ def multiple_tests(i, S):
             print(type_registration(s, f"ns{i}"))
 
 def mixed_test():
-    S = set(itertools.product(*incompatibility_classes))
-    for i, s in enumerate(S):
+    history = set()
+    for i, s in enumerate(itertools.product(*incompatibility_classes)):
+        if s in history:
+            continue
+        history.add(s)
         multiple_tests(i, s)
         print()
 
