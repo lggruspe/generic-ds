@@ -14,6 +14,8 @@
 #define ohash_insert(Namespace, table, data) Namespace##_ohash_insert((table), (data))
 #define ohash_delete(Namespace, table, data) Namespace##_ohash_delete((table), (data))
 #define ohash_destroy(Namespace, table) Namespace##_ohash_destroy(table)
+#define ohash_is_valid(Namespace, table, index) Namespace##_ohash_is_valid((table), (index))
+#define ohash_deref(Namespace, table, reference) Namespace##_ohash_deref((table), (reference))
 
 #define ohash_register(Namespace, Type, Bucket_size) \
  \
@@ -171,4 +173,18 @@ ohash(Namespace) Namespace##_ohash_destroy(ohash(Namespace) table) \
     } \
     table.size = 0; \
     return table; \
+} \
+ \
+bool Namespace##_ohash_is_valid(ohash(Namespace) table, int index) \
+{ \
+    if (index < 0 || index >= Bucket_size) { \
+        return false; \
+    } \
+    ohash_entry(Namespace) entry = table.array[index]; \
+    return entry.valid && !(entry.deleted); \
+} \
+ \
+Type Namespace##_ohash_deref(ohash(Namespace) table, int reference) \
+{ \
+    return table.array[reference].data; \
 }
