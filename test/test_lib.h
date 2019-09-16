@@ -11,7 +11,7 @@ struct test_status {
 
 #define assert_true(condition) do {\
     if (!(condition)) {\
-        printf(#condition " is false\n");\
+        printf("Failed assertion at %s:%d\n\t%s\n", __func__, __LINE__, #condition);\
         status->passed = false;\
     }\
 } while (0)
@@ -24,7 +24,7 @@ int total_failed = 0;
     struct test_status status = { .passed = true };\
     test(&status, ##__VA_ARGS__);\
     if (!status.passed) {\
-        printf(#test " failed\n");\
+        printf("Failed: %s\n\n", #test);\
         ++total_failed;\
     }\
 } while (0)
