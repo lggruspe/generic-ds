@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([generic-ds], [0.0.1])
+AC_INIT([lggds], [0.0.1])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
-AC_CONFIG_SRCDIR([include/vector.h])
+AC_CONFIG_SRCDIR([include/lggds/vector.h])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
