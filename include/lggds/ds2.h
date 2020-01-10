@@ -24,8 +24,6 @@
 
 #define BEGIN(Namespace, Container) Namespace##_begin(Container)
 
-#define DONE(Namespace, Iterator) Namespace##_done(Iterator)
-
 #define NEXT(Namespace, Iterator) Namespace##_next(Iterator)
 
 #define VALUE(Namespace, Iterator) Namespace##_value(Iterator)

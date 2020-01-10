@@ -103,22 +103,31 @@ static inline void Namespace##_destroy(VECTOR_T(Namespace) *vector) \
 ITER_T(Namespace) { \
     VECTOR_T(Namespace) *vector; \
     int index; \
+    Type value; \
+    bool done; \
 }; \
  \
 static inline ITER_T(Namespace) Namespace##_begin( \
         VECTOR_T(Namespace) *vector) \
 { \
-    return (ITER_T(Namespace)){ .vector = vector, .index = 0 }; \
-} \
- \
-static inline bool Namespace##_done(ITER_T(Namespace) it) \
-{ \
-    return it.index == it.vector->size; \
+    ITER_T(Namespace) it = { .vector = vector, .done = true }; \
+    if (!IS_EMPTY(Namespace, vector)) { \
+        it.done = false; \
+        it.value = it.vector->array[0]; \
+    } \
+    return it; \
 } \
  \
 static inline ITER_T(Namespace) Namespace##_next(ITER_T(Namespace) it) \
 { \
-    it.index++; \
+    if (!it.done) { \
+        it.index++; \
+        if (it.index == it.vector->size) { \
+            it.done = true; \
+        } else { \
+            it.value = it.vector->array[it.index]; \
+        } \
+    } \
     return it; \
 } \
  \
