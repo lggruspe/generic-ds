@@ -12,6 +12,12 @@
 
 #define POP(Namespace, Container) Namespace##_pop(Container)
 
+#define PUSH_LEFT(Namespace, Container, Data) Namespace##_push_left((Container), (Data))
+
+#define PEEK_LEFT(Namespace, Container) Namespace##_peek_left(Container)
+
+#define POP_LEFT(Namespace, Container) Namespace##_pop_left(Container)
+
 #define GET(Namespace, Container, Key) Namespace##_get((Container), (Key))
 
 #define SET(Namespace, Container, Key, Value) Namespace##_set((Container), (Key), (Value))

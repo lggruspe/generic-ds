@@ -51,8 +51,7 @@ static inline bool Namespace##_resize(VECTOR_T(Namespace) *vector) \
 static inline bool Namespace##_push(VECTOR_T(Namespace) *vector, Type data) \
 { \
     if (IS_FULL(Namespace, vector)) { \
-        bool ok = RESIZE(Namespace, vector); \
-        if (!ok) { \
+        if (!RESIZE(Namespace, vector)) { \
             return false; \
         } \
     } \
@@ -85,7 +84,11 @@ static inline bool Namespace##_set( \
         int index, \
         Type data) \
 { \
-    vector->array[index] = data; \
+    if (index < vector->size) { \
+        vector->array[index] = data; \
+        return true; \
+    } \
+    return false; \
 } \
  \
 static inline void Namespace##_clear(VECTOR_T(Namespace) *vector) \
