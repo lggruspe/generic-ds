@@ -132,9 +132,4 @@ static inline ITER_T(Namespace) Namespace##_next(ITER_T(Namespace) it) \
         } \
     } \
     return it; \
-} \
- \
-static inline Type Namespace##_value(ITER_T(Namespace) it) \
-{ \
-    return it.vector->array[it.index]; \
 }

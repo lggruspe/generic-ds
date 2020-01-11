@@ -31,5 +31,3 @@
 #define BEGIN(Namespace, Container) Namespace##_begin(Container)
 
 #define NEXT(Namespace, Iterator) Namespace##_next(Iterator)
-
-#define VALUE(Namespace, Iterator) Namespace##_value(Iterator)
