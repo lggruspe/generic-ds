@@ -6,6 +6,8 @@
 
 #define RESIZE(Namespace, Container) Namespace##_resize(Container)
 
+#define INSERT(Namespace, Container, Data) Namespace##_insert((Container), (Data))
+
 #define PUSH(Namespace, Container, Data) Namespace##_push((Container), (Data))
 
 #define PEEK(Namespace, Container) Namespace##_peek(Container)
@@ -31,3 +33,5 @@
 #define BEGIN(Namespace, Container) Namespace##_begin(Container)
 
 #define NEXT(Namespace, Iterator) Namespace##_next(Iterator)
+
+#define NODE_T(Namespace) struct Namespace##_node

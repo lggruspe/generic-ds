@@ -3,7 +3,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define NODE_T(Namespace) struct Namespace##_node
+/* missing operations:
+ * - splice lists
+ * - change value pointed to by operator
+ * - construct list by providing pointer to node
+ */
 
 #define LIST_T(Namespace) struct Namespace##_list
 
