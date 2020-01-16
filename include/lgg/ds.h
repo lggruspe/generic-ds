@@ -8,6 +8,8 @@
 
 #define INSERT(Namespace, Container, Data) Namespace##_insert((Container), (Data))
 
+#define DELETE(Namespace, Container, Data) Namespace##_delete((Container), (Data))
+
 #define PUSH(Namespace, Container, Data) Namespace##_push((Container), (Data))
 
 #define PEEK(Namespace, Container) Namespace##_peek(Container)
