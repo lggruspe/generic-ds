@@ -7,13 +7,14 @@
 
 #define BST(Namespace) (BST_T(Namespace)){ .root = NULL }
 
-#define BST_GENERATE(Namespace, Type, LessThan) \
+#define BST_GENERATE(Namespace, Type, LessThan, ...) \
  \
 NODE_T(Namespace) { \
     Type data; \
     NODE_T(Namespace) *left; \
     NODE_T(Namespace) *right; \
     NODE_T(Namespace) *parent; \
+    __VA_ARGS__; \
 }; \
  \
 static inline NODE_T(Namespace) *Namespace##_new_node(Type data) \
