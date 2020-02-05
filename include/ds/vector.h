@@ -1,4 +1,5 @@
 #pragma once
+#include "generator.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -27,12 +28,12 @@ static inline void Namespace##_destroy(Vector(Namespace) *v) \
  \
 static inline bool Namespace##_is_empty(Vector(Namespace) *v) \
 { \
-    return v->size == 0; \
+    return v->size <= 0; \
 } \
  \
 static inline bool Namespace##_is_full(Vector(Namespace) *v) \
 { \
-    return v->size == v->capacity; \
+    return v->size >= v->capacity; \
 } \
  \
 static inline int Namespace##_size(Vector(Namespace) *v) \
@@ -103,6 +104,15 @@ static inline void Namespace##_clear(Vector(Namespace) *v) \
     v->size = 0; \
 } \
  \
+static inline GENERATOR(Type, Namespace##_iterate, Vector(Namespace) *v) \
+{ \
+    static int i; \
+    for (i = 0; i < v->size; ++i) { \
+        yield(v->array[i]); \
+    } \
+    stop_generator(); \
+} \
+ \
 struct { \
     Vector(Namespace) (*create)(void); \
     void (*destroy)(Vector(Namespace)*); \
@@ -115,6 +125,7 @@ struct { \
     Type (*get)(Vector(Namespace)*, int); \
     bool (*set)(Vector(Namespace)*, int, Type); \
     void (*clear)(Vector(Namespace)*); \
+    Type (*iterate)(Iterator*, Vector(Namespace)*); \
 } Namespace = { \
     .create = Namespace##_create, \
     .destroy = Namespace##_destroy, \
@@ -127,4 +138,5 @@ struct { \
     .get = Namespace##_get, \
     .set = Namespace##_set, \
     .clear = Namespace##_clear, \
+    .iterate = Namespace##_iterate, \
 };
