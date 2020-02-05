@@ -119,11 +119,11 @@ struct { \
     bool (*is_empty)(Vector(Namespace) const*); \
     bool (*is_full)(Vector(Namespace) const*); \
     int (*size)(Vector(Namespace) const*); \
+    Type (*get)(Vector(Namespace) const*, int); \
+    bool (*set)(Vector(Namespace)*, int, Type); \
     bool (*push)(Vector(Namespace)*, Type); \
     Type (*peek)(Vector(Namespace) const*); \
     Type (*pop)(Vector(Namespace)*); \
-    Type (*get)(Vector(Namespace) const*, int); \
-    bool (*set)(Vector(Namespace)*, int, Type); \
     void (*clear)(Vector(Namespace)*); \
     Type (*iterate)(Iterator*, Vector(Namespace) const*); \
 } Namespace = { \
@@ -132,11 +132,11 @@ struct { \
     .is_empty = Namespace##_is_empty, \
     .is_full = Namespace##_is_full, \
     .size = Namespace##_size, \
+    .get = Namespace##_get, \
+    .set = Namespace##_set, \
     .push = Namespace##_push, \
     .peek = Namespace##_peek, \
     .pop = Namespace##_pop, \
-    .get = Namespace##_get, \
-    .set = Namespace##_set, \
     .clear = Namespace##_clear, \
     .iterate = Namespace##_iterate, \
 };
