@@ -26,17 +26,17 @@ static inline void Namespace##_destroy(Vector(Namespace) *v) \
     v->capacity = 0; \
 } \
  \
-static inline bool Namespace##_is_empty(Vector(Namespace) *v) \
+static inline bool Namespace##_is_empty(Vector(Namespace) const *v) \
 { \
     return v->size <= 0; \
 } \
  \
-static inline bool Namespace##_is_full(Vector(Namespace) *v) \
+static inline bool Namespace##_is_full(Vector(Namespace) const *v) \
 { \
     return v->size >= v->capacity; \
 } \
  \
-static inline int Namespace##_size(Vector(Namespace) *v) \
+static inline int Namespace##_size(Vector(Namespace) const *v) \
 { \
     return v->size; \
 } \
@@ -70,7 +70,7 @@ static inline bool Namespace##_push(Vector(Namespace) *v, Type data) \
     return true; \
 } \
  \
-static inline Type Namespace##_peek(Vector(Namespace) *v) \
+static inline Type Namespace##_peek(Vector(Namespace) const *v) \
 { \
     return v->array[v->size-1]; \
 } \
@@ -85,7 +85,7 @@ static inline Type Namespace##_pop(Vector(Namespace) *v) \
     return data; \
 } \
  \
-static inline Type Namespace##_get(Vector(Namespace) *v, int index) \
+static inline Type Namespace##_get(Vector(Namespace) const *v, int index) \
 { \
     return v->array[index]; \
 } \
@@ -104,7 +104,7 @@ static inline void Namespace##_clear(Vector(Namespace) *v) \
     v->size = 0; \
 } \
  \
-static inline GENERATOR(Type, Namespace##_iterate, Vector(Namespace) *v) \
+static inline GENERATOR(Type, Namespace##_iterate, Vector(Namespace) const *v) \
 { \
     static int i; \
     for (i = 0; i < v->size; ++i) { \
@@ -116,16 +116,16 @@ static inline GENERATOR(Type, Namespace##_iterate, Vector(Namespace) *v) \
 struct { \
     Vector(Namespace) (*create)(void); \
     void (*destroy)(Vector(Namespace)*); \
-    bool (*is_empty)(Vector(Namespace)*); \
-    bool (*is_full)(Vector(Namespace)*); \
-    int (*size)(Vector(Namespace)*); \
+    bool (*is_empty)(Vector(Namespace) const*); \
+    bool (*is_full)(Vector(Namespace) const*); \
+    int (*size)(Vector(Namespace) const*); \
     bool (*push)(Vector(Namespace)*, Type); \
-    Type (*peek)(Vector(Namespace)*); \
+    Type (*peek)(Vector(Namespace) const*); \
     Type (*pop)(Vector(Namespace)*); \
-    Type (*get)(Vector(Namespace)*, int); \
+    Type (*get)(Vector(Namespace) const*, int); \
     bool (*set)(Vector(Namespace)*, int, Type); \
     void (*clear)(Vector(Namespace)*); \
-    Type (*iterate)(Iterator*, Vector(Namespace)*); \
+    Type (*iterate)(Iterator*, Vector(Namespace) const*); \
 } Namespace = { \
     .create = Namespace##_create, \
     .destroy = Namespace##_destroy, \
