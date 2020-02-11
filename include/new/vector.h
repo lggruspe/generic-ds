@@ -16,6 +16,33 @@ static inline struct Name##_type Name##_create() \
     return (struct Name##_type){ .growth_factor = 2.0 }; \
 } \
  \
+static inline void Name##_destroy(struct Name##_type *v) \
+{ \
+    free(v->array); \
+    v->size = 0; \
+    v->capacity = 0; \
+} \
+ \
+static inline void Name##_clear(struct Name##_type *v) \
+{ \
+    v->size = 0; \
+} \
+ \
+static inline bool Name##_is_empty(struct Name##_type const *v) \
+{ \
+    return v->size <= 0; \
+} \
+ \
+static inline bool Name##_is_full(struct Name##_type const *v) \
+{ \
+    return v->size >= v->capacity; \
+} \
+ \
+static inline int Name##_size(struct Name##_type const *v) \
+{ \
+    return v->size; \
+} \
+ \
 static inline bool Name##_grow(struct Name##_type *v) \
 { \
     int capacity = v->capacity * v->growth_factor; \
@@ -32,16 +59,6 @@ static inline bool Name##_grow(struct Name##_type *v) \
     v->array = array; \
     v->capacity = capacity; \
     return true; \
-} \
- \
-static inline bool Name##_is_empty(struct Name##_type const *v) \
-{ \
-    return v->size <= 0; \
-} \
- \
-static inline bool Name##_is_full(struct Name##_type const *v) \
-{ \
-    return v->size >= v->capacity; \
 } \
  \
 static inline bool Name##_push(struct Name##_type *v, Type data) \
@@ -77,21 +94,9 @@ static inline Type Name##_get(struct Name##_type const *v, int index) \
  \
 static inline bool Name##_set(struct Name##_type *v, int index, Type data) \
 { \
-    if (index < v->size) { \
-        v->array[index] = data;  \
-        return true; \
+    if (index < 0 || index >= v->size) { \
+        return false; \
     } \
-    return false; \
-} \
- \
-static inline void Name##_clear(struct Name##_type *v) \
-{ \
-    v->size = 0; \
-} \
- \
-static inline void Name##_destroy(struct Name##_type *v) \
-{ \
-    free(v->array); \
-    v->size = 0; \
-    v->capacity = 0; \
+    v->array[index] = data; \
+    return true; \
 }
