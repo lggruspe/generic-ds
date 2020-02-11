@@ -164,3 +164,10 @@ struct { \
     .clear = Namespace##_clear, \
     .iterate = Namespace##_iterate, \
 };
+
+/* usage:
+ * Iterator it = create_iterator();
+ * for (int a = list.iterate(&it, &l); !it.done; a = list.iterate(&it, &l)) {
+ *  ...
+ * }
+ */
