@@ -17,29 +17,21 @@ static inline int heap_right(int i)
     return 2*i + 2;
 }
 
-#define SIFT_UP(Namespace) (Namespace##_sift_up)
-
-#define SIFT_DOWN(Namespace) (Namespace##_sift_down)
-
-#define HEAPIFY(Namespace) (Namespace##_heapify)
-
-#define HEAP_GENERATE(Namespace, Type, LessThan) \
+#define HEAP_GENERATE(Name, Type, LessThan) \
  \
-static inline void Namespace##_sift_up(Type *array, int i) \
+static inline void Name##_sift_up(Type *array, int i) \
 { \
-    while (i > 0) { \
-        int p = heap_parent(i); \
-        Type a = array[i]; \
-        if (!(LessThan)(a, array[p])) { \
-            break; \
-        } \
+    Type a = array[i]; \
+    int = p heap_parent(i); \
+    while (i > 0 && (LessThan)(a, array[p])) { \
         array[i] = array[p]; \
-        array[p] = a; \
         i = p; \
+        p = heap_parent(p); \
     } \
+    array[i] = a; \
 } \
  \
-static inline void Namespace##_sift_down(Type *array, int n, int i) \
+static inline void Name##_sift_down(Type *array, int n, int i) \
 { \
     while (i < n) { \
         int p = i; \
@@ -61,9 +53,9 @@ static inline void Namespace##_sift_down(Type *array, int n, int i) \
     } \
 } \
  \
-static inline void Namespace##_heapify(Type *array, int n) \
+static inline void Name##_heapify(Type *array, int n) \
 { \
-    for (int i = (n-1)/2; i >= 0; --i) { \
-        SIFT_DOWN(Namespace)(array, n, i); \
+    for (int i = n/2 - 1; i >= 0; --i) { \
+        Name##_sift_down(array, n, i); \
     } \
 }
