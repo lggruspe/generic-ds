@@ -49,7 +49,7 @@ static inline int Name##_size(struct Name##_type const *q) \
     return q->size; \
 } \
  \
-static inline int Name##_index_p(struct Name##_type const *q, int index) \
+static inline int Name##_p_index(struct Name##_type const *q, int index) \
 { \
   int pos = index + q->front; \
     if (pos >= q->capacity) { \
@@ -60,7 +60,7 @@ static inline int Name##_index_p(struct Name##_type const *q, int index) \
  \
 static inline Type Name##_get(struct Name##_type const *q, int index) \
 { \
-    return q->array[Name##_index_p(q, index)]; \
+    return q->array[Name##_p_index(q, index)]; \
 } \
  \
 static inline bool Name##_set(struct Name##_type *q, int index, Type data) \
@@ -68,7 +68,7 @@ static inline bool Name##_set(struct Name##_type *q, int index, Type data) \
     if (index < 0 || index >= q->size) { \
         return false; \
     } \
-    q->array[Name##_index_p(q, index)] = data; \
+    q->array[Name##_p_index(q, index)] = data; \
     return true; \
 } \
  \
