@@ -1,4 +1,5 @@
 #pragma once
+#include <stdbool.h>
 
 /* min-heap */
 
@@ -58,4 +59,20 @@ static inline void Name##_heapify(Type *array, int n) \
     for (int i = n/2 - 1; i >= 0; --i) { \
         Name##_sift_down(array, n, i); \
     } \
+} \
+ \
+static inline bool Name##_is_heap(Type const *array, int n) \
+{ \
+    for (int i = 0; i < n/2; ++i) { \
+        Type a = array[i]; \
+        int l = heap_left(i); \
+        if (l < n && !(LessThan)(a, array[l])) { \
+            return false; \
+        } \
+        int r = heap_right(i); \
+        if (r < n && !(LessThan)(a, array[r])) { \
+            return false; \
+        } \
+    } \
+    return true; \
 }
