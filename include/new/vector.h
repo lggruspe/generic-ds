@@ -4,46 +4,46 @@
 
 #define VECTOR_GENERATE(Name, Type) \
  \
-struct Name##_type { \
+typedef struct { \
     Type *array; \
     int size; \
     int capacity; \
     double growth_factor; \
-}; \
+} Name##_type; \
  \
-static inline struct Name##_type Name##_create() \
+static inline Name##_type Name##_create() \
 { \
-    return (struct Name##_type){ .growth_factor = 2.0 }; \
+    return (Name##_type){ .growth_factor = 2.0 }; \
 } \
  \
-static inline void Name##_destroy(struct Name##_type *v) \
+static inline void Name##_destroy(Name##_type *v) \
 { \
     free(v->array); \
     v->size = 0; \
     v->capacity = 0; \
 } \
  \
-static inline void Name##_clear(struct Name##_type *v) \
+static inline void Name##_clear(Name##_type *v) \
 { \
     v->size = 0; \
 } \
  \
-static inline bool Name##_is_empty(struct Name##_type const *v) \
+static inline bool Name##_is_empty(Name##_type const *v) \
 { \
     return v->size <= 0; \
 } \
  \
-static inline bool Name##_is_full(struct Name##_type const *v) \
+static inline bool Name##_is_full(Name##_type const *v) \
 { \
     return v->size >= v->capacity; \
 } \
  \
-static inline int Name##_size(struct Name##_type const *v) \
+static inline int Name##_size(Name##_type const *v) \
 { \
     return v->size; \
 } \
  \
-static inline bool Name##_grow(struct Name##_type *v) \
+static inline bool Name##_grow(Name##_type *v) \
 { \
     int capacity = v->capacity * v->growth_factor; \
     if (capacity <= 0) {\
@@ -61,7 +61,7 @@ static inline bool Name##_grow(struct Name##_type *v) \
     return true; \
 } \
  \
-static inline bool Name##_push(struct Name##_type *v, Type data) \
+static inline bool Name##_push(Name##_type *v, Type data) \
 { \
     if (Name##_is_full(v)) { \
         if (!Name##_grow(v)) { \
@@ -72,12 +72,12 @@ static inline bool Name##_push(struct Name##_type *v, Type data) \
     return true; \
 } \
  \
-static inline Type Name##_peek(struct Name##_type const *v) \
+static inline Type Name##_peek(Name##_type const *v) \
 { \
     return v->array[v->size-1]; \
 } \
  \
-static inline Type Name##_pop(struct Name##_type *v) \
+static inline Type Name##_pop(Name##_type *v) \
 { \
     Type data; \
     if (!Name##_is_empty(v)) { \
@@ -87,12 +87,12 @@ static inline Type Name##_pop(struct Name##_type *v) \
     return data; \
 } \
  \
-static inline Type Name##_get(struct Name##_type const *v, int index) \
+static inline Type Name##_get(Name##_type const *v, int index) \
 { \
     return v->array[index]; \
 } \
  \
-static inline bool Name##_set(struct Name##_type *v, int index, Type data) \
+static inline bool Name##_set(Name##_type *v, int index, Type data) \
 { \
     if (index < 0 || index >= v->size) { \
         return false; \
