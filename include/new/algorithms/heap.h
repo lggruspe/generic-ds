@@ -22,7 +22,7 @@ static inline int heap_right(int i)
 static inline void Name##_sift_up(Type *array, int i) \
 { \
     Type a = array[i]; \
-    int = p heap_parent(i); \
+    int p = heap_parent(i); \
     while (i > 0 && (LessThan)(a, array[p])) { \
         array[i] = array[p]; \
         i = p; \
