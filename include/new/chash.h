@@ -34,7 +34,7 @@ bool Name##_equal(Type a, Type b) \
  \
 bool Name##_is_empty(Name##_type const *m) \
 { \
-    return m->size == 0;     \
+    return m->size == 0; \
 } \
  \
 Type (*const Name##_get)(Name##_node const*) = Name##_chain_get; \
