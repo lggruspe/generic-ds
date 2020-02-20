@@ -31,6 +31,15 @@ void Name##_destroy(Name##_type *m) \
     m->size = 0; \
 } \
  \
+void Name##_clear(Name##_type *m) \
+{ \
+    for (int i = 0; i < (BucketSize); ++i) { \
+        m->array[i].valid = false; \
+        m->array[i].deleted = false; \
+    } \
+    m->size = 0; \
+} \
+ \
 int Name##_hash(Type data) \
 { \
     return (Hash)(data) % (BucketSize); \
@@ -44,6 +53,16 @@ bool Name##_equal(Type a, Type b) \
 bool Name##_is_empty(Name##_type const *m) \
 { \
     return m->size == 0; \
+} \
+ \
+bool Name##_is_full(Name##_type const *m) \
+{ \
+    return m->size >= (BucketSize); \
+} \
+ \
+int Name##_size(Name##_type const *m) \
+{ \
+    return m->size; \
 } \
  \
 Type Name##_get(Name##_type const *m, int index) \

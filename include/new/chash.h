@@ -37,6 +37,11 @@ bool Name##_is_empty(Name##_type const *m) \
     return m->size == 0; \
 } \
  \
+int Name##_size(Name##_type const *m) \
+{ \
+    return m->size; \
+} \
+ \
 Type (*const Name##_get)(Name##_node const*) = Name##_chain_get; \
  \
 void (*const Name##_set)(Name##_node*, Type) = Name##_chain_set; \
@@ -102,4 +107,9 @@ void Name##_delete(Name##_type *m, Type data) \
         Name##_chain_delete(n); \
         m->size--; \
     } \
+} \
+ \
+void Name##_clear(Name##_type *m) \
+{ \
+    Name##_destroy(m); \
 }
