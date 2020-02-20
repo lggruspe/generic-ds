@@ -206,6 +206,26 @@ static inline void Name##_destroy(Name##_node *t) \
     while (t) { \
         t = Name##_delete(t, t); \
     } \
+} \
+ \
+Type Name##_peek_front(Name##_node *t) \
+{ \
+    return Name##_minimum(t)->data; \
+} \
+ \
+Type Name##_peek(Name##_node *t) \
+{ \
+    return Name##_maximum(t)->data; \
+} \
+ \
+Name##_node *Name##_pop_front(Name##_node *t) \
+{ \
+    return Name##_delete(t, Name##_minimum(t)); \
+} \
+ \
+Name##_node *Name##_pop(Name##_node *t) \
+{ \
+    return Name##_delete(t, Name##_maximum(t)); \
 }
 
 /*
@@ -248,8 +268,6 @@ bool Name##_is_bst(Name##_node *t)
     }
     return true;
 }
-
-// TODO peek_front, peek, pop_front, pop functions
 
 static inline void \
 Namespace##_delete_node(BST_T(Namespace) *tree, NODE_T(Namespace) *node) \
