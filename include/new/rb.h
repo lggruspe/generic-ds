@@ -142,7 +142,11 @@ Name##_node *Name##_destroy(Name##_node *t) \
         free(t); \
     } \
     return NULL; \
-}
+} \
+ \
+Type (*const Name##_peek)(Name##_node*) = Name##_bst_peek; \
+ \
+Type (*const Name##_peek_front)(Name##_node*) = Name##_bst_peek_front;
 
 /*
 bool Name##_rb_is_balanced(Name##_node *root)
@@ -193,5 +197,5 @@ bool Name##_rb_is_red_black_tree(Name##_node *root)
     return rb_black_height(Name, root) && rb_red_child_black_parent(Name, root);
 }
 
-// TODO peek, peek_front, pop, pop_front
+// TODO pop, pop_front
 */
