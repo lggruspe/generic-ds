@@ -87,6 +87,37 @@ static inline Type Name##_pop(Name##_type *v) \
     return data; \
 } \
  \
+static inline bool Name##_push_front(Name##_type *v, Type data) \
+{ \
+    if (Name##_is_full(v)) { \
+        if (!Name##_grow(v)) { \
+            return false; \
+        } \
+    } \
+    for (int i = v->size-1; i >= 0; --i) { \
+        v->array[i+1] = v->array[i]; \
+    } \
+    v->array[0] = data; \
+    return true; \
+} \
+ \
+static inline Type Name##_peek_front(Name##_type const *v) \
+{ \
+    return v->array[0]; \
+} \
+ \
+static inline Type Name##_pop_front(Name##_type *v) \
+{ \
+    Type data = Name##_peek_front(v); \
+    if (!Name##_is_empty(v)) { \
+        for (int i = 1; i < v->size; ++i) { \
+            v->array[i-1] = v->array[i]; \
+        } \
+        v->size--; \
+    } \
+    return data; \
+} \
+ \
 static inline Type Name##_get(Name##_type const *v, int index) \
 { \
     return v->array[index]; \
